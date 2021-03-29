@@ -221,7 +221,6 @@ lazy val libats_logging = (project in file("libats-logging"))
   .settings(Publish.settings)
 
 lazy val libats_root = (project in file("."))
-  .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
   .settings(scalaVersion := "2.12.10")
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
@@ -229,15 +228,15 @@ lazy val libats_root = (project in file("."))
     libats_metrics_prometheus, libats_logging)
   .settings(sonarSettings)
   .settings(aggregate in sonarScan := false)
-    .settings(
-      // onLoad is scoped to Global because there's only one.
-      onLoad in Global := {
-        val old = (onLoad in Global).value
-        // compose the new transition on top of the existing one
-        // in case your plugins are using this hook.
-        startupTransition compose old
-    })
+  // .settings(
+//       // onLoad is scoped to Global because there's only one.
+//       onLoad in Global := {
+//         val old = (onLoad in Global).value
+//         // compose the new transition on top of the existing one
+//         // in case your plugins are using this hook.
+//         startupTransition compose old
+//     })
 
-lazy val startupTransition: State => State = { s: State =>
-  "dependencyUpdates" :: s
-}
+// lazy val startupTransition: State => State = { s: State =>
+//   "dependencyUpdates" :: s
+// }
