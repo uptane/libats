@@ -58,8 +58,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val testMsg = KafkaSpecMessage(2, Instant.now.toString)
 
     val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
-
-    val source = KafkaClient.committableSource[KafkaSpecMessage](system.settings.config, commiterSettings, flow)
+    val source = KafkaClient.committableSource[KafkaSpecMessage](system.settings.config, commiterSettings, "kafka-test", flow)
     val msgFuture = source.groupedWithin(10, 5.seconds).runWith(Sink.head)
 
     for {
@@ -79,7 +78,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
       """.stripMargin).withFallback(system.settings.config)
 
     val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
-    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, flow)
+    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, "kafka-test", flow)
 
     val msgFuture = source.runWith(Sink.head)
 
@@ -106,7 +105,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val cfg = ConfigFactory.parseMap(Map("messaging.kafka.skipJsonErrors" -> false).asJava).withFallback(system.settings.config)
 
     val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
-    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, flow)
+    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, "kafka-test", flow)
 
     publisher.publish(testMsgJson)(implicitly, jsonMsgLike).futureValue
 
@@ -131,7 +130,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val cfg = system.settings.config
 
     val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
-    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, flow)
+    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, "kafka-test", flow)
 
     val testMsg = KafkaSpecMessage(5, Instant.now.toString)
 

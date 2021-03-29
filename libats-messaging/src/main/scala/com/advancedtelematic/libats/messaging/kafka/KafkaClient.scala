@@ -56,20 +56,20 @@ object KafkaClient {
   }
 
 
-  def source[T](system: ActorSystem, config: Config)
+  def source[T](system: ActorSystem, config: Config, groupId: String)
                (implicit ml: MessageLike[T]): Source[T, NotUsed] =
-    plainSource(config)(ml, system).mapMaterializedValue(_ => NotUsed)
+    plainSource(config, groupId)(ml, system).mapMaterializedValue(_ => NotUsed)
 
-  private def plainSource[T](config: Config)
+  private def plainSource[T](config: Config, groupIdPrefix: String)
                             (implicit ml: MessageLike[T], system: ActorSystem): Source[T, Control] = {
-    val (consumerSettings, subscriptions) = buildSource(config)
+    val (consumerSettings, subscriptions) = buildSource(config, groupIdPrefix)
     val settings = consumerSettings.withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
     Consumer.plainSource(settings, subscriptions).map(_.value()).filter(_ != null)
   }
 
-  def committableSource[T](config: Config, committerSettings: CommitterSettings, processingFlow: Flow[T, Any, NotUsed])
+  def committableSource[T](config: Config, committerSettings: CommitterSettings, groupIdPrefix: String, processingFlow: Flow[T, Any, NotUsed])
                           (implicit ml: MessageLike[T], system: ActorSystem): Source[T, Control] = {
-    val (cfgSettings, subscriptions) = buildSource(config)
+    val (cfgSettings, subscriptions) = buildSource(config, groupIdPrefix)
     val log = Logging.getLogger(system, this.getClass)
 
     val committerSink = Committer.sink(committerSettings)
@@ -91,12 +91,12 @@ object KafkaClient {
       .map(_.record.value())
   }
 
-  private def buildSource[T, M](config: Config)
+  private def buildSource[T, M](config: Config, groupIdPrefix: String)
                                (implicit system: ActorSystem, ml: MessageLike[M]): (ConsumerSettings[Array[Byte], M], Subscription) = {
+    val topicFn = topic(config)
     val consumerSettings = {
       val host = config.getString("messaging.kafka.host")
-      val topicFn = topic(config)
-      val groupId = config.getString("messaging.kafka.groupIdPrefix") + "-" + topicFn(ml.streamName)
+      val groupId = groupIdPrefix + "-" + topicFn(ml.streamName)
       val skipJsonErrors = config.getBoolean("messaging.kafka.skipJsonErrors")
 
       ConsumerSettings(system, new ByteArrayDeserializer, new JsonDeserializer(ml.decoder, throwException = ! skipJsonErrors))
@@ -106,7 +106,7 @@ object KafkaClient {
         .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
         .withProperty("metric.reporters", classOf[KafkaMetrics].getName)
     }
-    val topicFn = topic(config)
+
     val subscription = Subscriptions.topics(topicFn(ml.streamName))
 
     consumerSettings -> subscription
