@@ -13,6 +13,8 @@ import scala.util.Try
 object NamespaceDirectives {
   import akka.http.scaladsl.server.Directives._
 
+  private lazy val config = ConfigFactory.load().getConfig("ats")
+
   lazy val logger = LoggerFactory.getLogger(this.getClass)
 
   val NAMESPACE = "x-ats-namespace"
@@ -28,11 +30,11 @@ object NamespaceDirectives {
 
   lazy val defaultNamespaceExtractor: Directive1[AuthedNamespaceScope] = fromHeader.flatMap {
     case Some(ns) => provide(AuthedNamespaceScope(ns))
-    case None => provide(AuthedNamespaceScope(configNamespace(ConfigFactory.load())))
+    case None => provide(AuthedNamespaceScope(configNamespace(config)))
   }
 
   def fromConfig(): Directive1[AuthedNamespaceScope] =
-    ConfigFactory.load().getString("auth.protocol") match {
+    config.getString("auth.protocol") match {
       case "oauth.idtoken" =>
         logger.info("Using namespace from id token")
         fromHeader.flatMap(AuthNamespaceDirectives.authNamespace[IdToken])

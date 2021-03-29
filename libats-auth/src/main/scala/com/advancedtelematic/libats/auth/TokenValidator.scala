@@ -36,7 +36,7 @@ class TokenValidator(implicit system: ActorSystem, mat: Materializer) {
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import Directives._
 
-  private val config = ConfigFactory.load()
+  private val config = ConfigFactory.load().getConfig("ats")
   val logger = LoggerFactory.getLogger(this.getClass)
 
   val authProtocol = config.getString("auth.protocol")
