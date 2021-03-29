@@ -1,5 +1,9 @@
 package com.advancedtelematic.libats.slick.monitoring
 
+import java.util
+import java.lang.management.ManagementFactory
+
+import javax.management.{JMX, ObjectName}
 import com.advancedtelematic.metrics.MetricsSupport
 import com.codahale.metrics.{Gauge, Metric, MetricSet}
 import slick.jdbc.JdbcDataSource
