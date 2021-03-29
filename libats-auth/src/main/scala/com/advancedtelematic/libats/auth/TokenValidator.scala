@@ -29,10 +29,10 @@ import akka.stream.Materializer
 case class ValidationResponse(active: Boolean)
 
 object TokenValidator {
-  def apply()(implicit system: ActorSystem, mat: ActorMaterializer) = new TokenValidator
+  def apply()(implicit system: ActorSystem) = new TokenValidator
 }
 
-class TokenValidator(implicit system: ActorSystem, mat: Materializer) {
+class TokenValidator(implicit system: ActorSystem) {
   import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
   import Directives._
 

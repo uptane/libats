@@ -10,7 +10,7 @@ import com.typesafe.config.ConfigFactory
 
 object Scopes {
 
-  lazy val apiDomain = ConfigFactory.load().getString("scopes.domain")
+  lazy val apiDomain = ConfigFactory.load().getString("ats.scopes.domain")
 
   lazy val campaigns_str = apiDomain + "campaigns"
   def campaigns(ns: AuthedNamespaceScope) = new ScopeDirectives(ns, campaigns_str)
@@ -37,4 +37,4 @@ class ScopeDirectives(ns: AuthedNamespaceScope, theScope: String) {
   def post: Directive0 = Directives.post & check
   def patch: Directive0 = Directives.patch & check
 }
-
+;
