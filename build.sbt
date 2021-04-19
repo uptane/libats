@@ -1,3 +1,4 @@
+
 val Library = new {
   object Version {
     val akka = "2.6.20"
@@ -5,7 +6,7 @@ val Library = new {
     val akkaHttpCirce = "1.39.2"
     val circe = "0.14.3"
     val refined = "0.10.1"
-    val scalaTest = "3.0.8"
+    val scalaTest = "3.2.12"
     val metricsV = "4.2.15"
     val cats = "2.0.0"
     val logback = "1.4.5"
@@ -67,6 +68,9 @@ val Library = new {
   )
 }
 
+lazy val scala212 = "2.12.17"
+lazy val scala211 = "2.13.6"
+lazy val supportedScalaVersions = List(scala212, scala211)
 lazy val commonDeps =
   libraryDependencies ++= Library.circe ++ Seq(Library.refined, Library.scalatest) ++ Library.cats :+ Library.logback
 
@@ -78,8 +82,15 @@ lazy val commonSettings = Seq(
   organizationHomepage := Some(url("https://uptane.github.io/")),
   licenses += ("MPL-2.0", url("http://mozilla.org/MPL/2.0/")),
   description := "Common  library for uptane scala projects",
-  scalaVersion := "2.12.17",
-  scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature", "-Ypartial-unification", "-Xexperimental"),
+  crossScalaVersions := supportedScalaVersions,
+  scalaVersion := scala212,
+  scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature"),
+  scalacOptions ++= {
+    CrossVersion.partialVersion(scalaVersion.value) match {
+      case Some((2, n)) if n <= 12 => Seq("-Ypartial-unification", "-Xexperimental")
+      case _ => Seq.empty
+    }
+  },
   resolvers += "sonatype-snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots",
   resolvers += "sonatype-releases" at "https://s01.oss.sonatype.org/content/repositories/releases",
   buildInfoOptions += BuildInfoOption.ToMap,
@@ -220,6 +231,7 @@ lazy val libats_root = (project in file("."))
   .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
   .settings(scalaVersion := "2.12.17")
+  .settings(crossScalaVersions := Nil)
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
     libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
     libats_metrics_prometheus, libats_logging, libats_publish_akka)

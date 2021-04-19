@@ -18,7 +18,9 @@ import io.circe.syntax._
 import io.circe.{Decoder, Encoder, Json}
 import org.scalatest.concurrent.{Eventually, PatienceConfiguration, ScalaFutures}
 import org.scalatest.time.{Millis, Seconds, Span}
-import org.scalatest.{BeforeAndAfterAll, FunSuiteLike, Matchers}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.funsuite.AnyFunSuiteLike
+import org.scalatest.matchers.should.Matchers
 
 import java.time.Instant
 import scala.collection.JavaConverters._
@@ -33,7 +35,7 @@ object KafkaSpecMessage {
 }
 
 class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
-  with FunSuiteLike
+  with AnyFunSuiteLike
   with Matchers
   with BeforeAndAfterAll
   with ScalaFutures

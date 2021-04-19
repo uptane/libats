@@ -72,12 +72,12 @@ trait DatabaseSpec[P <: BasicProfile] extends BeforeAndAfterAll {
     flyway.migrate()
   }
 
-  override def beforeAll() {
+  override def beforeAll(): Unit = {
     resetDatabase()
     super.beforeAll()
   }
 
-  override def afterAll() {
+  override def afterAll(): Unit = {
     db.close()
     super.afterAll()
   }

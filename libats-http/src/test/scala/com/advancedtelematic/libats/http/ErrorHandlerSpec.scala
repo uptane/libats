@@ -8,9 +8,11 @@ import ErrorRepresentation._
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.CursorOp.DownField
 import io.circe.DecodingFailure
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class ErrorHandlerSpec extends FunSuite with Matchers with ScalatestRouteTest {
+
+class ErrorHandlerSpec extends AnyFunSuite with Matchers with ScalatestRouteTest {
   import akka.http.scaladsl.server.Directives._
 
   val routes: Route = ErrorHandler.handleErrors {

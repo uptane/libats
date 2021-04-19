@@ -25,7 +25,7 @@ object Publish {
 
   lazy val repoRealm = readSettings("PUBLISH_REALM")
 
-  lazy val settings = Seq(
+    lazy val settings = Seq(
     credentials += Credentials(repoRealm, repoHost, repoUser, repoPassword),
     usePgpKeyHex("6ED5E5ABE9BF80F173343B98FFA246A21356D296"),
     isSnapshot := version.value.trim.endsWith("SNAPSHOT"),

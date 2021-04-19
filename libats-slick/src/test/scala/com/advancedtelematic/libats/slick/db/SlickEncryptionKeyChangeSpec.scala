@@ -2,17 +2,18 @@ package com.advancedtelematic.libats.slick.db
 
 import java.security.Security
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.testkit.TestKitBase
 import com.advancedtelematic.libats.slick.db.SlickEncryptionKeyChange.Result
 import com.advancedtelematic.libats.test.{DatabaseSpec, LongTest, MysqlDatabaseSpec}
 import com.typesafe.config.{Config, ConfigFactory}
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-import org.scalatest.{BeforeAndAfter, FunSuite, Matchers}
+import org.scalatest.BeforeAndAfter
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import slick.jdbc.MySQLProfile.api._
 
-class SlickEncryptionKeyChangeSpec extends FunSuite
+class SlickEncryptionKeyChangeSpec extends AnyFunSuite
   with TestKitBase
   with Matchers
   with ScalaFutures

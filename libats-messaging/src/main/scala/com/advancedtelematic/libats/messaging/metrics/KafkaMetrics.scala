@@ -14,7 +14,7 @@ import java.util
 class KafkaMetrics extends MetricsReporter {
   import com.advancedtelematic.metrics.MetricsSupport.metricRegistry
 
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   private[this] def metricName(m: KafkaMetric): String = {
     val mn = m.metricName()

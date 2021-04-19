@@ -6,12 +6,12 @@ import org.scalatest.matchers.{BeMatcher, MatchResult}
 
 trait InstantMatchers {
   def after(other: Instant): BeMatcher[Instant] = (me: Instant) => MatchResult(me.isAfter(other),
-    me + " was not after " + other,
-    me + " was after " + other)
+    me.toString + " was not after " + other,
+    me.toString + " was after " + other)
 
   def before(other: Instant): BeMatcher[Instant] = (me: Instant) => MatchResult(me.isBefore(other),
-    me + " was not before " + other,
-    me + " was before " + other)
+    me.toString + " was not before " + other,
+    me.toString + " was before " + other)
 }
 
 object InstantMatchers extends InstantMatchers

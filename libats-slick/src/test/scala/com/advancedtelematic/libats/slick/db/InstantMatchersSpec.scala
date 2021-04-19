@@ -1,11 +1,11 @@
 package com.advancedtelematic.libats.slick.db
 
 import java.time.Instant
-
 import com.advancedtelematic.libats.test.InstantMatchers
-import org.scalatest.{FunSuite, Matchers}
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 
-class InstantMatchersSpec extends FunSuite with Matchers with InstantMatchers {
+class InstantMatchersSpec extends AnyFunSuite with Matchers with InstantMatchers {
    test("be before") {
      Instant.now() shouldBe before(Instant.now().plusSeconds(30))
    }

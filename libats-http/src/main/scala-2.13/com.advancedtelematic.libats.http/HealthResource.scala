@@ -59,7 +59,7 @@ class HealthResource(versionRepr: Map[String, Any] = Map.empty,
             complete(f)
           } ~
           path("version") {
-            complete(versionRepr.mapValues(_.toString).asJson)
+            complete(versionRepr.view.mapValues(_.toString).toMap.asJson)
           } ~
           path("dependencies") {
             val f = runHealthChecks(dependencies, StatusCodes.BadGateway)

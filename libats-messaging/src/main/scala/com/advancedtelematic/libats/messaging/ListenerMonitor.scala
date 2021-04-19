@@ -50,7 +50,7 @@ class MetricsBusMonitor(metrics: MetricRegistry, queue: String) extends Listener
 }
 
 class BusListenerMetrics(metrics: MetricRegistry) extends MetricsRepresentation {
-  import scala.collection.JavaConverters._
+  import scala.jdk.CollectionConverters._
 
   val filter = new MetricFilter {
     override def matches(name: String, metric: Metric): Boolean = name.startsWith("bus-listener")

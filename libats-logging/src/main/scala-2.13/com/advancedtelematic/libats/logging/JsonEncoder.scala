@@ -1,14 +1,13 @@
 package com.advancedtelematic.libats.logging
 
-import java.time.Instant
-
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.pattern.{TargetLengthBasedClassNameAbbreviator, ThrowableProxyConverter}
 import ch.qos.logback.classic.spi.ILoggingEvent
 import io.circe.syntax._
 import io.circe.{Encoder, Json}
 
-import scala.collection.JavaConverters._
+import java.time.Instant
+import scala.jdk.CollectionConverters._
 
 class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent] {
   private var includeContext = false
@@ -56,7 +55,7 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
   }
 
   override def encode(event: ILoggingEvent): Array[Byte] = {
-    val mdc = event.getMDCPropertyMap.asScala.mapValues(_.asJson)
+    val mdc = event.getMDCPropertyMap.asScala.view.mapValues(_.asJson).toMap
 
     val map = Map[String, Json](
       "at" -> Instant.ofEpochMilli(event.getTimeStamp).asJson,

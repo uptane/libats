@@ -1,4 +1,5 @@
-package com.advancedtelematic.metrics.prometheus
+package com.advancedtelematic.metrics.prometheus.metrics.prometheus
+
 import java.io.StringWriter
 
 import akka.http.scaladsl.server.Route
@@ -8,6 +9,8 @@ import com.advancedtelematic.metrics.MetricsSupport
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.dropwizard.DropwizardExports
 import io.prometheus.client.exporter.common.TextFormat
+
+import scala.collection.JavaConverters._
 
 object PrometheusMetricsRoutes {
   def apply(): Route = {
