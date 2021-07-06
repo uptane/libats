@@ -63,9 +63,11 @@ class MessageListenerActorSpec extends TestKit(ActorSystem("MessageListenerActor
 
     probe.expectMsgType[MsgListenerSpecItem]
 
-    monitor.error shouldBe 0
-    monitor.finished shouldBe 1
-    monitor.processed shouldBe 1
+    eventually {
+      monitor.error shouldBe 0
+      monitor.finished shouldBe 1
+      monitor.processed shouldBe 1
+    }
   }
 
   test("monitor receives errors on error") {
