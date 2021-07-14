@@ -9,7 +9,7 @@ import com.advancedtelematic.libats.http.tracing.Tracing.ServerRequestTracing
 import scala.concurrent.Future
 
 abstract class TracingHttpClient(_httpClient: HttpRequest => Future[HttpResponse], remoteServiceName: String)
-                                (implicit system: ActorSystem, mat: Materializer, serverTracing: ServerRequestTracing) extends ServiceHttpClient(_httpClient) {
+                                (implicit system: ActorSystem, serverTracing: ServerRequestTracing) extends ServiceHttpClient(_httpClient) {
 
   import system.dispatcher
 

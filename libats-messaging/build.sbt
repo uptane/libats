@@ -1,3 +1,6 @@
 name := "libats-messaging"
 
-libraryDependencies += "com.typesafe.akka" %% "akka-stream-kafka" % "2.0.3"
+libraryDependencies ++= Seq(
+  "com.typesafe.akka" %% "akka-stream-kafka" % "2.1.0"
+//  "com.fasterxml.jackson.core" % "jackson-databind" % JacksonVersion
+)

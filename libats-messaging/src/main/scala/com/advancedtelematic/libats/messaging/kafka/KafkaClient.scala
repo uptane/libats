@@ -6,15 +6,14 @@
 package com.advancedtelematic.libats.messaging.kafka
 
 import java.util.concurrent.TimeUnit
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
-import akka.kafka.ConsumerMessage.CommittableOffsetBatch
-import akka.kafka.scaladsl.Consumer
+import akka.kafka.ConsumerMessage.{CommittableMessage, CommittableOffsetBatch}
+import akka.kafka.scaladsl.{Committer, Consumer}
 import akka.kafka.scaladsl.Consumer.Control
-import akka.kafka.{ConsumerSettings, ProducerSettings, Subscription, Subscriptions}
-import akka.stream.scaladsl.Source
+import akka.kafka.{CommitterSettings, ConsumerSettings, ProducerSettings, Subscription, Subscriptions}
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.advancedtelematic.libats.messaging.MessageBusPublisher
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
@@ -80,6 +79,8 @@ object KafkaClient {
       val batchMax = config.getInt("messaging.listener.batch.max")
       val log = Logging.getLogger(system, this.getClass)
 
+      val committerSink = Committer.sink(CommitterSettings(system))
+
       Consumer.committableSource(cfgSettings, subscriptions)
         .filter(_.record.value() != null)
         .map { msg => log.debug(s"Parsed ${msg.record.value()}") ; msg }
@@ -87,11 +88,12 @@ object KafkaClient {
         .groupedWithin(batchMax, FiniteDuration(batchInterval, TimeUnit.MILLISECONDS))
         .filter(_.nonEmpty)
         .log(s"${ml.streamName}.listener", xs => s"Committing batch with size ${xs.size} after ${batchInterval}ms")
-        .mapAsync(1) { group =>
-          group
-            .foldLeft(CommittableOffsetBatch.empty)( (batch, msg) => batch.updated(msg.committableOffset))
-            .commitScaladsl().map(_ => group)
-        }.mapConcat(_.map(_.record.value()))
+        .alsoTo {
+          Flow[Seq[CommittableMessage[_, _]]]
+            .map(group => CommittableOffsetBatch(group.map(_.committableOffset)))
+            .to(committerSink)
+        }
+        .mapConcat(_.map(_.record.value()))
     }
 
   private def consumerSettings[T](system: ActorSystem, config: Config)

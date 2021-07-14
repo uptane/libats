@@ -14,7 +14,6 @@ trait BootApp extends App {
   val projectName: String
 
   implicit val system = ActorSystem(projectName)
-  implicit val materializer = ActorMaterializer()
   implicit val exec = system.dispatcher
   implicit val log = LoggerFactory.getLogger(this.getClass)
 
