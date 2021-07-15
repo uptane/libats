@@ -2,7 +2,7 @@ name := "libats-slick"
 
 libraryDependencies ++= {
   val slickV = "3.2.3"
-  val scalaTestV = "3.0.8"
+  val scalaTestV = "3.0.9"
 
   Seq(
     "com.typesafe.slick" %% "slick" % slickV,
