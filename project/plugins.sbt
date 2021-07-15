@@ -20,7 +20,7 @@ addSbtPlugin("com.timushev.sbt" % "sbt-updates" % "0.4.0")
 
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.0")
 
-addSbtPlugin("com.github.mwz" % "sbt-sonar" % "2.1.1")
+addSbtPlugin("com.github.mwz" % "sbt-sonar" % "2.2.0")
 
 addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.7")
 
