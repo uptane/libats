@@ -1,6 +1,6 @@
 addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
 
-addSbtPlugin("io.github.davidmweber" % "flyway-sbt" % "5.2.0")
+addSbtPlugin("io.github.davidmweber" % "flyway-sbt" % "5.2.4")
 
 addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.9.0")
 
