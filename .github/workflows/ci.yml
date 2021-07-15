@@ -1,5 +1,5 @@
 name: Test
-on: [push]
+on: [push, pull_request]
 env:
   SBT_OPTS: "-Dsbt.color=true -Dscala.color=true"
   KAFKA_HOST: kafka:9092
