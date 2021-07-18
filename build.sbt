@@ -6,7 +6,7 @@ val Library = new {
     val circe = "0.12.3"
     val refined = "0.9.10"
     val scalaTest = "3.0.8"
-    val metricsV = "4.1.0"
+    val metricsV = "4.1.25"
     val cats = "2.0.0"
     val logback = "1.2.3"
   }
