@@ -6,7 +6,7 @@ val Library = new {
     val circe = "0.14.1"
     val refined = "0.9.10"
     val scalaTest = "3.0.8"
-    val metricsV = "4.1.0"
+    val metricsV = "4.2.3"
     val cats = "2.0.0"
     val logback = "1.2.3"
   }
@@ -14,6 +14,11 @@ val Library = new {
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
 
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % Version.akka
+
+  val Prometheus = Seq(
+    "io.prometheus" % "simpleclient_common" % "0.7.0",
+    "io.prometheus" % "simpleclient_dropwizard" % "0.7.0"
+  )
 
   val Akka = Set(
     "com.typesafe.akka" %% "akka-slf4j",
@@ -86,7 +91,7 @@ lazy val sonarSettings = Seq(
     "sonar.links.ci" -> "https://main.gitlab.in.here.com/olp/edge/ota/connect/back-end/libats/pipelines",
     "sonar.language" -> "scala",
     "sonar.projectVersion" -> version.value,
-    "sonar.modules" -> "libats,libats-http,libats-http-tracing,libats-slick,libats-messaging-datatype,libats-messaging,libats-metrics,libats-metrics-kafka,libats-metrics-akka,libats-metrics-prometheus,libats-auth,libats-logging",
+    "sonar.modules" -> "libats,libats-http,libats-http-tracing,libats-slick,libats-messaging-datatype,libats-messaging,libats-metrics,libats-metrics-akka,libats-metrics-prometheus,libats-auth,libats-logging",
     "libats.sonar.projectName" -> "OTA Connect LibATS",
     "libats-http.sonar.projectName" -> "OTA Connect LibATS-HTTP",
     "libats-http-tracing.sonar.projectName" -> "OTA Connect LibATS-HTTP-Tracing",
@@ -94,7 +99,6 @@ lazy val sonarSettings = Seq(
     "libats-messaging-datatype.sonar.projectName" -> "OTA Connect LibATS-Messaging-Datatype",
     "libats-messaging.sonar.projectName" -> "OTA Connect LibATS-Messaging",
     "libats-metrics.sonar.projectName" -> "OTA Connect LibATS-Metrics",
-    "libats-metrics-kafka.sonar.projectName" -> "OTA Connect LibATS-Metrics-Kafka",
     "libats-metrics-akka.sonar.projectName" -> "OTA Connect LibATS-Metrics-Akka",
     "libats-metrics-prometheus.sonar.projectName" -> "OTA Connect LibATS-Metrics-Prometheus",
     "libats-auth.sonar.projectName" -> "OTA Connect LibATS-Auth",
@@ -163,6 +167,7 @@ lazy val libats_messaging = (project in file("libats-messaging"))
   .dependsOn(libats_metrics)
   .dependsOn(libats_http)
   .dependsOn(libats_messaging_datatype)
+  .settings(libraryDependencies ++= Library.Prometheus)
 
 lazy val libats_metrics = (project in file("libats-metrics"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
@@ -172,15 +177,6 @@ lazy val libats_metrics = (project in file("libats-metrics"))
   .settings(libraryDependencies ++= Library.circe :+ Library.akkaStream)
   .settings(libraryDependencies ++= Library.jvmMetrics)
   .settings(Publish.settings)
-
-lazy val libats_metrics_kafka = (project in file("libats-metrics-kafka"))
-  .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
-  .configs(commonConfigs: _*)
-  .settings(commonSettings)
-  .settings(Publish.settings)
-  .dependsOn(libats_metrics)
-  .dependsOn(libats_metrics_prometheus)
-  .dependsOn(libats_messaging)
 
 lazy val libats_metrics_akka = (project in file("libats-metrics-akka"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
@@ -195,6 +191,7 @@ lazy val libats_metrics_prometheus = (project in file("libats-metrics-prometheus
   .configs(commonConfigs: _*)
   .settings(commonSettings)
   .settings(Publish.settings)
+  .settings(libraryDependencies ++= Library.Prometheus)
   .dependsOn(libats_metrics)
   .dependsOn(libats_http)
 
@@ -211,7 +208,7 @@ lazy val libats_root = (project in file("."))
   .settings(Publish.disable)
   .settings(scalaVersion := "2.12.10")
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
-    libats_slick, libats_metrics, libats_metrics_kafka, libats_metrics_akka,
+    libats_slick, libats_metrics, libats_metrics_akka,
     libats_metrics_prometheus, libats_logging)
   .settings(sonarSettings)
   .settings(sonarScan / aggregate := false)

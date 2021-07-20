@@ -3,10 +3,9 @@ package com.advancedtelematic.libats.messaging_datatype
 import java.net.URI
 import java.time.Instant
 import java.util.UUID
-
 import cats.syntax.show._
 import com.advancedtelematic.libats.codecs.CirceValidatedGeneric
-import com.advancedtelematic.libats.data.DataType.{Checksum, CorrelationId, Namespace}
+import com.advancedtelematic.libats.data.DataType.{Checksum, CorrelationId, Namespace, ResultCode, ResultDescription}
 import com.advancedtelematic.libats.data.EcuIdentifier
 import com.advancedtelematic.libats.messaging_datatype.DataType.UpdateType.UpdateType
 import com.advancedtelematic.libats.messaging_datatype.DataType._
@@ -14,6 +13,8 @@ import com.advancedtelematic.libats.messaging_datatype.Messages.{BsDiffGeneratio
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.syntax._
+
+import EcuIdentifier._
 
 object MessageCodecs {
   import com.advancedtelematic.libats.codecs.CirceCodecs._
@@ -48,6 +49,8 @@ object MessageCodecs {
   implicit val generatedBsDiffCodec: Codec[GeneratedBsDiff] = deriveCodec
   implicit val deltaGenerationFailedCodec: Codec[DeltaGenerationFailed] = deriveCodec
   implicit val bsDiffGenerationFailedCodec: Codec[BsDiffGenerationFailed] = deriveCodec
+  implicit val resultCodeCodec: Codec[ResultCode] = deriveCodec
+  implicit val resultDescriptionCodec: Codec[ResultDescription] = deriveCodec
   implicit val installationResultCodec: Codec[InstallationResult] = deriveCodec
   implicit val ecuInstallationReportCodec: Codec[EcuInstallationReport] = deriveCodec
   implicit val updateTypeCodec: Codec[UpdateType] = Codec.codecForEnumeration(UpdateType)
@@ -94,6 +97,8 @@ object Messages {
   case class BsDiffGenerationFailed(id: BsDiffRequestId, namespace: Namespace, error: Option[Json] = None)
 
   final case class DeviceEventMessage(namespace: Namespace, event: Event)
+
+  final case class DeviceMetricsObservation(namespace: Namespace, uuid: DeviceId, payload: Json, receivedAt: Instant)
 
   case class BandwidthUsage(id: UUID, namespace: Namespace, timestamp: Instant, byteCount: Long,
                             updateType: UpdateType, updateId: String)
@@ -209,4 +214,6 @@ object Messages {
   implicit val deleteDeviceRequestMessageLike = MessageLike.derive[DeleteDeviceRequest](_.uuid.show)
 
   implicit val ecuReplacementMsgLike = MessageLike[EcuReplacement](_.deviceUuid.show)
+
+  implicit val deviceMetricsObservationMessageLike = MessageLike.derive[DeviceMetricsObservation](_.uuid.uuid.toString)
 }

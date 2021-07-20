@@ -11,7 +11,7 @@ import io.prometheus.client.dropwizard.DropwizardExports
 import io.prometheus.client.exporter.common.TextFormat
 
 import scala.collection.JavaConverters._
-
+//
 object PrometheusMetricsRoutes {
   def apply(registry: CollectorRegistry): Route = {
     (get & path("metrics") & parameter('name.*)) { names =>
@@ -26,7 +26,8 @@ object PrometheusMetricsRoutes {
 trait PrometheusMetricsSupport {
   self: BootApp with MetricsSupport =>
 
-  CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry))
-
-  val prometheusMetricsRoutes: Route = PrometheusMetricsRoutes(CollectorRegistry.defaultRegistry)
+  lazy val prometheusMetricsRoutes: Route = {
+    CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry))
+    PrometheusMetricsRoutes(CollectorRegistry.defaultRegistry)
+  }
 }

@@ -24,7 +24,7 @@ class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with Da
   }
 
   test("runs migrations") {
-    RunMigrations(flywayConfig).get shouldBe 1
+    RunMigrations(flywayConfig) shouldBe 1
     val sql = sql"select count(*) from schema_version".as[Int]
     db.run(sql).futureValue.head shouldBe > (0) // It will be 1 if the schema already existed, 2 if flyway created the schema
   }
@@ -35,7 +35,7 @@ class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with Da
 
   test("runs without pending migrations") {
     cleanDatabase()
-    RunMigrations(flywayConfig).get shouldBe 1
+    RunMigrations(flywayConfig) shouldBe 1
     RunMigrations.schemaIsCompatible(flywayConfig).get shouldBe true
   }
 }

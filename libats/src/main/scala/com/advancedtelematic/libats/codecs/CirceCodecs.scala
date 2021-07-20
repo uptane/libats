@@ -82,12 +82,8 @@ object CirceAts extends CirceAts
 
 trait CirceCodecs extends CirceDateTime
   with CirceUuid
-  with CirceAnyVal
   with CirceRefined
   with CirceUri
   with CirceAts
 
 object CirceCodecs extends CirceCodecs
-
-@deprecated("use CirceCodecs instead", "0.0.1-109")
-object AkkaCirce extends CirceCodecs
