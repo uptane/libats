@@ -1,6 +1,6 @@
 package com.advancedtelematic.libats.slick.db
 
-import com.advancedtelematic.libats.test.DatabaseSpec
+import com.advancedtelematic.libats.test.{DatabaseSpec, MysqlDatabaseSpec}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{FunSuite, Matchers}
@@ -40,7 +40,7 @@ object SlickExtensionsSpec {
 }
 
 
-class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with DatabaseSpec {
+class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with MysqlDatabaseSpec {
   import SlickExtensions._
   import SlickExtensionsSpec._
 
