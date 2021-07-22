@@ -215,5 +215,5 @@ object Messages {
 
   implicit val ecuReplacementMsgLike = MessageLike[EcuReplacement](_.deviceUuid.show)
 
-  implicit val deviceMetricsObservationMessageLike = MessageLike.derive[DeviceMetricsObservation](_.uuid.uuid.toString)
+  implicit val deviceMetricsObservationMessageLike = MessageLike.derive[DeviceMetricsObservation](_.namespace.get)
 }
