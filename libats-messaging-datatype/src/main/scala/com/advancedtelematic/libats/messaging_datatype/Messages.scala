@@ -1,20 +1,20 @@
 package com.advancedtelematic.libats.messaging_datatype
 
-import java.net.URI
-import java.time.Instant
-import java.util.UUID
 import cats.syntax.show._
 import com.advancedtelematic.libats.codecs.CirceValidatedGeneric
-import com.advancedtelematic.libats.data.DataType.{Checksum, CorrelationId, Namespace, ResultCode, ResultDescription}
+import com.advancedtelematic.libats.data.DataType.{CorrelationId, Namespace, ResultCode, ResultDescription}
 import com.advancedtelematic.libats.data.EcuIdentifier
+import com.advancedtelematic.libats.data.EcuIdentifier._
 import com.advancedtelematic.libats.messaging_datatype.DataType.UpdateType.UpdateType
 import com.advancedtelematic.libats.messaging_datatype.DataType._
-import com.advancedtelematic.libats.messaging_datatype.Messages.{BsDiffGenerationFailed, BsDiffRequest, CampaignLaunched, DeltaGenerationFailed, DeltaRequest, DeviceEventMessage, DeviceSystemInfoChanged, DeviceUpdateAssigned, DeviceUpdateCanceled, DeviceUpdateCompleted, DeviceUpdateEvent, EcuAndHardwareId, EcuReplaced, EcuReplacement, EcuReplacementFailed, GeneratedBsDiff, GeneratedDelta, SystemInfo, UserCreated}
+import com.advancedtelematic.libats.messaging_datatype.Messages.{CampaignLaunched, DeviceEventMessage, DeviceSystemInfoChanged, DeviceUpdateAssigned, DeviceUpdateCanceled, DeviceUpdateCompleted, DeviceUpdateEvent, EcuAndHardwareId, EcuReplaced, EcuReplacement, EcuReplacementFailed, SystemInfo, UserCreated}
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.syntax._
 
-import EcuIdentifier._
+import java.net.URI
+import java.time.Instant
+import java.util.UUID
 
 object MessageCodecs {
   import com.advancedtelematic.libats.codecs.CirceCodecs._
@@ -43,12 +43,6 @@ object MessageCodecs {
   implicit val userCreatedCodec: Codec[UserCreated] = deriveCodec
   implicit val campaignLaunchedCodec: Codec[CampaignLaunched] = deriveCodec
   implicit val packageIdCodec: Codec[PackageId] = deriveCodec
-  implicit val deltaRequestCodec: Codec[DeltaRequest] = deriveCodec
-  implicit val generatedDeltaCodec: Codec[GeneratedDelta] = deriveCodec
-  implicit val bsDiffRequestIdCodec: Codec[BsDiffRequest] = deriveCodec
-  implicit val generatedBsDiffCodec: Codec[GeneratedBsDiff] = deriveCodec
-  implicit val deltaGenerationFailedCodec: Codec[DeltaGenerationFailed] = deriveCodec
-  implicit val bsDiffGenerationFailedCodec: Codec[BsDiffGenerationFailed] = deriveCodec
   implicit val resultCodeCodec: Codec[ResultCode] = deriveCodec
   implicit val resultDescriptionCodec: Codec[ResultDescription] = deriveCodec
   implicit val installationResultCodec: Codec[InstallationResult] = deriveCodec
@@ -83,18 +77,6 @@ object Messages {
   final case class CampaignLaunched(namespace: String, updateId: UUID,
                                     devices: Set[UUID], pkgUri: URI,
                                     pkg: PackageId, pkgSize: Long, pkgChecksum: String)
-
-  case class DeltaRequest(id: DeltaRequestId, namespace: Namespace, from: Commit, to: Commit, timestamp: Instant = Instant.now)
-
-  case class BsDiffRequest(id: BsDiffRequestId, namespace: Namespace, from: URI, to: URI, timestamp: Instant = Instant.now)
-
-  case class GeneratedDelta(id: DeltaRequestId, namespace: Namespace, from: Commit, to: Commit, uri: URI, size: Long, checksum: Checksum)
-
-  case class GeneratedBsDiff(id: BsDiffRequestId, namespace: Namespace, from: URI, to: URI, resultUri: URI, size: Long, checksum: Checksum)
-
-  case class DeltaGenerationFailed(id: DeltaRequestId, namespace: Namespace, error: Option[Json] = None)
-
-  case class BsDiffGenerationFailed(id: BsDiffRequestId, namespace: Namespace, error: Option[Json] = None)
 
   final case class DeviceEventMessage(namespace: Namespace, event: Event)
 
@@ -190,18 +172,6 @@ object Messages {
   implicit val deviceSeenMessageLike = MessageLike.derive[DeviceSeen](_.uuid.toString)
 
   implicit val campaignLaunchedMessageLike = MessageLike[CampaignLaunched](_.updateId.toString)
-
-  implicit val staticDeltaRequestMessageLike = MessageLike[DeltaRequest](_.id.uuid.toString)
-
-  implicit val bsDiffRequestMessageLike = MessageLike[BsDiffRequest](_.id.uuid.toString)
-
-  implicit val staticDeltaResponseMessageLike = MessageLike[GeneratedDelta](_.id.uuid.toString)
-
-  implicit val generatedBsDiffMessageLike = MessageLike[GeneratedBsDiff](_.id.uuid.toString)
-
-  implicit val bsDiffGenerationFailedMessageLike = MessageLike[BsDiffGenerationFailed](_.id.toString)
-
-  implicit val deltaGenerationFailedMessageLike = MessageLike[DeltaGenerationFailed](_.id.uuid.toString)
 
   implicit val bandwidthUsageMessageLike = MessageLike.derive[BandwidthUsage](_.id.toString)
 
