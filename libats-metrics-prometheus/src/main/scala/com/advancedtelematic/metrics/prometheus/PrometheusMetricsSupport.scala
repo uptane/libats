@@ -11,7 +11,7 @@ import io.prometheus.client.dropwizard.DropwizardExports
 import io.prometheus.client.exporter.common.TextFormat
 
 import scala.collection.JavaConverters._
-//
+
 object PrometheusMetricsRoutes {
   def apply(registry: CollectorRegistry): Route = {
     (get & path("metrics") & parameter('name.*)) { names =>
