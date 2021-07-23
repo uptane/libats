@@ -9,10 +9,10 @@ object EcuIdentifier {
 
   implicit val validatedEcuIdentifier = new ValidatedGeneric[EcuIdentifier, String] {
     override def to(ecuId: EcuIdentifier): String = ecuId.value
-    override def from(s: String): Either[ValidationError, EcuIdentifier] = apply(s)
+    override def from(s: String): Either[ValidationError, EcuIdentifier] = EcuIdentifier.from(s)
   }
 
-  def apply(s: String): Either[ValidationError, EcuIdentifier] =
+  def from(s: String): Either[ValidationError, EcuIdentifier] =
     if (s.length < 0 || s.length > 64) Left(ValidationError("An ECU identifier must have at least 1 and at most 64 characters."))
     else Right(new EcuIdentifier(s))
 

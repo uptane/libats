@@ -1,13 +1,13 @@
 package com.advancedtelematic.libats.slick.db
 
-import com.advancedtelematic.libats.test.DatabaseSpec
+import com.advancedtelematic.libats.test.{DatabaseSpec, MysqlDatabaseSpec}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Matchers}
 import org.slf4j.LoggerFactory
 import slick.jdbc.MySQLProfile.api._
 
-class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with DatabaseSpec with BeforeAndAfterAll with BeforeAndAfterEach {
+class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with MysqlDatabaseSpec with BeforeAndAfterAll with BeforeAndAfterEach {
 
   override implicit def patienceConfig = PatienceConfig().copy(timeout = Span(5, Seconds))
 
@@ -24,7 +24,7 @@ class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with Da
   }
 
   test("runs migrations") {
-    RunMigrations(flywayConfig).get shouldBe 1
+    RunMigrations(flywayConfig) shouldBe 1
     val sql = sql"select count(*) from schema_version".as[Int]
     db.run(sql).futureValue.head shouldBe > (0) // It will be 1 if the schema already existed, 2 if flyway created the schema
   }
@@ -35,7 +35,7 @@ class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with Da
 
   test("runs without pending migrations") {
     cleanDatabase()
-    RunMigrations(flywayConfig).get shouldBe 1
+    RunMigrations(flywayConfig) shouldBe 1
     RunMigrations.schemaIsCompatible(flywayConfig).get shouldBe true
   }
 }

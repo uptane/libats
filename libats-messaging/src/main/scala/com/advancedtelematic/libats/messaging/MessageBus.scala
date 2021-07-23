@@ -2,7 +2,8 @@ package com.advancedtelematic.libats.messaging
 
 import akka.NotUsed
 import akka.actor.ActorSystem
-import akka.stream.scaladsl.Source
+import akka.kafka.CommitterSettings
+import akka.stream.scaladsl.{Flow, Source}
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging.kafka.KafkaClient
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
@@ -78,7 +79,11 @@ object MessageBus {
         log.info("Starting messaging mode: Kafka")
         log.info(s"Using stream name: ${messageLike.streamName}")
 
-        KafkaClient.committableSource[T](config, op)
+        val listenerParallelism = config.getInt("messaging.listener.parallelism")
+        val processingFlow = Flow[T].mapAsync[Any](listenerParallelism)(op)
+        val committerSettings = CommitterSettings(config.getConfig("messaging.kafka.committer"))
+
+        KafkaClient.committableSource[T](config, committerSettings, processingFlow).mapMaterializedValue(_ => NotUsed)
 
       case "local" | "test" =>
         log.info("Using local event bus")

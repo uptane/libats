@@ -7,7 +7,7 @@ package com.advancedtelematic.libats.http
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.complete
 import akka.http.scaladsl.server._
-import com.advancedtelematic.libats.codecs.AkkaCirce._
+import com.advancedtelematic.libats.codecs.CirceCodecs._
 import com.advancedtelematic.libats.codecs.{DeserializationException, RefinementError}
 import com.advancedtelematic.libats.data.{ErrorCodes, ErrorRepresentation}
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
