@@ -5,18 +5,16 @@
 
 package com.advancedtelematic.libats.messaging.kafka
 
-import java.util.concurrent.TimeUnit
-
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
-import akka.kafka.ConsumerMessage.CommittableOffsetBatch
-import akka.kafka.scaladsl.Consumer
+import akka.kafka.ConsumerMessage.CommittableMessage
 import akka.kafka.scaladsl.Consumer.Control
-import akka.kafka.{ConsumerSettings, ProducerSettings, Subscription, Subscriptions}
-import akka.stream.scaladsl.Source
+import akka.kafka.scaladsl.{Committer, Consumer}
+import akka.kafka._
+import akka.stream.scaladsl.{Flow, Sink, Source}
 import com.advancedtelematic.libats.messaging.MessageBusPublisher
-import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
+import com.advancedtelematic.libats.messaging.metrics.KafkaMetrics
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import com.typesafe.config.Config
 import io.circe.syntax._
@@ -24,15 +22,13 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization._
 
-import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
 object KafkaClient {
 
   def publisher(system: ActorSystem, config: Config): MessageBusPublisher = {
-    val cfg = config.getConfig("messaging.kafka")
-    val topicNameFn = topic(cfg)
-    val kafkaProducer = producer(cfg)(system)
+    val topicNameFn = topic(config)
+    val kafkaProducer = producer(config)(system)
 
     new MessageBusPublisher {
       override def publish[T](msg: T)(implicit ex: ExecutionContext, messageLike: MessageLike[T]): Future[Unit] = {
@@ -62,64 +58,61 @@ object KafkaClient {
 
   def source[T](system: ActorSystem, config: Config)
                (implicit ml: MessageLike[T]): Source[T, NotUsed] =
-    plainSource(config)(ml, system)
+    plainSource(config)(ml, system).mapMaterializedValue(_ => NotUsed)
 
   private def plainSource[T](config: Config)
-                            (implicit ml: MessageLike[T], system: ActorSystem): Source[T, NotUsed] = {
-    buildSource(config) { (cfgSettings: ConsumerSettings[Array[Byte], T], subscriptions) =>
-      val settings = cfgSettings.withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
-      Consumer.plainSource(settings, subscriptions).map(_.value()).filter(_ != null)
-    }
+                            (implicit ml: MessageLike[T], system: ActorSystem): Source[T, Control] = {
+    val (consumerSettings, subscriptions) = buildSource(config)
+    val settings = consumerSettings.withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
+    Consumer.plainSource(settings, subscriptions).map(_.value()).filter(_ != null)
   }
 
-  def committableSource[T](config: Config, op: MsgOperation[T])
-                          (implicit ml: MessageLike[T], ec: ExecutionContext, system: ActorSystem): Source[T, NotUsed] =
-    buildSource(config) { (cfgSettings: ConsumerSettings[Array[Byte], T], subscriptions) =>
-      val handlerParallelism = config.getInt("messaging.listener.parallelism")
-      val batchInterval = config.getDuration("messaging.listener.batch.interval", TimeUnit.MILLISECONDS)
-      val batchMax = config.getInt("messaging.listener.batch.max")
-      val log = Logging.getLogger(system, this.getClass)
+  def committableSource[T](config: Config, committerSettings: CommitterSettings, processingFlow: Flow[T, Any, NotUsed])
+                          (implicit ml: MessageLike[T], system: ActorSystem): Source[T, Control] = {
+    val (cfgSettings, subscriptions) = buildSource(config)
+    val log = Logging.getLogger(system, this.getClass)
 
-      Consumer.committableSource(cfgSettings, subscriptions)
-        .filter(_.record.value() != null)
-        .map { msg => log.debug(s"Parsed ${msg.record.value()}") ; msg }
-        .mapAsync(handlerParallelism)(msg => op(msg.record.value()).map(_ => msg))
-        .groupedWithin(batchMax, FiniteDuration(batchInterval, TimeUnit.MILLISECONDS))
-        .filter(_.nonEmpty)
-        .log(s"${ml.streamName}.listener", xs => s"Committing batch with size ${xs.size} after ${batchInterval}ms")
-        .mapAsync(1) { group =>
-          group
-            .foldLeft(CommittableOffsetBatch.empty)( (batch, msg) => batch.updated(msg.committableOffset))
-            .commitScaladsl().map(_ => group)
-        }.mapConcat(_.map(_.record.value()))
-    }
+    val committerSink = Committer.sink(committerSettings)
 
-  private def consumerSettings[T](system: ActorSystem, config: Config)
-                                 (implicit ml: MessageLike[T]): ConsumerSettings[Array[Byte], T] = {
-    val host = config.getString("host")
-    val topicFn = topic(config)
-    val groupId = config.getString("groupIdPrefix") + "-" + topicFn(ml.streamName)
-
-    ConsumerSettings(system, new ByteArrayDeserializer, new JsonDeserializer(ml.decoder))
-      .withBootstrapServers(host)
-      .withGroupId(groupId)
-      .withClientId(s"consumer-$groupId")
-      .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+    Consumer.committableSource(cfgSettings, subscriptions)
+      .filter(_.record.value() != null)
+      .map { msg => log.debug(s"Parsed ${msg.record.value()}") ; msg }
+      .alsoTo {
+        Flow[CommittableMessage[_, T]]
+          .map(_.record.value())
+          .via(processingFlow)
+          .to(Sink.ignore)
+      }
+      .alsoTo {
+        Flow[CommittableMessage[_, _]]
+          .map(_.committableOffset)
+          .to(committerSink)
+      }
+      .map(_.record.value())
   }
 
   private def buildSource[T, M](config: Config)
-                               (consumerFn: (ConsumerSettings[Array[Byte], M], Subscription) => Source[T, Control])
-                               (implicit system: ActorSystem, ml: MessageLike[M]): Source[T, NotUsed] = {
-    val cfg = config.getConfig("messaging.kafka")
-    val cfgSettings = consumerSettings(system, cfg)
-    val topicFn = topic(cfg)
+                               (implicit system: ActorSystem, ml: MessageLike[M]): (ConsumerSettings[Array[Byte], M], Subscription) = {
+    val consumerSettings = {
+      val host = config.getString("messaging.kafka.host")
+      val topicFn = topic(config)
+      val groupId = config.getString("messaging.kafka.groupIdPrefix") + "-" + topicFn(ml.streamName)
+
+      ConsumerSettings(system, new ByteArrayDeserializer, new JsonDeserializer(ml.decoder))
+        .withBootstrapServers(host)
+        .withGroupId(groupId)
+        .withClientId(s"consumer-$groupId")
+        .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest")
+        .withProperty("metric.reporters", classOf[KafkaMetrics].getName)
+    }
+    val topicFn = topic(config)
     val subscription = Subscriptions.topics(topicFn(ml.streamName))
 
-    consumerFn(cfgSettings, subscription).mapMaterializedValue { _ => NotUsed }
+    consumerSettings -> subscription
   }
 
   private[this] def topic(config: Config): String => String = {
-    val suffix = config.getString("topicSuffix")
+    val suffix = config.getString("messaging.kafka.topicSuffix")
     (streamName: String) => streamName + "-" + suffix
   }
 
@@ -127,6 +120,7 @@ object KafkaClient {
                             (implicit system: ActorSystem): KafkaProducer[Array[Byte], String] =
     ProducerSettings.createKafkaProducer(
       ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
-        .withBootstrapServers(config.getString("host"))
+        .withBootstrapServers(config.getString("messaging.kafka.host"))
+        .withProperty("metric.reporters", classOf[KafkaMetrics].getName)
     )
 }

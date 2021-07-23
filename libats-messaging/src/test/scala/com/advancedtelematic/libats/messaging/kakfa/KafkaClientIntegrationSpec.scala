@@ -6,12 +6,12 @@
 package com.advancedtelematic.libats.messaging.kakfa
 
 import java.time.Instant
-
 import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.util.FastFuture
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.Sink
+import akka.kafka.CommitterSettings
+
+import akka.stream.scaladsl.{Flow, Sink}
 import akka.testkit.TestKit
 import com.advancedtelematic.libats.messaging.kafka.KafkaClient
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
@@ -38,11 +38,12 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
   with PatienceConfiguration  {
 
   implicit val _ec = system.dispatcher
-  implicit val _mat = ActorMaterializer()
 
   override implicit def patienceConfig = PatienceConfig(timeout = Span(30, Seconds), interval = Span(500, Millis))
 
   val publisher = KafkaClient.publisher(system, system.settings.config)
+
+  lazy val commiterSettings = CommitterSettings(ConfigFactory.load().getConfig("messaging.kafka.committer"))
 
   test("can send an event to bus") {
     val testMsg = KafkaSpecMessage(1, Instant.now.toString)
@@ -53,7 +54,9 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
   test("can send-receive events from bus") {
     val testMsg = KafkaSpecMessage(2, Instant.now.toString)
 
-    val source = KafkaClient.committableSource[KafkaSpecMessage](system.settings.config, (_: KafkaSpecMessage) => FastFuture.successful(Done))
+    val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
+
+    val source = KafkaClient.committableSource[KafkaSpecMessage](system.settings.config, commiterSettings, flow)
     val msgFuture = source.groupedWithin(10, 5.seconds).runWith(Sink.head)
 
     for {
@@ -70,10 +73,10 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val cfg = ConfigFactory.parseString(
       """
         |messaging.listener.parallelism=2
-        |messaging.listener.batch.interval=5s
-        |messaging.listener.batch.max=10
       """.stripMargin).withFallback(system.settings.config)
-    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, (_: KafkaSpecMessage) => FastFuture.successful(Done))
+
+    val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
+    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, flow)
 
     val msgFuture = source.runWith(Sink.head)
 

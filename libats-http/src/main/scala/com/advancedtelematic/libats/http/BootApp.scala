@@ -10,11 +10,10 @@ import akka.stream.ActorMaterializer
 import com.typesafe.config.ConfigFactory
 import org.slf4j.LoggerFactory
 
-trait BootApp extends App {
+trait BootApp {
   val projectName: String
 
   implicit val system = ActorSystem(projectName)
-  implicit val materializer = ActorMaterializer()
   implicit val exec = system.dispatcher
   implicit val log = LoggerFactory.getLogger(this.getClass)
 

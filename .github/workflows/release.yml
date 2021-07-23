@@ -1,7 +1,8 @@
 name: Release
 on:
   push:
-    branches: [master]
+    tags:
+      - '*'
 jobs:
   release-to-nexus:
     name: Release Jars

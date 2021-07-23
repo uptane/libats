@@ -5,6 +5,7 @@
 
 package com.advancedtelematic.libats.slick.db
 
+import akka.http.scaladsl.util.FastFuture
 import com.advancedtelematic.libats.http.BootApp
 import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 import org.flywaydb.core.Flyway
@@ -29,12 +30,10 @@ protected [db] object RunMigrations {
       true
   }
 
-  def apply(config: Config): Try[Int] = Try {
+  def apply(config: Config): Int = {
     _log.info("Running migrations")
 
-    val f = flyway(config)
-
-    val count = f.migrate()
+    val count = flyway(config).migrate()
     _log.info(s"Ran $count migrations")
 
     count
@@ -60,7 +59,7 @@ object RunMigrationsApp extends App {
   private val log = LoggerFactory.getLogger(this.getClass)
   lazy val config = ConfigFactory.load()
 
-  RunMigrations(config) match {
+  Try(RunMigrations(config)) match {
     case Success(_) =>
       System.exit(0)
     case Failure(ex) =>
@@ -90,13 +89,13 @@ trait CheckMigrations {
 trait BootMigrations {
   self: BootApp =>
 
-  private def migrateIfEnabled: Future[Unit] = Future {
-    if (config.getBoolean("database.migrate")) {
-      RunMigrations(config)
-    }
-  }
+  private def migrateIfEnabled: Future[Int] =
+    if (config.getBoolean("database.migrate"))
+      Future { RunMigrations(config) }
+    else
+      FastFuture.successful(0)
 
-  if(config.getBoolean("ats.database.asyncMigrations")) {
+  if(config.getBoolean("ats.database.asyncMigrations"))
     migrateIfEnabled.onComplete {
       case Success(_) =>
         log.info("Finished running migrations")
@@ -104,7 +103,7 @@ trait BootMigrations {
         log.error("Could not run migrations. Fatal error, shutting down", ex)
         system.terminate()
     }
-  } else {
+  else {
     Await.result(migrateIfEnabled, Duration.Inf)
   }
 }
