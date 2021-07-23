@@ -20,8 +20,8 @@ class MessageBusListenerActor[M](source: Source[M, NotUsed], monitor: ListenerMo
                                 (implicit messageLike: MessageLike[M])
   extends Actor with ActorLogging {
 
-  implicit val materializer = ActorMaterializer()
   implicit val ec = context.dispatcher
+  import context.system
 
   override def postRestart(reason: Throwable): Unit = {
     log.error(reason, "Listener restarted, subscribing again")

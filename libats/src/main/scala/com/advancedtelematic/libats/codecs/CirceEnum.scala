@@ -8,6 +8,6 @@ import io.circe.{Decoder, Encoder}
 
 @deprecated("Consider using a sealed trait, enumeratum or define custom codecs using Encoder.enumEncoder and Decoder.enumDecoder", "v0.0.1-104")
 trait CirceEnum extends Enumeration {
-  implicit val encode: Encoder[Value] = Encoder.enumEncoder(this)
-  implicit val decode: Decoder[Value] = Decoder.enumDecoder(this)
+  implicit val encode: Encoder[Value] = Encoder.encodeEnumeration(this)
+  implicit val decode: Decoder[Value] = Decoder.decodeEnumeration(this)
 }

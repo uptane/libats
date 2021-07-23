@@ -1,12 +1,11 @@
 package com.advancedtelematic.libats.messaging
-import java.util.concurrent.ConcurrentSkipListSet
 
 import akka.actor.ActorRef
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 
+import java.util.concurrent.ConcurrentSkipListSet
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
-
 
 class MemoryMessageBus {
   private val _receivers = new ConcurrentSkipListSet[ActorRef]()
