@@ -1,4 +1,4 @@
-package com.advancedtelematic.metrics
+package com.advancedtelematic.libats.messaging.metrics
 
 import akka.http.scaladsl.util.FastFuture
 import com.advancedtelematic.libats.messaging.ListenerMonitor

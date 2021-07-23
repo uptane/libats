@@ -33,7 +33,6 @@ object Publish {
     sonatypeCredentialHost := "s01.oss.sonatype.org",
     publishMavenStyle := true,
     sonatypeProjectHosting := Some(GitHubHosting("uptane", "libats", "releases@uptane.github.io")),
-    isSnapshot := version.value.trim.endsWith("SNAPSHOT"),
     publishTo := {
       if (repoUrl.isEmpty) {
         sonatypePublishToBundle.value

@@ -18,3 +18,6 @@ project/plugins/project/
 *.o
 *.so
 README.html
+.bsp/
+.bloop/
+*.env

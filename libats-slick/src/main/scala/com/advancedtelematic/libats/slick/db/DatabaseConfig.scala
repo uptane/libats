@@ -13,4 +13,6 @@ import slick.jdbc.MySQLProfile.api._
  */
 trait DatabaseConfig {
   val db = Database.forConfig("database")
+
+  lazy val dbSource = db.source
 }

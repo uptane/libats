@@ -6,9 +6,9 @@
 package com.advancedtelematic.libats.messaging
 
 import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.stream.OverflowStrategy
+import akka.actor.{ActorRef, ActorSystem, Status}
 import akka.stream.scaladsl.Source
+import akka.stream.{CompletionStrategy, OverflowStrategy}
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import com.typesafe.config.Config
@@ -20,7 +20,15 @@ object LocalMessageBus {
 
   def subscribe[T](system: ActorSystem, config: Config, op: MsgOperation[T])(implicit ec: ExecutionContext, m: MessageLike[T]): Source[T, NotUsed] = {
     val handlerParallelism = config.getInt("messaging.listener.parallelism")
-    Source.actorRef[T](MessageBus.DEFAULT_CLIENT_BUFFER_SIZE, OverflowStrategy.dropTail).mapMaterializedValue { ref =>
+
+    val actorSource: Source[T, ActorRef] =  Source.actorRef(
+      completionMatcher = { case Status.Success =>  CompletionStrategy.draining },
+      failureMatcher = { case Status.Failure(err) =>  err },
+      bufferSize = MessageBus.DEFAULT_CLIENT_BUFFER_SIZE,
+      overflowStrategy = OverflowStrategy.dropTail
+    )
+
+    actorSource.mapMaterializedValue { ref =>
       system.eventStream.subscribe(ref, m.tag.runtimeClass)
       NotUsed
     }.mapAsync(handlerParallelism){ x: T => op.apply(x).map(_ => x) }

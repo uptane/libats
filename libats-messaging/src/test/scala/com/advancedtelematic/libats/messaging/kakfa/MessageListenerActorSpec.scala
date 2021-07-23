@@ -46,7 +46,6 @@ class MessageListenerActorSpec extends TestKit(ActorSystem("MessageListenerActor
   import MsgListenerSpecItem._
 
   implicit val _ec = system.dispatcher
-  implicit val _mat = ActorMaterializer()
 
   val msg = MsgListenerSpecItem(1, "payload")
 
