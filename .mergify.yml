@@ -3,7 +3,6 @@ pull_request_rules:
     conditions:
         - author=scala-steward
         - check-success="Test / Run tests (pull_request)"
-        - check-success="Test / Run tests (push)"
     actions:
       merge:
         method: merge
