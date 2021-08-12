@@ -97,8 +97,9 @@ object KafkaClient {
       val host = config.getString("messaging.kafka.host")
       val topicFn = topic(config)
       val groupId = config.getString("messaging.kafka.groupIdPrefix") + "-" + topicFn(ml.streamName)
+      val skipJsonErrors = config.getBoolean("messaging.kafka.skipJsonErrors")
 
-      ConsumerSettings(system, new ByteArrayDeserializer, new JsonDeserializer(ml.decoder))
+      ConsumerSettings(system, new ByteArrayDeserializer, new JsonDeserializer(ml.decoder, throwException = ! skipJsonErrors))
         .withBootstrapServers(host)
         .withGroupId(groupId)
         .withClientId(s"consumer-$groupId")
