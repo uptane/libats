@@ -43,12 +43,13 @@ object MessageCodecs {
   implicit val userCreatedCodec: Codec[UserCreated] = deriveCodec
   implicit val campaignLaunchedCodec: Codec[CampaignLaunched] = deriveCodec
   implicit val packageIdCodec: Codec[PackageId] = deriveCodec
-  implicit val resultCodeCodec: Codec[ResultCode] = deriveCodec
-  implicit val resultDescriptionCodec: Codec[ResultDescription] = deriveCodec
+  implicit val resultCodeEncoder: Encoder[ResultCode] = Encoder.encodeString.contramap(_.value)
+  implicit val resultCodeDecoder: Decoder[ResultCode] = Decoder.decodeString.map(ResultCode)
+  implicit val resultDescriptionEncoder: Encoder[ResultDescription] = Encoder.encodeString.contramap(_.value)
+  implicit val resultDescriptionDecoder: Decoder[ResultDescription] = Decoder.decodeString.map(ResultDescription)
   implicit val installationResultCodec: Codec[InstallationResult] = deriveCodec
   implicit val ecuInstallationReportCodec: Codec[EcuInstallationReport] = deriveCodec
   implicit val updateTypeCodec: Codec[UpdateType] = Codec.codecForEnumeration(UpdateType)
-  implicit val sourceUpdateIdCodec: Codec[SourceUpdateId] = deriveCodec
   implicit val systemInfoCodec: Codec[SystemInfo] = deriveCodec
   implicit val deviceSystemInfoChangedCodec: Codec[DeviceSystemInfoChanged] = deriveCodec
   implicit val ecuAndHardwareIdCodec: Codec[EcuAndHardwareId] = deriveCodec
@@ -93,14 +94,6 @@ object Messages {
     def correlationId: CorrelationId
     def deviceUuid: DeviceId
   }
-
-  final case class DeviceUpdateAssignmentRequested(
-      namespace: Namespace,
-      eventTime: Instant,
-      correlationId: CorrelationId,
-      deviceUuid: DeviceId,
-      sourceUpdateId: SourceUpdateId
-  ) extends DeviceUpdateEvent
 
   final case class DeviceUpdateAssigned(
       namespace: Namespace,
