@@ -5,23 +5,25 @@
 
 package com.advancedtelematic.libats.messaging.kakfa
 
-import java.time.Instant
 import akka.Done
 import akka.actor.ActorSystem
 import akka.http.scaladsl.util.FastFuture
 import akka.kafka.CommitterSettings
-
 import akka.stream.scaladsl.{Flow, Sink}
 import akka.testkit.TestKit
-import com.advancedtelematic.libats.messaging.kafka.KafkaClient
+import com.advancedtelematic.libats.messaging.kafka.{JsonDeserializerException, KafkaClient}
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import com.typesafe.config.ConfigFactory
-import org.scalatest.concurrent.{PatienceConfiguration, ScalaFutures}
+import io.circe.syntax._
+import io.circe.{Decoder, Encoder, Json}
+import org.scalatest.concurrent.{Eventually, PatienceConfiguration, ScalaFutures}
 import org.scalatest.time.{Millis, Seconds, Span}
 import org.scalatest.{BeforeAndAfterAll, FunSuiteLike, Matchers}
 
-import scala.concurrent.duration._
+import java.time.Instant
+import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 
 case class KafkaSpecMessage(id: Int, payload: String)
@@ -35,7 +37,8 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
   with Matchers
   with BeforeAndAfterAll
   with ScalaFutures
-  with PatienceConfiguration  {
+  with PatienceConfiguration
+  with Eventually {
 
   implicit val _ec = system.dispatcher
 
@@ -86,5 +89,58 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     } yield ()
 
     msgFuture.futureValue should equal(testMsg)
+  }
+
+  test("returns error when json cannot be deserialized and skipJsonErrors is false") {
+    val testMsgJson = Json.obj("not-valid" -> 0.asJson)
+
+    val jsonMsgLike = new MessageLike[Json]() {
+      override def streamName: String = implicitly[MessageLike[KafkaSpecMessage]].streamName // Push a bad json to the KafkaSpecMessage stream
+
+      override def id(v: Json): String = "0L"
+
+      override implicit val encoder: Encoder[Json] = Encoder.encodeJson
+      override implicit val decoder: Decoder[Json] = Decoder.decodeJson
+    }
+
+    val cfg = ConfigFactory.parseMap(Map("messaging.kafka.skipJsonErrors" -> false).asJava).withFallback(system.settings.config)
+
+    val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
+    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, flow)
+
+    publisher.publish(testMsgJson)(implicitly, jsonMsgLike).futureValue
+
+    eventually {
+      val msgFuture = source.runWith(Sink.head)
+      msgFuture.failed.futureValue shouldBe a[JsonDeserializerException]
+    }
+  }
+
+  test("skips error when json cannot be deserialized") {
+    val testMsgJson = Json.obj("not-valid" -> 0.asJson)
+
+    val jsonMsgLike = new MessageLike[Json]() {
+      override def streamName: String = implicitly[MessageLike[KafkaSpecMessage]].streamName // Push a bad json to the KafkaSpecMessage stream
+
+      override def id(v: Json): String = "0L"
+
+      override implicit val encoder: Encoder[Json] = Encoder.encodeJson
+      override implicit val decoder: Decoder[Json] = Decoder.decodeJson
+    }
+
+    val cfg = system.settings.config
+
+    val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
+    val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, flow)
+
+    val testMsg = KafkaSpecMessage(5, Instant.now.toString)
+
+    publisher.publish(testMsgJson)(implicitly, jsonMsgLike).futureValue
+    publisher.publish(testMsg).futureValue
+
+    eventually {
+      val msgFuture = source.runWith(Sink.head)
+      msgFuture.futureValue should equal(testMsg)
+    }
   }
 }

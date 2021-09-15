@@ -1,14 +1,14 @@
 val Library = new {
   object Version {
-    val akka = "2.6.15"
-    val akkaHttp = "10.2.4"
+    val akka = "2.6.16"
+    val akkaHttp = "10.2.6"
     val akkaHttpCirce = "1.37.0"
     val circe = "0.14.1"
-    val refined = "0.9.10"
+    val refined = "0.9.27"
     val scalaTest = "3.0.8"
     val metricsV = "4.2.3"
     val cats = "2.0.0"
-    val logback = "1.2.4"
+    val logback = "1.2.6"
   }
 
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
@@ -16,8 +16,8 @@ val Library = new {
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % Version.akka
 
   val Prometheus = Seq(
-    "io.prometheus" % "simpleclient_common" % "0.7.0",
-    "io.prometheus" % "simpleclient_dropwizard" % "0.7.0"
+    "io.prometheus" % "simpleclient_common" % "0.12.0",
+    "io.prometheus" % "simpleclient_dropwizard" % "0.12.0"
   )
 
   val Akka = Set(
@@ -59,9 +59,9 @@ val Library = new {
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.6.8",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.6.8",
-    "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.10.3"
+    "io.zipkin.brave" % "brave" % "5.13.3",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.3",
+    "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
   )
 }
 
@@ -76,7 +76,7 @@ lazy val commonSettings = Seq(
   organizationHomepage := Some(url("https://uptane.github.io/")),
   licenses += ("MPL-2.0", url("http://mozilla.org/MPL/2.0/")),
   description := "Common  library for uptane scala projects",
-  scalaVersion := "2.13.6",
+  scalaVersion := "2.12.15",
   scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature", "-Ypartial-unification", "-Xexperimental"),
   buildInfoOptions += BuildInfoOption.ToMap,
   buildInfoOptions += BuildInfoOption.BuildTime) ++ Versioning.settings
@@ -206,7 +206,7 @@ lazy val libats_logging = (project in file("libats-logging"))
 lazy val libats_root = (project in file("."))
   .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
-  .settings(scalaVersion := "2.13.6")
+  .settings(scalaVersion := "2.12.15")
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
     libats_slick, libats_metrics, libats_metrics_akka,
     libats_metrics_prometheus, libats_logging)

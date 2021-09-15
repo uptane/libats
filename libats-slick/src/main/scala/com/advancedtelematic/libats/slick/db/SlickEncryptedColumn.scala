@@ -19,7 +19,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider
 
 
 import cats.implicits._
-import scala.util.Try
 
 protected [db] class SlickCrypto(salt: Array[Byte], password: String) {
   private lazy val pbeParameterSpec = new PBEParameterSpec(salt, 1000)
@@ -70,7 +69,7 @@ protected [db] object SlickCrypto {
     val saltV = Validated.condNel(saltBytes.length >= 8, saltBytes, "SlickCrypto: Salt needs to be base64 encoded and 8 bytes or longer")
     val passV = Validated.condNel(password.length >= 64, password, "SlickCrypto: password needs to be 64 chars or longer")
 
-    val slickCryptoV: ValidatedNel[String, SlickCrypto] = (saltV, passV).mapN { (saltbytes, password) =>
+    val slickCryptoV: ValidatedNel[String, SlickCrypto] = (saltV, passV).mapN { (_, password) =>
       new SlickCrypto(saltBytes, password)
     }
 
@@ -84,7 +83,7 @@ object SlickEncryptedColumn {
   import cats.syntax.either._
   import SlickCrypto.configSlickCrypto
 
-  case class EncryptedColumn[T](value: T) extends AnyVal
+  case class EncryptedColumn[T](value: T)
 
   def encryptedColumnJsonMapper[T : ClassTag : Encoder : Decoder]: BaseColumnType[EncryptedColumn[T]] =
     MappedColumnType.base[EncryptedColumn[T], String](

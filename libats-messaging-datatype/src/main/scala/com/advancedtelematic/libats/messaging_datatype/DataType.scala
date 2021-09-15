@@ -44,8 +44,6 @@ object DataType {
   case class UpdateId(uuid: UUID) extends UUIDKey
   object UpdateId extends UUIDKeyObj[UpdateId]
 
-  final case class SourceUpdateId(value: String) extends AnyVal
-
   final case class InstallationResult(success: Boolean, code: ResultCode, description: ResultDescription)
 
   final case class EcuInstallationReport(result: InstallationResult, target: Seq[String], rawReport: Option[Array[Byte]] = None)
