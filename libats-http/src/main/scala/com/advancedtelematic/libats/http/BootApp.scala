@@ -18,7 +18,7 @@ trait BootApp {
 trait BootAppDefaultConfig {
   val projectName: String
 
-  implicit val system: ActorSystem
+  implicit val system: ActorSystem = ActorSystem(projectName)
   implicit lazy val exec = system.dispatcher
   lazy val log = LoggerFactory.getLogger(this.getClass)
 

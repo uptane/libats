@@ -12,4 +12,6 @@ trait DatabaseSupport {
   val dbConfig: Config
 
   implicit lazy val db = Database.forConfig("", dbConfig)
+
+  lazy val dbSource = db.source
 }
