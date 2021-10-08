@@ -102,6 +102,13 @@ object Messages {
       deviceUuid: DeviceId
   ) extends DeviceUpdateEvent
 
+  final case class DeviceUpdateInFlight(
+      namespace: Namespace,
+      eventTime: Instant,
+      correlationId: CorrelationId,
+      deviceUuid: DeviceId
+  ) extends DeviceUpdateEvent
+
   final case class DeviceUpdateAssignmentRejected(
       namespace: Namespace,
       eventTime: Instant,
@@ -172,7 +179,7 @@ object Messages {
 
   implicit val deviceEventMessageType = MessageLike[DeviceEventMessage](_.namespace.get)
 
-  implicit val deviceUpdateEventType = MessageLike[DeviceUpdateEvent](_.namespace.get)
+  implicit val deviceUpdateEventMessageLike = MessageLike[DeviceUpdateEvent](_.namespace.get)
 
   implicit val deleteDeviceRequestMessageLike = MessageLike.derive[DeleteDeviceRequest](_.uuid.show)
 
