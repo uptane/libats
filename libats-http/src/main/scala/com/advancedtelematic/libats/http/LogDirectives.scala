@@ -21,15 +21,12 @@ object LogDirectives {
 
   type MetricsBuilder = (HttpRequest, HttpResponse) => Map[String, String]
 
-  lazy val envServiceName = sys.env.get("SERVICE_NAME")
-
-  def logResponseMetrics(defaultServiceName: String,
+  def logResponseMetrics(serviceName: String,
                          extraMetrics: MetricsBuilder = (_, _) => Map.empty,
                          level: LogLevel = Logging.InfoLevel)
                         (implicit system: ActorSystem): Directive0 = {
 
-    val serviceName = envServiceName.getOrElse(defaultServiceName)
-    val requestLoggingActorRef = system.actorOf(RequestLoggingActor.router(level), "request-log-router")
+    val requestLoggingActorRef = system.actorOf(RequestLoggingActor.router(level), s"$serviceName-request-log-router")
 
     extractRequestContext.flatMap { ctx =>
       val startAt = System.currentTimeMillis()
