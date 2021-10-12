@@ -36,7 +36,7 @@ class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with My
 
   test("runs without pending migrations") {
     cleanDatabase()
-    RunMigrations(flywayConfig) shouldBe 1
+    RunMigrations(flywayConfig).get shouldBe 1
     RunMigrations.schemaIsCompatible(flywayConfig).get shouldBe true
   }
 
