@@ -20,14 +20,16 @@ object PrometheusMetricsRoutes {
       complete(stringWriter.toString)
     }
   }
-
 }
 
 trait PrometheusMetricsSupport {
   self: BootApp with MetricsSupport =>
 
-  lazy val prometheusMetricsRoutes: Route = {
-    CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry))
-    PrometheusMetricsRoutes(CollectorRegistry.defaultRegistry)
+  protected lazy val collectorRegistry = {
+    val _cr = new CollectorRegistry(true)
+    _cr.register(new DropwizardExports(metricRegistry))
+    _cr
   }
+
+  lazy val prometheusMetricsRoutes: Route = PrometheusMetricsRoutes(collectorRegistry)
 }

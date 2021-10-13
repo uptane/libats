@@ -38,9 +38,9 @@ trait DatabaseSpec[P <: BasicProfile] extends BeforeAndAfterAll {
 
   implicit lazy val db: P#Backend#Database = throw new IllegalArgumentException("Database.db must be overrriden")
 
-  private lazy val config = ConfigFactory.load()
+//  private lazy val config = ConfigFactory.load()
 
-  private lazy val testDbConfig: Config = config.getConfig("database")
+  protected def testDbConfig: Config // = config.getConfig("database")
 
   private [libats] lazy val slickDbConfig: Config = {
     val confStr = s"""

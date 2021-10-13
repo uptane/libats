@@ -75,6 +75,7 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
       .maybeWithValue("http_stime", mdc.get("http_stime"))
       .maybeWithValue("http_path", mdc.get("http_path"))
       .maybeWithValue("http_query", mdc.get("http_query").filter(_ => includeHttpQuery))
+      .maybeWithValue("logger_service_name" -> AtsLayoutBase.svcName(event.getLoggerName).map(_.asJson))
 
     val str = if(prettyPrint) map.asJson.spaces2 else map.asJson.noSpaces
 

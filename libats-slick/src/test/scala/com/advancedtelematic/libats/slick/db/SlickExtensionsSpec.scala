@@ -6,6 +6,8 @@ import org.scalatest.time.{Seconds, Span}
 import org.scalatest.{FunSuite, Matchers}
 import slick.jdbc.MySQLProfile.api._
 import slick.lifted.TableQuery
+import com.typesafe.config.ConfigFactory
+import com.typesafe.config.Config
 
 import scala.concurrent.ExecutionContext
 import scala.util.control.NoStackTrace
@@ -49,6 +51,8 @@ class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with 
   import ExecutionContext.Implicits.global
 
   override implicit def patienceConfig = PatienceConfig().copy(timeout = Span(5, Seconds))
+
+  override protected def testDbConfig: Config = ConfigFactory.load().getConfig("ats.database")
 
   test("resultHead on a Query returns the first query result") {
     val f = for {

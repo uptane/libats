@@ -6,16 +6,27 @@
 package com.advancedtelematic.libats.http
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
-import com.typesafe.config.ConfigFactory
+import akka.stream.Materializer
+import com.typesafe.config.{Config, ConfigFactory}
 import org.slf4j.LoggerFactory
 
 trait BootApp {
+  implicit val system: ActorSystem
+  val appConfig: Config
+}
+
+trait BootAppDefaultConfig {
   val projectName: String
 
-  implicit val system = ActorSystem(projectName)
-  implicit val exec = system.dispatcher
-  implicit val log = LoggerFactory.getLogger(this.getClass)
+  implicit val system: ActorSystem = ActorSystem(projectName)
+  implicit lazy val exec = system.dispatcher
+  lazy val log = LoggerFactory.getLogger(this.getClass)
 
-  lazy val config = ConfigFactory.load()
+  lazy val appConfig = ConfigFactory.load()
+}
+
+trait BootAppDatabaseConfig {
+  self: BootAppDefaultConfig =>
+
+  lazy val dbConfig = appConfig.getConfig("ats." + projectName + ".database")
 }
