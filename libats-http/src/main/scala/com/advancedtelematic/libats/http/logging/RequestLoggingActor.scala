@@ -8,7 +8,7 @@ import com.advancedtelematic.libats.http.logging.RequestLoggingActor.LogMsg
 import com.typesafe.config.ConfigFactory
 
 object RequestLoggingActor {
-  case class LogMsg(formattedMsg: String, metrics: Map[String, String])
+  case class LogMsg(formattedMsg: String, metrics: Map[String, String], level: Option[Logging.LogLevel])
 
   private val config = ConfigFactory.load()
 
@@ -23,14 +23,14 @@ object RequestLoggingActor {
 
 class RequestLoggingActor(level: Logging.LogLevel) extends Actor with DiagnosticActorLogging {
   override def mdc(currentMessage: Any): MDC = currentMessage match {
-    case LogMsg(_, metrics) =>
+    case LogMsg(_, metrics, _) =>
       metrics
     case _ =>
       Logging.emptyMDC
   }
 
   override def receive: Receive = {
-    case LogMsg(formattedMsg, _) =>
-      log.log(level, formattedMsg)
+    case LogMsg(formattedMsg, _, msgLevel) =>
+      log.log(msgLevel.getOrElse(level), formattedMsg)
   }
 }
