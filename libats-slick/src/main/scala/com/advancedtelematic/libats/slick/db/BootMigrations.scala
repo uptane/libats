@@ -70,7 +70,7 @@ trait CheckMigrations {
 
   private lazy val _log = LoggerFactory.getLogger(this.getClass)
 
-  if(!appConfig.getBoolean("ats.database.skipMigrationCheck")) {
+  if(!globalConfig.getBoolean("ats.database.skipMigrationCheck")) {
     RunMigrations.schemaIsCompatible(dbConfig) match {
       case Success(false) =>
         _log.error("Outdated migrations, terminating")
@@ -94,13 +94,13 @@ trait BootMigrations {
   private lazy val _log = LoggerFactory.getLogger(this.getClass)
 
   private def migrateIfEnabled: Future[Int] = {
-    if (appConfig.getBoolean("ats.database.migrate"))
+    if (globalConfig.getBoolean("ats.database.migrate"))
       Future { FastFuture(RunMigrations(dbConfig)) }.flatten
     else
       FastFuture.successful(0)
   }
 
-  if(appConfig.getBoolean("ats.database.asyncMigrations"))
+  if(globalConfig.getBoolean("ats.database.asyncMigrations"))
     migrateIfEnabled.onComplete {
       case Success(_) =>
         _log.info("Finished running migrations")

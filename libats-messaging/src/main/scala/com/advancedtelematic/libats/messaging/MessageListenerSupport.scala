@@ -20,12 +20,12 @@ trait MessageListenerSupport {
       else
         MsgOperation.logFailed(op)(system.log, system.dispatcher)
 
-    val groupId = if (appConfig.hasPath("messaging.group-id-prefix"))
-      appConfig.getString("messaging.group-id-prefix")
+    val groupId = if (globalConfig.hasPath("ats.messaging.grouPIdPrefix"))
+      globalConfig.getString("ats.messaging.groupIdPrefix")
     else
       projectName
 
-    val ref = system.actorOf(MessageListener.props[T](appConfig, loggedOperation, groupId, busListenerMonitor),  ml.streamName + "-listener")
+    val ref = system.actorOf(MessageListener.props[T](globalConfig, loggedOperation, groupId, busListenerMonitor),  ml.streamName + "-listener")
     ref ! Subscribe
     ref
   }

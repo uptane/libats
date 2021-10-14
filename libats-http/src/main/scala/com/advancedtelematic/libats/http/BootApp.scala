@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory
 
 trait BootApp {
   implicit val system: ActorSystem
-  val appConfig: Config
+  val globalConfig: Config
 }
 
 trait BootAppDefaultConfig {
@@ -22,11 +22,11 @@ trait BootAppDefaultConfig {
   implicit lazy val exec = system.dispatcher
   lazy val log = LoggerFactory.getLogger(this.getClass)
 
-  lazy val appConfig = ConfigFactory.load()
+  lazy val globalConfig = ConfigFactory.load()
 }
 
 trait BootAppDatabaseConfig {
   self: BootAppDefaultConfig =>
 
-  lazy val dbConfig = appConfig.getConfig("ats." + projectName + ".database")
+  lazy val dbConfig = globalConfig.getConfig("ats." + projectName + ".database")
 }
