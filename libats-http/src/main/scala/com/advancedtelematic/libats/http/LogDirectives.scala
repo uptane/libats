@@ -7,6 +7,7 @@ package com.advancedtelematic.libats.http
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.event.Logging.LogLevel
+import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.{Directive0, Directives}
 import akka.stream.Materializer
@@ -28,6 +29,8 @@ object LogDirectives {
 
     val requestLoggingActorRef = system.actorOf(RequestLoggingActor.router(level), s"$serviceName-request-log-router")
 
+    val ignoredPathsPreffixes = List(Path("/health"), Path("/metrics"))
+
     extractRequestContext.flatMap { ctx =>
       val startAt = System.currentTimeMillis()
       val namespace = ctx.request.headers.find(_.is("x-ats-namespace")).map("req_namespace" -> _.value()).toMap
@@ -37,7 +40,12 @@ object LogDirectives {
         val allMetrics =
           defaultMetrics(ctx.request, resp, responseTime, serviceName) ++ extraMetrics(ctx.request, resp) ++ namespace
 
-        requestLoggingActorRef ! RequestLoggingActor.LogMsg(formatResponseLog(allMetrics), allMetrics)
+        val level =  if(ignoredPathsPreffixes.exists(p => ctx.request.uri.path.startsWith(p)))
+          Option(Logging.DebugLevel)
+        else
+          None
+
+        requestLoggingActorRef ! RequestLoggingActor.LogMsg(formatResponseLog(allMetrics), allMetrics, level)
 
         resp
       }
@@ -48,7 +56,7 @@ object LogDirectives {
     Map(
       "http_method" -> request.method.name,
       "http_path" -> request.uri.path.toString,
-      "http_query" -> s"'${request.uri.rawQueryString.getOrElse("").toString}'",
+      "http_query" -> s"'${request.uri.rawQueryString.getOrElse("")}'",
       "http_stime" -> serviceTime.toString,
       "http_status" -> response.status.intValue.toString,
       "http_service_name" -> serviceName
