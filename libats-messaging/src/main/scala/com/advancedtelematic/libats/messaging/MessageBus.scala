@@ -59,7 +59,7 @@ object MessageBus {
 
   def subscribe[T](system: ActorSystem, config: Config, groupId: String, op: MsgOperation[T])
                   (implicit messageLike: MessageLike[T], ec: ExecutionContext): Source[T, NotUsed] = {
-    config.getString("messaging.mode").toLowerCase().trim match {
+    config.getString("ats.messaging.mode").toLowerCase().trim match {
       case "kafka" =>
         log.info("Starting messaging mode: Kafka")
         log.info(s"Using stream name: ${messageLike.streamName}")
@@ -74,14 +74,14 @@ object MessageBus {
 
   def subscribeCommittable[T, U](config: Config, groupIdPrefix: String, op: MsgOperation[T])
                                 (implicit messageLike: MessageLike[T], ec: ExecutionContext, system: ActorSystem): Source[T, NotUsed] = {
-    config.getString("messaging.mode").toLowerCase().trim match {
+    config.getString("ats.messaging.mode").toLowerCase().trim match {
       case "kafka" =>
         log.info("Starting messaging mode: Kafka")
         log.info(s"Using stream name: ${messageLike.streamName}")
 
-        val listenerParallelism = config.getInt("messaging.listener.parallelism")
+        val listenerParallelism = config.getInt("ats.messaging.listener.parallelism")
         val processingFlow = Flow[T].mapAsync[Any](listenerParallelism)(op)
-        val committerSettings = CommitterSettings(config.getConfig("messaging.kafka.committer"))
+        val committerSettings = CommitterSettings(config.getConfig("ats.messaging.kafka.committer"))
 
         KafkaClient.committableSource[T](config, committerSettings, groupIdPrefix, processingFlow).mapMaterializedValue(_ => NotUsed)
 
@@ -95,7 +95,7 @@ object MessageBus {
   }
 
   def publisher(system: ActorSystem, config: Config): MessageBusPublisher = {
-    config.getString("messaging.mode").toLowerCase().trim match {
+    config.getString("ats.messaging.mode").toLowerCase().trim match {
       case "kafka" =>
         log.info("Starting messaging mode: Kafka")
         KafkaClient.publisher(system, config)

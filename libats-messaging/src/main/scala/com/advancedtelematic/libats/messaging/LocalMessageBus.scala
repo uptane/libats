@@ -19,7 +19,7 @@ import scala.util.Try
 object LocalMessageBus {
 
   def subscribe[T](system: ActorSystem, config: Config, op: MsgOperation[T])(implicit ec: ExecutionContext, m: MessageLike[T]): Source[T, NotUsed] = {
-    val handlerParallelism = config.getInt("messaging.listener.parallelism")
+    val handlerParallelism = config.getInt("ats.messaging.listener.parallelism")
 
     val actorSource: Source[T, ActorRef] =  Source.actorRef(
       completionMatcher = { case Status.Success =>  CompletionStrategy.draining },

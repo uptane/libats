@@ -95,9 +95,9 @@ object KafkaClient {
                                (implicit system: ActorSystem, ml: MessageLike[M]): (ConsumerSettings[Array[Byte], M], Subscription) = {
     val topicFn = topic(config)
     val consumerSettings = {
-      val host = config.getString("messaging.kafka.host")
+      val host = config.getString("ats.messaging.kafka.host")
       val groupId = groupIdPrefix + "-" + topicFn(ml.streamName)
-      val skipJsonErrors = config.getBoolean("messaging.kafka.skipJsonErrors")
+      val skipJsonErrors = config.getBoolean("ats.messaging.kafka.skipJsonErrors")
 
       ConsumerSettings(system, new ByteArrayDeserializer, new JsonDeserializer(ml.decoder, throwException = ! skipJsonErrors))
         .withBootstrapServers(host)
@@ -113,7 +113,7 @@ object KafkaClient {
   }
 
   private[this] def topic(config: Config): String => String = {
-    val suffix = config.getString("messaging.kafka.topicSuffix")
+    val suffix = config.getString("ats.messaging.kafka.topicSuffix")
     (streamName: String) => streamName + "-" + suffix
   }
 
@@ -121,7 +121,7 @@ object KafkaClient {
                             (implicit system: ActorSystem): KafkaProducer[Array[Byte], String] =
     ProducerSettings.createKafkaProducer(
       ProducerSettings(system, new ByteArraySerializer, new StringSerializer)
-        .withBootstrapServers(config.getString("messaging.kafka.host"))
+        .withBootstrapServers(config.getString("ats.messaging.kafka.host"))
         .withProperty("metric.reporters", classOf[KafkaMetrics].getName)
     )
 }

@@ -46,7 +46,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
 
   val publisher = KafkaClient.publisher(system, system.settings.config)
 
-  lazy val commiterSettings = CommitterSettings(ConfigFactory.load().getConfig("messaging.kafka.committer"))
+  lazy val commiterSettings = CommitterSettings(ConfigFactory.load().getConfig("ats.messaging.kafka.committer"))
 
   test("can send an event to bus") {
     val testMsg = KafkaSpecMessage(1, Instant.now.toString)
@@ -102,7 +102,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
       override implicit val decoder: Decoder[Json] = Decoder.decodeJson
     }
 
-    val cfg = ConfigFactory.parseMap(Map("messaging.kafka.skipJsonErrors" -> false).asJava).withFallback(system.settings.config)
+    val cfg = ConfigFactory.parseMap(Map("ats.messaging.kafka.skipJsonErrors" -> false).asJava).withFallback(system.settings.config)
 
     val flow = Flow[KafkaSpecMessage].mapAsync(1)((_: KafkaSpecMessage) => FastFuture.successful(Done))
     val source = KafkaClient.committableSource[KafkaSpecMessage](cfg, commiterSettings, "kafka-test", flow)
