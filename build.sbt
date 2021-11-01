@@ -76,7 +76,7 @@ lazy val commonSettings = Seq(
   organizationHomepage := Some(url("https://uptane.github.io/")),
   licenses += ("MPL-2.0", url("http://mozilla.org/MPL/2.0/")),
   description := "Common  library for uptane scala projects",
-  scalaVersion := "2.12.15",
+  scalaVersion := "2.13.7",
   scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature", "-Ypartial-unification", "-Xexperimental"),
   buildInfoOptions += BuildInfoOption.ToMap,
   buildInfoOptions += BuildInfoOption.BuildTime) ++ Versioning.settings
@@ -206,7 +206,7 @@ lazy val libats_logging = (project in file("libats-logging"))
 lazy val libats_root = (project in file("."))
   .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
-  .settings(scalaVersion := "2.12.15")
+  .settings(scalaVersion := "2.13.7")
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
     libats_slick, libats_metrics, libats_metrics_akka,
     libats_metrics_prometheus, libats_logging)
