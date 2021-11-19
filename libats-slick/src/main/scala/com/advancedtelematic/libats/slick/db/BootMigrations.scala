@@ -66,7 +66,9 @@ protected [db] object RunMigrations {
 }
 
 trait CheckMigrations {
-  self: BootApp with DatabaseSupport =>
+  self: BootApp =>
+
+  val dbConfig: Config
 
   private lazy val _log = LoggerFactory.getLogger(this.getClass)
 
@@ -87,11 +89,13 @@ trait CheckMigrations {
 
 
 trait BootMigrations {
-  self: BootApp with DatabaseSupport =>
+  self: BootApp =>
 
   import system.dispatcher
 
   private lazy val _log = LoggerFactory.getLogger(this.getClass)
+
+  val dbConfig: Config
 
   private def migrateIfEnabled: Future[Int] = {
     if (globalConfig.getBoolean("ats.database.migrate"))

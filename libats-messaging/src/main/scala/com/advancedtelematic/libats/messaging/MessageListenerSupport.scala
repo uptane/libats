@@ -20,7 +20,7 @@ trait MessageListenerSupport {
       else
         MsgOperation.logFailed(op)(system.log, system.dispatcher)
 
-    val groupId = if (globalConfig.hasPath("ats.messaging.grouPIdPrefix"))
+    val groupId = if (globalConfig.hasPath("ats.messaging.groupIdPrefix"))
       globalConfig.getString("ats.messaging.groupIdPrefix")
     else
       projectName
