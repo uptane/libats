@@ -7,7 +7,7 @@ package com.advancedtelematic.libats.slick.db
 
 import akka.http.scaladsl.util.FastFuture
 import com.advancedtelematic.libats.http.BootApp
-import com.typesafe.config.Config
+import com.typesafe.config.{Config, ConfigFactory}
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
 
@@ -62,6 +62,25 @@ protected [db] object RunMigrations {
     }
 
     flywayConfig.load()
+  }
+}
+
+object RunMigrationsApp {
+  private lazy val log = LoggerFactory.getLogger(this.getClass)
+
+  def main(args: Array[String]): Unit = {
+    if(args.length != 1) {
+      throw new IllegalArgumentException("Usage: RunMigrationsApp <database config path (e.g. ats.reposerver.database)>")
+    }
+
+    val dbConfig = ConfigFactory.load().getConfig(args(0))
+
+    RunMigrations(dbConfig) match {
+      case Success(l) =>
+        log.info(s"$l migrations executed")
+      case Failure(ex) =>
+        log.error("Could not run migrations", ex)
+    }
   }
 }
 
