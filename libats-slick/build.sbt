@@ -7,7 +7,7 @@ libraryDependencies ++= {
   Seq(
     "com.typesafe.slick" %% "slick" % slickV,
     "com.typesafe.slick" %% "slick-hikaricp" % slickV,
-    "org.flywaydb" % "flyway-core" % "6.5.7",
+    "org.flywaydb" % "flyway-core" % "8.2.0",
 
     "org.scalatest"     %% "scalatest" % scalaTestV % Provided,
 
