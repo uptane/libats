@@ -36,9 +36,9 @@ protected [db] object RunMigrations {
     val f = flyway(dbconfig)
 
     val count = f.migrate()
-    _log.info(s"Ran $count migrations")
+    _log.info(s"Ran ${count.migrationsExecuted} migrations")
 
-    count
+    count.migrationsExecuted
   }
 
   private def flyway(dbConfig: Config): Flyway = {
