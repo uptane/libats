@@ -66,7 +66,6 @@ trait DatabaseSpec[P <: BasicProfile] extends BeforeAndAfterAll {
     Flyway.configure()
       .dataSource(url, user, password)
       .schemas(schemaName)
-      .locations("classpath:db.migration")
       .load()
   }
 
