@@ -7,8 +7,8 @@ docker rm --force libats_slick-mariadb || true
 mkdir libats_slick_entrypoint.d/ || true
 
 echo "
-CREATE DATABASE libats_slick;
-GRANT ALL PRIVILEGES ON \`libats_slick%\`.* TO 'libats_slick'@'%';
+CREATE DATABASE libats;
+GRANT ALL PRIVILEGES ON \`libats%\`.* TO 'libats'@'%';
 FLUSH PRIVILEGES;
 " > libats_slick_entrypoint.d/db_user.sql
 
@@ -20,8 +20,8 @@ docker run -d \
   -p $MYSQL_PORT:3306 \
   -v $(pwd)/libats_slick_entrypoint.d:/docker-entrypoint-initdb.d \
   -e MYSQL_ROOT_PASSWORD=root \
-  -e MYSQL_USER=libats_slick \
-  -e MYSQL_PASSWORD=libats_slick \
+  -e MYSQL_USER=libats \
+  -e MYSQL_PASSWORD=libats \
   mariadb:10.2 \
   --character-set-server=utf8 --collation-server=utf8_unicode_ci \
   --max_connections=1000
