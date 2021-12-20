@@ -16,8 +16,8 @@ val Library = new {
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % Version.akka
 
   val Prometheus = Seq(
-    "io.prometheus" % "simpleclient_common" % "0.14.0",
-    "io.prometheus" % "simpleclient_dropwizard" % "0.14.0"
+    "io.prometheus" % "simpleclient_common" % "0.14.1",
+    "io.prometheus" % "simpleclient_dropwizard" % "0.14.1"
   )
 
   val Akka = Set(
