@@ -6,8 +6,8 @@ val Library = new {
     val circe = "0.14.1"
     val refined = "0.9.28"
     val scalaTest = "3.0.8"
-    val metricsV = "4.2.6"
-    val cats = "2.7.0"
+    val metricsV = "4.2.7"
+    val cats = "2.0.0"
     val logback = "1.2.9"
   }
 
@@ -16,8 +16,8 @@ val Library = new {
   val akkaStream = "com.typesafe.akka" %% "akka-stream" % Version.akka
 
   val Prometheus = Seq(
-    "io.prometheus" % "simpleclient_common" % "0.12.0",
-    "io.prometheus" % "simpleclient_dropwizard" % "0.12.0"
+    "io.prometheus" % "simpleclient_common" % "0.14.1",
+    "io.prometheus" % "simpleclient_dropwizard" % "0.14.1"
   )
 
   val Akka = Set(
@@ -59,8 +59,8 @@ val Library = new {
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.13.3",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.3",
+    "io.zipkin.brave" % "brave" % "5.13.5",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.5",
     "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
   )
 }
