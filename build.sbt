@@ -9,7 +9,7 @@ val Library = new {
     val metricsV = "4.2.7"
     val cats = "2.0.0"
     val logback = "1.2.10"
-    val flyway = "8.2.3"
+    val flyway = "8.3.0"
   }
 
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
