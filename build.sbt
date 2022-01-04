@@ -54,8 +54,7 @@ val Library = new {
 
   val cats = Seq(
     "org.typelevel" %% "cats-core" % Version.cats,
-    "org.typelevel" %% "cats-kernel" % Version.cats,
-    "org.typelevel" %% "cats-macros" % Version.cats
+    "org.typelevel" %% "cats-kernel" % Version.cats
   )
 
   val brave = Seq(
