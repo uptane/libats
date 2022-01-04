@@ -2,12 +2,14 @@ name := "libats-slick"
 
 libraryDependencies ++= {
   val slickV = "3.2.3"
+  val flywayV = "8.2.3"
   val scalaTestV = "3.0.8"
 
   Seq(
     "com.typesafe.slick" %% "slick" % slickV,
     "com.typesafe.slick" %% "slick-hikaricp" % slickV,
-    "org.flywaydb" % "flyway-core" % "8.2.0",
+    "org.flywaydb" % "flyway-core" % flywayV,
+    "org.flywaydb" % "flyway-mysql" % flywayV,
 
     "org.scalatest"     %% "scalatest" % scalaTestV % Provided,
 
