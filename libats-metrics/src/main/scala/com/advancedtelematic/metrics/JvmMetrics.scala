@@ -3,8 +3,6 @@ package com.advancedtelematic.metrics
 import java.lang.management.ManagementFactory
 import java.util
 import java.util.Collections
-
-import akka.http.scaladsl.util.FastFuture
 import com.codahale.metrics.{Gauge, Metric, MetricFilter, MetricRegistry, MetricSet}
 import com.codahale.metrics.jvm.{GarbageCollectorMetricSet, MemoryUsageGaugeSet, ThreadStatesGaugeSet}
 import io.circe.Json
@@ -12,6 +10,7 @@ import io.circe.syntax._
 
 import scala.collection.JavaConverters._
 import scala.concurrent.Future
+import scala.util.Try
 
 
 object OsMetricSet extends MetricSet {
@@ -58,9 +57,11 @@ class JvmMetrics(metrics: MetricRegistry) extends MetricsRepresentation {
 
   override def urlPrefix: String = "jvm"
 
-  override def metricsJson: Future[Json] = FastFuture.successful {
-    val jvm = metrics.getGauges(filter)
-    val data = jvm.asScala.mapValues(_.getValue.toString)
-    data.toMap.asJson
+  override def metricsJson: Future[Json] = Future.fromTry {
+    Try {
+      val jvm = metrics.getGauges(filter)
+      val data = jvm.asScala.mapValues(_.getValue.toString)
+      data.toMap.asJson
+    }
   }
 }

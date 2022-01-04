@@ -6,7 +6,7 @@
     </appender>
 
     <appender name="json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="com.advancedtelematic.libats.logging.JsonEncoder">
+        <encoder class="com.advancedtelematic.com.advancedtelematic.libats.logging.JsonEncoder">
             <includeMdc>false</includeMdc>
         </encoder>
     </appender>
@@ -24,7 +24,7 @@
     <logger name="com.zaxxer.hikari" level="${HIKARI_LOG_LEVEL:-INHERITED}" />
     <logger name="slick.backend.DatabaseComponent.action" level="${SLICK_LOG_LEVEL:-INHERITED}" />
     <logger name="com.advancedtelematic" level="${ATS_LOG_LEVEL:-INHERITED}" />
-    <logger name="com.advancedtelematic.libats.messaging" level="${ATS_MESSAGING_LOG_LEVEL:-INHERITED}" />
+    <logger name="com.advancedtelematic.com.advancedtelematic.libats.messaging" level="${ATS_MESSAGING_LOG_LEVEL:-INHERITED}" />
 
     <root level="${ROOT_LOG_LEVEL:-info}">
         <appender-ref ref="${LOG_APPENDER:-stdout}" />

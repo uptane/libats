@@ -1,30 +1,20 @@
 package com.advancedtelematic.libats.slick.monitoring
 
-import java.lang.management.ManagementFactory
-import akka.actor.ActorSystem
-
-import javax.management.{JMX, ObjectName}
-import akka.event.LoggingAdapter
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
 import akka.stream.Materializer
-import com.advancedtelematic.libats.http.HealthCheck.{Down, HealthCheckResult, Up}
-import com.advancedtelematic.libats.http.{HealthCheck, HealthResource}
-import com.advancedtelematic.metrics.{MetricsRepresentation, MetricsSupport}
+import com.advancedtelematic.libats.http.HealthResource
+import com.advancedtelematic.metrics.HealthCheck.{Down, HealthCheckResult, Up}
+import com.advancedtelematic.metrics.{HealthCheck, MetricsRepresentation, MetricsSupport}
 import com.codahale.metrics.MetricRegistry
 import com.zaxxer.hikari.HikariPoolMXBean
-import io.circe.{HCursor, Json}
-
-import scala.concurrent.{ExecutionContext, Future}
-import slick.jdbc.MySQLProfile.api._
+import io.circe.Json
 import io.circe.syntax._
+import org.slf4j.LoggerFactory
+import slick.jdbc.MySQLProfile.api._
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 
-import scala.util.Failure
-import scala.util.control.NoStackTrace
+import java.lang.management.ManagementFactory
+import javax.management.{JMX, ObjectName}
+import scala.concurrent.{ExecutionContext, Future}
 
 class DbHealthMetrics()(implicit db: Database, ec: ExecutionContext) extends MetricsRepresentation {
   private lazy val mBeanServer = ManagementFactory.getPlatformMBeanServer
@@ -54,13 +44,15 @@ class DbHealthMetrics()(implicit db: Database, ec: ExecutionContext) extends Met
 }
 
 class DbHealthCheck()(implicit db: Database, ec: ExecutionContext) extends HealthCheck {
-  def apply(log: LoggingAdapter)(implicit ec: ExecutionContext): Future[HealthCheckResult] = {
+  private lazy val log = LoggerFactory.getLogger(this.getClass)
+
+  override def apply()(implicit ec: ExecutionContext): Future[HealthCheckResult] = {
     val query = sql"SELECT 1 FROM dual ".as[Int]
     db
       .run(query)
       .map(_ => Up)
       .recover { case ex =>
-        log.error(ex, "Could not connect to db")
+        log.error("Could not connect to db", ex)
         Down(ex)
       }
   }
