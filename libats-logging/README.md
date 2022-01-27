@@ -30,7 +30,7 @@ following settings:
 ```xml
 
 <appender name="my-appender-json" class="ch.qos.logback.core.ConsoleAppender">
-    <encoder class="com.advancedtelematic.com.advancedtelematic.libats.logging.JsonEncoder">
+    <encoder class="com.advancedtelematic.libats.logging.JsonEncoder">
         <includeContext>false</includeContext>
         <includeThread>false</includeThread>
         <includeMdc>false</includeMdc>
