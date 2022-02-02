@@ -1,25 +1,26 @@
 package com.advancedtelematic.libats.http.monitoring
 
 import akka.actor.ActorSystem
-import akka.event.LoggingAdapter
+
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model.{HttpMethods, HttpRequest, Uri}
 import akka.stream.Materializer
-import com.advancedtelematic.libats.http.HealthCheck
-import com.advancedtelematic.libats.http.HealthCheck.{Down, HealthCheckResult, Up}
-import io.circe.syntax._
-import cats.syntax.either._
+import com.advancedtelematic.metrics.HealthCheck
+import com.advancedtelematic.metrics.HealthCheck.{Down, HealthCheckResult, Up}
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ServiceHealthCheck(address: Uri)(implicit system: ActorSystem, mat: Materializer, ec: ExecutionContext) extends HealthCheckHttpClient with HealthCheck {
-  override def apply(logger: LoggingAdapter)(implicit ec: ExecutionContext): Future[HealthCheckResult] = {
+  private lazy val log = LoggerFactory.getLogger(this.getClass)
+
+  override def apply()(implicit ec: ExecutionContext): Future[HealthCheckResult] = {
     val req = HttpRequest(HttpMethods.GET, address.withPath(Path("/health")))
     execute(req)
       .map(_ => Up)
       .recover {
         case ex =>
-          logger.error(ex, s"service $address is down")
+          log.error(s"service $address is down", ex)
           Down(ex)
       }
   }

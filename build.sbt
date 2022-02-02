@@ -6,14 +6,17 @@ val Library = new {
     val circe = "0.14.1"
     val refined = "0.9.28"
     val scalaTest = "3.0.8"
-    val metricsV = "4.2.7"
-    val cats = "2.7.0"
+    val metricsV = "4.2.8"
+    val cats = "2.0.0"
     val logback = "1.2.10"
+    val flyway = "8.4.3"
   }
 
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
 
-  val akkaStream = "com.typesafe.akka" %% "akka-stream" % Version.akka
+  val flyway = "org.flywaydb" % "flyway-core" % Version.flyway
+
+  val flywayMysql = "org.flywaydb" % "flyway-mysql" % Version.flyway
 
   val Prometheus = Seq(
     "io.prometheus" % "simpleclient_common" % "0.14.1",
@@ -54,13 +57,12 @@ val Library = new {
 
   val cats = Seq(
     "org.typelevel" %% "cats-core" % Version.cats,
-    "org.typelevel" %% "cats-kernel" % Version.cats,
-    "org.typelevel" %% "cats-macros" % Version.cats
+    "org.typelevel" %% "cats-kernel" % Version.cats
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.13.6",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.6",
+    "io.zipkin.brave" % "brave" % "5.13.7",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.7",
     "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
   )
 }
@@ -78,33 +80,10 @@ lazy val commonSettings = Seq(
   description := "Common  library for uptane scala projects",
   scalaVersion := "2.12.15",
   scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature", "-Ypartial-unification", "-Xexperimental"),
+  resolvers += "sonatype-snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots",
+  resolvers += "sonatype-releases" at "https://s01.oss.sonatype.org/content/repositories/releases",
   buildInfoOptions += BuildInfoOption.ToMap,
   buildInfoOptions += BuildInfoOption.BuildTime) ++ Versioning.settings
-
-lazy val sonarSettings = Seq(
-  sonarProperties ++= Map(
-    "sonar.projectName" -> "OTA Connect LibATS",
-    "sonar.projectKey" -> "ota-connect-libats",
-    "sonar.host.url" -> "http://sonar.in.here.com",
-    "sonar.links.issue" -> "https://saeljira.it.here.com/projects/OTA/issues",
-    "sonar.links.scm" -> "https://main.gitlab.in.here.com/olp/edge/ota/connect/back-end/libats-tuf",
-    "sonar.links.ci" -> "https://main.gitlab.in.here.com/olp/edge/ota/connect/back-end/libats/pipelines",
-    "sonar.language" -> "scala",
-    "sonar.projectVersion" -> version.value,
-    "sonar.modules" -> "libats,libats-http,libats-http-tracing,libats-slick,libats-messaging-datatype,libats-messaging,libats-metrics,libats-metrics-akka,libats-metrics-prometheus,libats-auth,libats-logging",
-    "libats.sonar.projectName" -> "OTA Connect LibATS",
-    "libats-http.sonar.projectName" -> "OTA Connect LibATS-HTTP",
-    "libats-http-tracing.sonar.projectName" -> "OTA Connect LibATS-HTTP-Tracing",
-    "libats-slick.sonar.projectName" -> "OTA Connect LibATS-Slick",
-    "libats-messaging-datatype.sonar.projectName" -> "OTA Connect LibATS-Messaging-Datatype",
-    "libats-messaging.sonar.projectName" -> "OTA Connect LibATS-Messaging",
-    "libats-metrics.sonar.projectName" -> "OTA Connect LibATS-Metrics",
-    "libats-metrics-akka.sonar.projectName" -> "OTA Connect LibATS-Metrics-Akka",
-    "libats-metrics-prometheus.sonar.projectName" -> "OTA Connect LibATS-Metrics-Prometheus",
-    "libats-auth.sonar.projectName" -> "OTA Connect LibATS-Auth",
-    "libats-logging.sonar.projectName" -> "OTA Connect LibATS-Logging"
-  )
-)
 
 lazy val libats = (project in file("libats"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
@@ -125,6 +104,7 @@ lazy val libats_http = (project in file("libats-http"))
   .settings(Publish.settings)
   .dependsOn(libats)
   .dependsOn(libats_metrics)
+  .dependsOn(libats_db)
 
 lazy val libats_http_tracing = (project in file("libats-http-tracing"))
   .settings(name := "libats-http-tracing")
@@ -137,6 +117,15 @@ lazy val libats_http_tracing = (project in file("libats-http-tracing"))
   .settings(Publish.settings)
   .dependsOn(libats)
 
+lazy val libats_db = (project in file("libats-db"))
+  .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
+  .configs(commonConfigs: _*)
+  .settings(commonDeps)
+  .settings(commonSettings)
+  .settings(libraryDependencies += Library.flyway)
+  .settings(libraryDependencies += Library.flywayMysql % Test)
+  .settings(Publish.settings)
+
 lazy val libats_slick = (project in file("libats-slick"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
   .configs(commonConfigs: _*)
@@ -145,8 +134,23 @@ lazy val libats_slick = (project in file("libats-slick"))
   .settings(Publish.settings)
   .settings(libraryDependencies ++= Library.jvmMetrics)
   .settings(libraryDependencies ++= Library.akkaHttpTestKit)
+  .settings(libraryDependencies += Library.flyway)
+  .settings(libraryDependencies += Library.flywayMysql)
   .dependsOn(libats)
+  .dependsOn(libats_db)
   .dependsOn(libats_http)
+
+lazy val libats_anorm = (project in file("libats-anorm"))
+  .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
+  .configs(commonConfigs: _*)
+  .settings(commonDeps)
+  .settings(commonSettings)
+  .settings(Publish.settings)
+  .settings(libraryDependencies += Library.logback)
+  .settings(libraryDependencies += Library.flywayMysql % Test)
+  .dependsOn(libats)
+  .dependsOn(libats_db)
+  .dependsOn(libats_metrics)
 
 lazy val libats_messaging_datatype = (project in file("libats-messaging-datatype"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
@@ -173,9 +177,9 @@ lazy val libats_metrics = (project in file("libats-metrics"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
   .configs(commonConfigs: _*)
   .settings(commonSettings)
-  .settings(libraryDependencies ++= Library.akkaHttp)
-  .settings(libraryDependencies ++= Library.circe :+ Library.akkaStream)
+  .settings(libraryDependencies ++= Library.circe)
   .settings(libraryDependencies ++= Library.jvmMetrics)
+  .settings(libraryDependencies += Library.logback)
   .settings(Publish.settings)
 
 lazy val libats_metrics_akka = (project in file("libats-metrics-akka"))
@@ -208,7 +212,6 @@ lazy val libats_root = (project in file("."))
   .settings(Publish.disable)
   .settings(scalaVersion := "2.12.15")
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
-    libats_slick, libats_metrics, libats_metrics_akka,
+    libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
     libats_metrics_prometheus, libats_logging)
-  .settings(sonarSettings)
-  .settings(sonarScan / aggregate := false)
+

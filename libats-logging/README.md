@@ -5,8 +5,9 @@ services. Simply include this module in your service. It comes with a configurat
 called `logback-base.xml` which you can include in your service's logback.xml like this:
 
 ```xml
+
 <configuration>
-    <include resource="logback-libats.xml"/>
+    <include resource="logback-com.advancedtelematic.libats.xml"/>
 </configuration>
 ```
 
@@ -27,15 +28,16 @@ A different appender can be configured in a `logback.xml` using the
 following settings:
 
 ```xml
+
 <appender name="my-appender-json" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="com.advancedtelematic.libats.logging.JsonEncoder">
-            <includeContext>false</includeContext>
-            <includeThread>false</includeThread>
-            <includeMdc>false</includeMdc>
-            <includeHttpQuery>false</includeHttpQuery>
-            <prettyPrint>false</prettyPrint>
-            <loggerLength>36</loggerLength>
-        </encoder>
+    <encoder class="com.advancedtelematic.libats.logging.JsonEncoder">
+        <includeContext>false</includeContext>
+        <includeThread>false</includeThread>
+        <includeMdc>false</includeMdc>
+        <includeHttpQuery>false</includeHttpQuery>
+        <prettyPrint>false</prettyPrint>
+        <loggerLength>36</loggerLength>
+    </encoder>
 </appender>
 ```
 

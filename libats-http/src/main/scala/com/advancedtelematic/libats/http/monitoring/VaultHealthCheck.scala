@@ -1,17 +1,15 @@
 package com.advancedtelematic.libats.http.monitoring
 
 import akka.actor.ActorSystem
-import akka.event.LoggingAdapter
-import akka.http.scaladsl.Http
 import akka.http.scaladsl.model.Uri.Path
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.unmarshalling.Unmarshaller
 import akka.stream.Materializer
-import com.advancedtelematic.libats.http.HealthCheck
-import com.advancedtelematic.libats.http.HealthCheck.{Down, HealthCheckResult, Up}
 import com.advancedtelematic.libats.http.monitoring.HealthCheckHttpClient.HealthCheckError
+import com.advancedtelematic.metrics.HealthCheck
+import com.advancedtelematic.metrics.HealthCheck.{Down, HealthCheckResult, Up}
 import io.circe.Json
+import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -20,7 +18,9 @@ class VaultHealthCheck(address: Uri, token: String)(implicit system: ActorSystem
   extends HealthCheckHttpClient with HealthCheck {
   import cats.syntax.either._
 
-  override def apply(logger: LoggingAdapter)(implicit ec: ExecutionContext): Future[HealthCheckResult] = {
+  private lazy val log = LoggerFactory.getLogger(this.getClass)
+
+  override def apply()(implicit ec: ExecutionContext): Future[HealthCheckResult] = {
     val checkF = for {
       _ <- sysHealth()
       _ <- tokenLookup()
@@ -28,7 +28,7 @@ class VaultHealthCheck(address: Uri, token: String)(implicit system: ActorSystem
 
     checkF.recover {
       case ex =>
-        logger.error(ex, "Vault is down")
+        log.error("Vault is down", ex)
         Down(ex)
     }
   }
