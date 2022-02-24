@@ -31,6 +31,7 @@ object Publish {
     isSnapshot := version.value.trim.endsWith("SNAPSHOT"),
     pomIncludeRepository := { _ => false },
     sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     publishMavenStyle := true,
     sonatypeProjectHosting := Some(GitHubHosting("uptane", "libats", "releases@uptane.github.io")),
     publishTo := {
