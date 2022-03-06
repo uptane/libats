@@ -1,15 +1,15 @@
 val Library = new {
   object Version {
     val akka = "2.6.18"
-    val akkaHttp = "10.2.7"
+    val akkaHttp = "10.2.9"
     val akkaHttpCirce = "1.39.2"
     val circe = "0.14.1"
     val refined = "0.9.28"
     val scalaTest = "3.0.8"
     val metricsV = "4.2.8"
     val cats = "2.0.0"
-    val logback = "1.2.10"
-    val flyway = "8.4.3"
+    val logback = "1.2.11"
+    val flyway = "8.5.2"
   }
 
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
@@ -19,8 +19,8 @@ val Library = new {
   val flywayMysql = "org.flywaydb" % "flyway-mysql" % Version.flyway
 
   val Prometheus = Seq(
-    "io.prometheus" % "simpleclient_common" % "0.14.1",
-    "io.prometheus" % "simpleclient_dropwizard" % "0.14.1"
+    "io.prometheus" % "simpleclient_common" % "0.15.0",
+    "io.prometheus" % "simpleclient_dropwizard" % "0.15.0"
   )
 
   val Akka = Set(

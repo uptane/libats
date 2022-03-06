@@ -1,5 +1,7 @@
 package com.advancedtelematic.libats.slick.db
 
+import java.util.UUID
+import SlickAnyVal._
 import com.advancedtelematic.libats.test.{DatabaseSpec, MysqlDatabaseSpec}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.time.{Seconds, Span}
@@ -8,11 +10,14 @@ import slick.jdbc.MySQLProfile.api._
 import slick.lifted.TableQuery
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.Config
-
+import com.advancedtelematic.libats.data.DataType.Namespace
 import scala.concurrent.ExecutionContext
 import scala.util.control.NoStackTrace
+import com.advancedtelematic.libats.slick.codecs.SlickEnumMapper
 
 object SlickExtensionsSpec {
+
+  implicit val objectStatusMapping = SlickEnumMapper.enumMapper(ObjectStatus)
 
   case class Book(id: Long, title: String, code: Option[String] = None)
 
@@ -39,6 +44,26 @@ object SlickExtensionsSpec {
   }
 
   protected val bookMeta = TableQuery[BookMetaTable]
+
+  object ObjectStatus extends Enumeration {
+    type ObjectStatus = Value
+
+    val UPLOADED = Value
+  }
+
+  case class TObject(namespace: Namespace, objectId: String, status: ObjectStatus.ObjectStatus)
+
+  class TObjectTable(tag: Tag) extends Table[TObject](tag, "objects") {
+    def namespace = column[Namespace]("namespace")
+    def objectId = column[String]("object_id")
+    def status = column[ObjectStatus.ObjectStatus]("status")
+
+    def pk = primaryKey("object_pk", (namespace, objectId))
+
+    override def * = (namespace, objectId, status) <> ((TObject.apply _).tupled, TObject.unapply)
+  }
+
+  protected val objects = TableQuery[TObjectTable]
 }
 
 
@@ -143,5 +168,20 @@ class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with 
     val a = books.insertIfNotExists(b) { _.filter(_.id === b.id) }
     db.run(a).futureValue shouldBe ()
     db.run(books.filter(_.id === b.id).result).futureValue should contain only b
+  }
+
+  // Comes from treehub, fails when upgrading 3.x
+  test("fails with mariadb connector/j 3.x") {
+    val uuid = UUID.randomUUID().toString
+    val ns = Namespace(uuid)
+    val objectId = "a1/e8de5d0c43e200eb2dd8f9fdb30b9e0c5df94f4ab52e0561ea70fbf235a27a.commitmeta"
+    val o = TObject(ns, objectId, ObjectStatus.UPLOADED)
+    val f = db.run(objects += o).futureValue
+
+    db.run(objects
+      .filter(_.objectId === objectId)
+      .filter(_.namespace === ns)
+      .filter(_.status === ObjectStatus.UPLOADED).exists.result)
+      .futureValue shouldBe true
   }
 }
