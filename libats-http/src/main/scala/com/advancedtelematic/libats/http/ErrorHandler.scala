@@ -57,8 +57,8 @@ object Errors {
   case class MissingEntityId[T](id: T)(implicit ct: ClassTag[T], show: Show[T]) extends
     Error(ErrorCodes.MissingEntity, StatusCodes.NotFound, s"Missing entity: ${ct.runtimeClass.getSimpleName} ${show.show(id)}")
 
-  case class MissingEntity[T]()(implicit ct: ClassTag[T]) extends
-    Error(ErrorCodes.MissingEntity, StatusCodes.NotFound, s"Missing entity: ${ct.runtimeClass.getSimpleName}")
+  case class MissingEntity[T](_msg: String = "")(implicit ct: ClassTag[T]) extends
+    Error(ErrorCodes.MissingEntity, StatusCodes.NotFound, s"Missing entity: ${ct.runtimeClass.getSimpleName} " + _msg)
 
   case class EntityAlreadyExists[T]()(implicit ct: ClassTag[T]) extends
     Error(ErrorCodes.ConflictingEntity, StatusCodes.Conflict, s"Entity already exists: ${ct.runtimeClass.getSimpleName}")
