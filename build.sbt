@@ -61,8 +61,8 @@ val Library = new {
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.13.7",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.7",
+    "io.zipkin.brave" % "brave" % "5.13.8",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.8",
     "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
   )
 }
