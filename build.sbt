@@ -19,8 +19,8 @@ val Library = new {
   val flywayMysql = "org.flywaydb" % "flyway-mysql" % Version.flyway
 
   val Prometheus = Seq(
-    "io.prometheus" % "simpleclient_common" % "0.15.0",
-    "io.prometheus" % "simpleclient_dropwizard" % "0.15.0"
+    "io.prometheus" % "simpleclient_common" % "0.16.0",
+    "io.prometheus" % "simpleclient_dropwizard" % "0.16.0"
   )
 
   val Akka = Set(
