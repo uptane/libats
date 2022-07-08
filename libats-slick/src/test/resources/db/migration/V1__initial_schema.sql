@@ -14,6 +14,15 @@ create table `book_meta` (
 )
 ;
 
+CREATE TABLE `objects` (
+  `namespace` varchar(254) COLLATE utf8_unicode_ci NOT NULL,
+  `object_id` varchar(254) COLLATE utf8_unicode_ci NOT NULL,
+  `status` enum('UPLOADED','CLIENT_UPLOADING','SERVER_UPLOADING') COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`namespace`,`object_id`),
+  UNIQUE KEY `object_unique_namespace` (`namespace`,`object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci
+;
+
 create table `re_key_spec`(
   `id` INTEGER NOT NULL PRIMARY KEY,
   `uuid` CHAR(36) NOT NULL UNIQUE,

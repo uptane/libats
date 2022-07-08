@@ -1,5 +1,4 @@
 package com.advancedtelematic.metrics.prometheus
-
 import java.io.StringWriter
 
 import akka.http.scaladsl.server.Route
@@ -10,13 +9,11 @@ import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.dropwizard.DropwizardExports
 import io.prometheus.client.exporter.common.TextFormat
 
-import scala.collection.JavaConverters._
-
 object PrometheusMetricsRoutes {
-  def apply(registry: CollectorRegistry): Route = {
-    (get & path("metrics") & parameter('name.*)) { names =>
+  def apply(): Route = {
+    (get & path("metrics")) {
       val stringWriter = new StringWriter()
-      TextFormat.write004(stringWriter, registry.filteredMetricFamilySamples(names.toSet.asJava))
+      TextFormat.write004(stringWriter, CollectorRegistry.defaultRegistry.metricFamilySamples())
       complete(stringWriter.toString)
     }
   }
@@ -25,11 +22,8 @@ object PrometheusMetricsRoutes {
 trait PrometheusMetricsSupport {
   self: BootApp with MetricsSupport =>
 
-  protected lazy val collectorRegistry = {
-    val _cr = new CollectorRegistry(true)
-    _cr.register(new DropwizardExports(metricRegistry))
-    _cr
+  lazy val prometheusMetricsRoutes: Route = {
+    CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry))
+    PrometheusMetricsRoutes()
   }
-
-  lazy val prometheusMetricsRoutes: Route = PrometheusMetricsRoutes(collectorRegistry)
 }

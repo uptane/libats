@@ -52,7 +52,7 @@ protected [db] class SlickCrypto(salt: Array[Byte], password: String) {
   }
 }
 
-protected [db] object SlickCrypto {
+object SlickCrypto {
   import cats.syntax.either._
 
   private lazy val _config = ConfigFactory.load()
