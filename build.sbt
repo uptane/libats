@@ -4,12 +4,12 @@ val Library = new {
     val akkaHttp = "10.2.9"
     val akkaHttpCirce = "1.39.2"
     val circe = "0.14.2"
-    val refined = "0.9.29"
+    val refined = "0.10.1"
     val scalaTest = "3.0.8"
-    val metricsV = "4.2.9"
+    val metricsV = "4.2.10"
     val cats = "2.0.0"
     val logback = "1.2.11"
-    val flyway = "8.5.11"
+    val flyway = "8.5.13"
   }
 
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
@@ -19,8 +19,8 @@ val Library = new {
   val flywayMysql = "org.flywaydb" % "flyway-mysql" % Version.flyway
 
   val Prometheus = Seq(
-    "io.prometheus" % "simpleclient_common" % "0.15.0",
-    "io.prometheus" % "simpleclient_dropwizard" % "0.15.0"
+    "io.prometheus" % "simpleclient_common" % "0.16.0",
+    "io.prometheus" % "simpleclient_dropwizard" % "0.16.0"
   )
 
   val Akka = Set(
@@ -61,8 +61,8 @@ val Library = new {
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.13.9",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.9",
+    "io.zipkin.brave" % "brave" % "5.13.10",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.10",
     "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
   )
 }
@@ -78,7 +78,7 @@ lazy val commonSettings = Seq(
   organizationHomepage := Some(url("https://uptane.github.io/")),
   licenses += ("MPL-2.0", url("http://mozilla.org/MPL/2.0/")),
   description := "Common  library for uptane scala projects",
-  scalaVersion := "2.12.15",
+  scalaVersion := "2.12.16",
   scalacOptions := Seq("-unchecked", "-deprecation", "-encoding", "utf8", "-feature", "-Ypartial-unification", "-Xexperimental"),
   resolvers += "sonatype-snapshots" at "https://s01.oss.sonatype.org/content/repositories/snapshots",
   resolvers += "sonatype-releases" at "https://s01.oss.sonatype.org/content/repositories/releases",
@@ -210,7 +210,7 @@ lazy val libats_logging = (project in file("libats-logging"))
 lazy val libats_root = (project in file("."))
   .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
-  .settings(scalaVersion := "2.12.15")
+  .settings(scalaVersion := "2.12.16")
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
     libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
     libats_metrics_prometheus, libats_logging)
