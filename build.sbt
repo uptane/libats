@@ -6,7 +6,7 @@ val Library = new {
     val circe = "0.14.2"
     val refined = "0.10.1"
     val scalaTest = "3.0.8"
-    val metricsV = "4.2.10"
+    val metricsV = "4.2.11"
     val cats = "2.0.0"
     val logback = "1.2.11"
     val flyway = "8.5.13"
@@ -207,11 +207,20 @@ lazy val libats_logging = (project in file("libats-logging"))
   .settings(name := "libats-logging")
   .settings(Publish.settings)
 
+lazy val libats_publish_akka = (project in file("libats-publish-akka"))
+  .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
+  .configs(commonConfigs: _*)
+  .settings(commonSettings)
+  .settings(Publish.settings)
+  .dependsOn(libats_http)
+  .dependsOn(libats_messaging)
+
+
 lazy val libats_root = (project in file("."))
   .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
   .settings(scalaVersion := "2.12.16")
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
     libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
-    libats_metrics_prometheus, libats_logging)
+    libats_metrics_prometheus, libats_logging, libats_publish_akka)
 
