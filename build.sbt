@@ -8,7 +8,7 @@ val Library = new {
     val scalaTest = "3.0.8"
     val metricsV = "4.2.11"
     val cats = "2.0.0"
-    val logback = "1.2.11"
+    val logback = "1.4.0"
     val flyway = "8.5.13"
   }
 
@@ -61,8 +61,8 @@ val Library = new {
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.13.10",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.10",
+    "io.zipkin.brave" % "brave" % "5.13.11",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.13.11",
     "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
   )
 }
