@@ -1,7 +1,7 @@
 val Library = new {
   object Version {
     val akka = "2.6.19"
-    val akkaHttp = "10.2.9"
+    val akkaHttp = "10.2.10"
     val akkaHttpCirce = "1.39.2"
     val circe = "0.14.2"
     val refined = "0.10.1"
