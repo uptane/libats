@@ -34,7 +34,7 @@ object DefaultRejectionHandler {
     case MalformedRequestContentRejection(_, df@DecodingFailure(_, _)) =>
       complete(StatusCodes.BadRequest -> ErrorRepresentation(ErrorCodes.InvalidEntity, df.getMessage))
   }.handle {
-    case MalformedQueryParamRejection(name, _, _) ⇒
+    case MalformedQueryParamRejection(name, _, _) =>
       complete(StatusCodes.BadRequest -> ErrorRepresentation(ErrorCodes.InvalidEntity, "The query parameter '" + name + "' was malformed"))
   }.result().withFallback(RejectionHandler.default)
 }

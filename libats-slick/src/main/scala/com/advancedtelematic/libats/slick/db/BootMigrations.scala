@@ -10,7 +10,6 @@ import com.advancedtelematic.libats.http.BootApp
 import com.typesafe.config.{Config, ConfigFactory}
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
-
 import scala.collection.JavaConverters._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
@@ -49,7 +48,7 @@ protected [db] object RunMigrations {
     val flywayConfig = Flyway.configure().dataSource(url, user, password)
 
     if(dbConfig.hasPath("flyway.locations")) {
-      val locations = dbConfig.getStringList("flyway.locations").asScala
+      val locations = dbConfig.getStringList("flyway.locations").asScala.toList
       flywayConfig.locations(locations:_*)
     }
 

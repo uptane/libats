@@ -71,14 +71,14 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
       provide(new NullServerRequestTracing)
   }
 
-  override def shutdown: Unit = {
+  override def shutdown(): Unit = {
     httpTracing.tracing().close()
   }
 }
 
 object ZipkinServerRequestTracing {
   def apply(uri: Uri, serviceName: String): ZipkinTracing = {
-    val sender = OkHttpSender.create(uri + "/api/v2/spans")
+    val sender = OkHttpSender.create(uri.toString() + "/api/v2/spans")
     val spanReporter = AsyncReporter.create(sender)
 
     val tracing = BraveTracing.newBuilder

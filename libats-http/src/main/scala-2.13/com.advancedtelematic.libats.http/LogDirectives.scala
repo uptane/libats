@@ -64,7 +64,7 @@ object LogDirectives {
   }
 
   private lazy val usingJsonAppender = {
-    import scala.collection.JavaConverters._
+    import scala.jdk.CollectionConverters._
     val loggers = Try(LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]).toOption.toList.flatMap(_.getLoggerList.asScala)
     loggers.exists(_.iteratorForAppenders().asScala.exists(_.getName.contains("json")))
   }

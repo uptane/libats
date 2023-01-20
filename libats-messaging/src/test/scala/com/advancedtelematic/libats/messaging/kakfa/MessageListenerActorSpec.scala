@@ -2,14 +2,15 @@ package com.advancedtelematic.libats.messaging
 
 import akka.{Done, NotUsed}
 import akka.actor.{ActorSystem, Props}
-import akka.stream.ActorMaterializer
 import akka.stream.scaladsl.{Sink, Source}
 import akka.testkit.{TestKit, TestProbe}
 import com.advancedtelematic.libats.messaging.daemon.MessageBusListenerActor
 import com.advancedtelematic.libats.messaging.daemon.MessageBusListenerActor.Subscribe
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
-import org.scalatest.{BeforeAndAfterAll, FunSuiteLike, Matchers}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.{Eventually, PatienceConfiguration, ScalaFutures}
+import org.scalatest.funsuite.{AnyFunSuite, AnyFunSuiteLike}
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Millis, Seconds, Span}
 
 import scala.concurrent.{Future, Promise}
@@ -36,7 +37,7 @@ class StorageListenerMonitor extends ListenerMonitor {
 }
 
 class MessageListenerActorSpec extends TestKit(ActorSystem("MessageListenerActorSpec"))
-  with FunSuiteLike
+  with AnyFunSuiteLike
   with Matchers
   with BeforeAndAfterAll
   with ScalaFutures

@@ -10,17 +10,17 @@ import scala.concurrent.{ExecutionContext, Future}
 class NullServerRequestTracing extends ServerRequestTracing  {
   override def newChild: ServerRequestTracing = this
 
-  override def finishSpan: Unit = ()
+  override def finishSpan(): Unit = ()
 
   override def httpClientTracing(remoteServiceName: String): AkkaHttpClientTracing = new NullHttpClientTracing
 
-  override def traceId: Long = 0l
+  override def traceId: Long = 0L
 }
 
 class NullTracing extends Tracing {
   override def traceRequests: Directive1[ServerRequestTracing] = Directives.provide(new NullServerRequestTracing)
 
-  override def shutdown: Unit = ()
+  override def shutdown(): Unit = ()
 }
 
 class NullHttpClientTracing extends AkkaHttpClientTracing {
