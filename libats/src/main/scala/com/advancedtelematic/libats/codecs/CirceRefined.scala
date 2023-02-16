@@ -26,7 +26,7 @@ trait CirceRefined {
   implicit def refinedKeyDecoder[P]
   (implicit p: Validate.Plain[String, P]): KeyDecoder[Refined[String, P]] =
     KeyDecoder.instance[Refined[String, P]] { s =>
-      timepit.refined.refineV[P](s).right.toOption
+      timepit.refined.refineV[P](s).toOption
     }
 }
 

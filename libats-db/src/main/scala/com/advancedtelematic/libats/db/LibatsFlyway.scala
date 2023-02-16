@@ -25,7 +25,7 @@ protected [libats] object LibatsFlyway {
     val flywayConfig = Flyway.configure().dataSource(url, user, password)
 
     if (dbConfig.hasPath("flyway.locations")) {
-      val locations = dbConfig.getStringList("flyway.locations").asScala
+      val locations = dbConfig.getStringList("flyway.locations").asScala.toList
       flywayConfig.locations(locations: _*)
     }
 

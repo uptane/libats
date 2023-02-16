@@ -5,12 +5,14 @@ import anorm.SqlParser.scalar
 import com.typesafe.config.ConfigFactory
 import eu._0io.anorm_async.Database
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.funsuite.AnyFunSuite
+import org.scalatest.matchers.should.Matchers
 import org.scalatest.time.{Seconds, Span}
-import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach, FunSuite, Matchers}
+import org.scalatest.{BeforeAndAfterAll, BeforeAndAfterEach}
 
 import scala.util.Try
 
-class RunMigrationsSpec extends FunSuite with Matchers with ScalaFutures with BeforeAndAfterAll with BeforeAndAfterEach {
+class RunMigrationsSpec extends AnyFunSuite with Matchers with ScalaFutures with BeforeAndAfterAll with BeforeAndAfterEach {
 
   override implicit def patienceConfig = PatienceConfig().copy(timeout = Span(5, Seconds))
 

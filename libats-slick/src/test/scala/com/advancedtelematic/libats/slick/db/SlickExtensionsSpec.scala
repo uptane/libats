@@ -1,16 +1,19 @@
 package com.advancedtelematic.libats.slick.db
 
+import com.advancedtelematic.libats.data.DataType.Namespace
 import java.util.UUID
 import SlickAnyVal._
 import com.advancedtelematic.libats.test.{DatabaseSpec, MysqlDatabaseSpec}
 import org.scalatest.concurrent.ScalaFutures
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.time.{Seconds, Span}
-import org.scalatest.{FunSuite, Matchers}
 import slick.jdbc.MySQLProfile.api._
 import slick.lifted.TableQuery
+import org.scalatest.matchers.should.Matchers
 import com.typesafe.config.ConfigFactory
 import com.typesafe.config.Config
-import com.advancedtelematic.libats.data.DataType.Namespace
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 import scala.concurrent.ExecutionContext
 import scala.util.control.NoStackTrace
 import com.advancedtelematic.libats.slick.codecs.SlickEnumMapper
@@ -19,14 +22,15 @@ object SlickExtensionsSpec {
 
   implicit val objectStatusMapping = SlickEnumMapper.enumMapper(ObjectStatus)
 
-  case class Book(id: Long, title: String, code: Option[String] = None)
+  case class Book(id: Long, title: String, code: Option[String] = None, createdAt: Instant = Instant.now.truncatedTo(ChronoUnit.MILLIS))
 
   class BooksTable(tag: Tag) extends Table[Book](tag, "books") {
     def id = column[Long]("id", O.PrimaryKey)
     def title = column[String]("title")
     def code = column[Option[String]]("code")
+    def createdAt = column[Instant]("created_at")(SlickExtensions.javaInstantMapping)
 
-    override def * = (id, title, code) <> ((Book.apply _).tupled, Book.unapply)
+    override def * = (id, title, code, createdAt) <> ((Book.apply _).tupled, Book.unapply)
   }
 
   protected val books = TableQuery[BooksTable]
@@ -67,7 +71,8 @@ object SlickExtensionsSpec {
 }
 
 
-class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with MysqlDatabaseSpec {
+class SlickExtensionsSpec extends AnyFunSuite with Matchers with ScalaFutures with MysqlDatabaseSpec {
+
   import SlickExtensions._
   import SlickExtensionsSpec._
 
@@ -80,27 +85,29 @@ class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with 
   override protected def testDbConfig: Config = ConfigFactory.load().getConfig("ats.database")
 
   test("resultHead on a Query returns the first query result") {
+    val book = Book(10, "Some book")
+
     val f = for {
-      _ <- db.run(books += Book(10, "Some book"))
+      _ <- db.run(books += book)
       inserted <- db.run(books.resultHead(Error))
     } yield inserted
 
-    f.futureValue shouldBe Book(10, "Some book")
+    f.futureValue shouldBe book
   }
 
   test("resultHead on a Query returns the error in arg") {
-    val f = db.run(books.filter(_.id === 15l).resultHead(Error))
+    val f = db.run(books.filter(_.id === 15L).resultHead(Error))
     f.failed.futureValue shouldBe Error
   }
 
   test("maybeFilter uses filter if condition is defined") {
     val f = for {
       _ <- db.run(books += Book(20, "Some book", Option("20 some code")))
-      result <- db.run(books.maybeFilter(_.id === Option(20l)).result)
+      result <- db.run(books.maybeFilter(_.id === Option(20L)).result)
     } yield result
 
     f.futureValue.length shouldBe 1
-    f.futureValue.head.id shouldBe 20l
+    f.futureValue.head.id shouldBe 20L
   }
 
   test("maybeFilter ignores filter if condition is None") {
@@ -110,7 +117,7 @@ class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with 
     } yield result
 
     f.futureValue.length shouldBe >(1)
-    f.futureValue.map(_.id) should contain(30l)
+    f.futureValue.map(_.id) should contain(30L)
   }
 
   test("maybeContains uses string if it is defined") {
@@ -120,7 +127,7 @@ class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with 
     } yield result
 
     f.futureValue.length shouldBe 1
-    f.futureValue.head.id shouldBe 40l
+    f.futureValue.head.id shouldBe 40L
   }
 
   test("maybeContains gives all elements if string is empty") {
@@ -183,5 +190,18 @@ class SlickExtensionsSpec extends FunSuite with Matchers with ScalaFutures with 
       .filter(_.namespace === ns)
       .filter(_.status === ObjectStatus.UPLOADED).exists.result)
       .futureValue shouldBe true
+  }
+
+  test("reads/writes dates properly") {
+    val now = Instant.now().minus(3, ChronoUnit.HOURS).truncatedTo(ChronoUnit.MILLIS)
+
+    val b = Book(18, "Livro do desassossego", None, createdAt = now)
+    db.run(books += b).futureValue shouldBe 1
+
+    val saved = db.run(books.filter(_.id === b.id).result).futureValue
+
+    saved should contain only b
+
+    saved.head.createdAt shouldBe now
   }
 }

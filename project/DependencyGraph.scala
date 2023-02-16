@@ -1,12 +1,15 @@
 
 import net.virtualvoid.sbt.graph.DependencyGraphPlugin.autoImport._
-import net.virtualvoid.sbt.graph.ModuleGraph
+import net.virtualvoid.sbt.graph.{DependencyGraphPlugin, ModuleGraph}
 import net.virtualvoid.sbt.graph.rendering.DOT
 import sbt._
 import sbt.Keys._
 import sbt.{AutoPlugin, TaskKey}
 
 object DependencyGraph extends AutoPlugin {
+
+  override def requires = super.requires && DependencyGraphPlugin
+
   override lazy val projectSettings = dependencyGraphSettings
 
   object autoImport {
@@ -20,7 +23,7 @@ object DependencyGraph extends AutoPlugin {
   lazy val groupByProject: Def.Initialize[Task[ModuleGraph]] =
     Def.task { (Provided / moduleGraph).value }
 
-  val dependencyGraphSettings = Seq (
+  lazy val dependencyGraphSettings = Seq (
     dependencyDotNodeLabel := { (_: String, name: String, c: String) =>
       name.replaceAll("_2.+$", "")
     },

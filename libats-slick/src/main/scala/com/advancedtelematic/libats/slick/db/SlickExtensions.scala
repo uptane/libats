@@ -155,7 +155,7 @@ trait SlickPagination {
         .drop(offset)
         .take(limit)
 
-    def paginateAndSort[T <% slick.lifted.Ordered](fn: E => T, offset: Long, limit: Long): Query[E, U, Seq] =
+    def paginateAndSort[T](fn: E => T, offset: Long, limit: Long)(implicit ev: T => slick.lifted.Ordered): Query[E, U, Seq] =
       action
         .sortBy(fn)
         .drop(offset)
@@ -167,8 +167,8 @@ trait SlickPagination {
       tot.zip(pag).map{ case (total, values) => PaginationResult(values, total, offset, limit) }
     }
 
-    def paginateAndSortResult[T <% slick.lifted.Ordered](fn: E => T, offset: Long, limit: Long)
-                                                        (implicit ec: ExecutionContext): DBIO[PaginationResult[U]] = {
+    def paginateAndSortResult[T](fn: E => T, offset: Long, limit: Long)
+                             (implicit ec: ExecutionContext, ev: T => slick.lifted.Ordered): DBIO[PaginationResult[U]] = {
       val tot = action.length.result
       val pag = action.paginateAndSort(fn, offset, limit).result
       tot.zip(pag).map{ case (total, values) => PaginationResult(values, total, offset, limit) }
