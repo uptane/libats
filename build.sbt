@@ -5,11 +5,11 @@ val Library = new {
     val akkaHttp = "10.2.10"
     val akkaHttpCirce = "1.39.2"
     val circe = "0.14.3"
-    val refined = "0.10.1"
+    val refined = "0.10.2"
     val scalaTest = "3.2.12"
     val metricsV = "4.2.17"
     val cats = "2.0.0"
-    val logback = "1.4.5"
+    val logback = "1.4.6"
     val flyway = "8.5.13"
   }
 
