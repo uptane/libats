@@ -5,11 +5,11 @@ val Library = new {
     val akkaHttp = "10.2.10"
     val akkaHttpCirce = "1.39.2"
     val circe = "0.14.3"
-    val refined = "0.10.2"
+    val refined = "0.10.3"
     val scalaTest = "3.2.12"
     val metricsV = "4.2.18"
     val cats = "2.0.0"
-    val logback = "1.4.6"
+    val logback = "1.4.7"
     val flyway = "8.5.13"
   }
 
@@ -62,8 +62,8 @@ val Library = new {
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.15.0",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.15.0",
+    "io.zipkin.brave" % "brave" % "5.15.1",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.15.1",
     "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
   )
 }
