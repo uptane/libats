@@ -68,7 +68,7 @@ val Library = new {
   )
 }
 
-lazy val scala212 = "2.12.17"
+lazy val scala212 = "2.12.18"
 lazy val scala211 = "2.13.6"
 lazy val supportedScalaVersions = List(scala212, scala211)
 lazy val commonDeps =
@@ -230,7 +230,7 @@ lazy val libats_publish_akka = (project in file("libats-publish-akka"))
 lazy val libats_root = (project in file("."))
   .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
-  .settings(scalaVersion := "2.12.17")
+  .settings(scalaVersion := "2.12.18")
   .settings(crossScalaVersions := Nil)
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
     libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
