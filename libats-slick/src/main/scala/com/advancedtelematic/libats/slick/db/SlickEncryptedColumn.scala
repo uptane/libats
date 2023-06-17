@@ -17,9 +17,6 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 
-
-import cats.implicits._
-
 protected [db] class SlickCrypto(salt: Array[Byte], password: String) {
   private lazy val pbeParameterSpec = new PBEParameterSpec(salt, 1000)
   private val BC = BouncyCastleProvider.PROVIDER_NAME
