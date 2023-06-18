@@ -5,11 +5,11 @@ val Library = new {
     val akkaHttp = "10.2.10"
     val akkaHttpCirce = "1.39.2"
     val circe = "0.14.3"
-    val refined = "0.10.3"
+    val refined = "0.11.0"
     val scalaTest = "3.2.12"
-    val metricsV = "4.2.18"
+    val metricsV = "4.2.19"
     val cats = "2.0.0"
-    val logback = "1.4.6"
+    val logback = "1.4.8"
     val flyway = "8.5.13"
   }
 
@@ -62,14 +62,14 @@ val Library = new {
   )
 
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.15.0",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.15.0",
-    "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.3"
+    "io.zipkin.brave" % "brave" % "5.16.0",
+    "io.zipkin.brave" % "brave-instrumentation-http" % "5.16.0",
+    "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "2.16.4"
   )
 }
 
-lazy val scala212 = "2.12.17"
-lazy val scala211 = "2.13.6"
+lazy val scala212 = "2.12.18"
+lazy val scala211 = "2.13.11"
 lazy val supportedScalaVersions = List(scala212, scala211)
 lazy val commonDeps =
   libraryDependencies ++= Library.circe ++ Seq(Library.refined, Library.scalatest) ++ Library.cats :+ Library.logback
@@ -230,7 +230,7 @@ lazy val libats_publish_akka = (project in file("libats-publish-akka"))
 lazy val libats_root = (project in file("."))
   .enablePlugins(DependencyGraph)
   .settings(Publish.disable)
-  .settings(scalaVersion := "2.12.17")
+  .settings(scalaVersion := "2.12.18")
   .settings(crossScalaVersions := Nil)
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
     libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
