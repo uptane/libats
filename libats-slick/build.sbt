@@ -18,6 +18,6 @@ libraryDependencies ++= {
     "org.bouncycastle" % "bcprov-jdk18on" % "1.76" % Provided,
     "org.bouncycastle" % "bcpkix-jdk18on" % "1.76" % Provided,
 
-    "com.beachape" %% "enumeratum" % "1.7.2" % Provided,
+    "com.beachape" %% "enumeratum" % "1.7.3" % Provided,
   )
 }
