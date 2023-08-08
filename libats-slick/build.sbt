@@ -15,7 +15,9 @@ libraryDependencies ++= {
 
     "org.mariadb.jdbc" % "mariadb-java-client" % "3.1.4" % Test,
 
-    "org.bouncycastle" % "bcprov-jdk18on" % "1.73" % Provided,
-    "org.bouncycastle" % "bcpkix-jdk18on" % "1.73" % Provided
+    "org.bouncycastle" % "bcprov-jdk18on" % "1.76" % Provided,
+    "org.bouncycastle" % "bcpkix-jdk18on" % "1.76" % Provided,
+
+    "com.beachape" %% "enumeratum" % "1.7.3" % Provided,
   )
 }

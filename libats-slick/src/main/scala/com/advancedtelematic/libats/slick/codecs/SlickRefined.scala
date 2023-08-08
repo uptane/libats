@@ -7,42 +7,17 @@ package com.advancedtelematic.libats.slick.codecs
 import eu.timepit.refined.api.{Refined, Validate}
 import slick.jdbc.MySQLProfile.api._
 
+import cats.syntax.either._
 import scala.language.higherKinds
 
 /**
-  * Map refined types to their underlaying types when interacting with
+  * Map refined types to their underlying types when interacting with
   * the database.
   */
 trait SlickRefined {
-
-  trait Wrap[F[_, _]] {
-    def apply[T, P](t: T): F[T, P]
-  }
-
-  object Wrap {
-    implicit val wrapRefined: Wrap[Refined] = new Wrap[Refined] {
-      override def apply[T, P](t: T): Refined[T, P] = Refined.unsafeApply(t)
-    }
-  }
-
-  trait Unwrap[F[_, _]] {
-    def apply[T, P](value: F[T, P]) : T
-  }
-
-  object Unwrap {
-    implicit val unwrapRefined: Unwrap[Refined] = new Unwrap[Refined] {
-      override def apply[T, P]( value: Refined[T, P] ): T = value.value
-    }
-  }
-
-  implicit def refinedMappedType[T, P, F[_, _]]
-      (implicit delegate: ColumnType[T],
-       p: Validate.Plain[T, P],
-       wrapper: Wrap[F],
-       unwrapper: Unwrap[F],
-       ct: scala.reflect.ClassTag[F[T, P]] ) : ColumnType[F[T, P]] =
-    MappedColumnType.base[F[T, P], T]( unwrapper(_), wrapper(_) )
-
+  implicit def refinedMappedType[T, P]
+  (implicit delegate: ColumnType[T], validate: Validate[T, P]) : ColumnType[Refined[T, P]] =
+    MappedColumnType.base[Refined[T, P], T](_.value, eu.timepit.refined.refineV[P](_).valueOr(err => throw new IllegalArgumentException(err)))
 }
 
 object SlickRefined extends SlickRefined
