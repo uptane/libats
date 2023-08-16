@@ -8,7 +8,7 @@ val Library = new {
     val refined = "0.11.0"
     val scalaTest = "3.2.12"
     val metricsV = "4.2.20"
-    val cats = "2.0.0"
+    val cats = "2.10.0"
     val logback = "1.4.11"
     val flyway = "9.22.2"
   }
