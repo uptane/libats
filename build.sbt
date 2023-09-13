@@ -69,7 +69,7 @@ val Library = new {
 }
 
 lazy val scala212 = "2.12.18"
-lazy val scala211 = "2.13.11"
+lazy val scala211 = "2.13.12"
 lazy val supportedScalaVersions = List(scala212, scala211)
 lazy val commonDeps =
   libraryDependencies ++= Library.circe ++ Seq(Library.refined, Library.scalatest) ++ Library.cats :+ Library.logback
