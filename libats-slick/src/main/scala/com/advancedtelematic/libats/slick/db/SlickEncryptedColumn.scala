@@ -2,6 +2,7 @@ package com.advancedtelematic.libats.slick.db
 
 import java.util.Base64
 
+import cats.syntax.all._
 import cats.data.{Validated, ValidatedNel}
 import javax.crypto.Cipher
 import javax.crypto.spec.PBEParameterSpec
