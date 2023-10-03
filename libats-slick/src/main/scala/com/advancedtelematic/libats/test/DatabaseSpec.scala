@@ -64,6 +64,7 @@ trait DatabaseSpec[P <: BasicProfile] extends BeforeAndAfterAll {
     Flyway.configure()
       .dataSource(url, user, password)
       .schemas(schemaName)
+      .cleanDisabled(false)
       .load()
   }
 
