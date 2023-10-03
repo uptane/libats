@@ -2,6 +2,7 @@ package com.advancedtelematic.libats.slick.db
 
 import java.util.Base64
 
+import cats.syntax.all._
 import cats.data.{Validated, ValidatedNel}
 import javax.crypto.Cipher
 import javax.crypto.spec.PBEParameterSpec
@@ -16,9 +17,6 @@ import io.circe.syntax._
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import org.bouncycastle.jce.provider.BouncyCastleProvider
-
-
-import cats.implicits._
 
 protected [db] class SlickCrypto(salt: Array[Byte], password: String) {
   private lazy val pbeParameterSpec = new PBEParameterSpec(salt, 1000)
