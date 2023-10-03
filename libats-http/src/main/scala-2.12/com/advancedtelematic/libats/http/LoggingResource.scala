@@ -3,7 +3,7 @@ package com.advancedtelematic.libats.http
 import akka.http.scaladsl.model.StatusCodes
 import ch.qos.logback.classic.{Level, LoggerContext}
 import org.slf4j.LoggerFactory
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object LoggingResource {
   import akka.http.scaladsl.server.Directives._

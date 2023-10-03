@@ -2,7 +2,7 @@ package com.advancedtelematic.libats.db
 
 import com.typesafe.config.Config
 import org.flywaydb.core.Flyway
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 protected [libats] object LibatsFlyway {
   def apply(dbConfig: Config): Flyway = {

@@ -108,12 +108,12 @@ trait SlickResultExtensions {
       DBIOOptionOps(query.take(1).result.headOption).failIfNone(onEmpty)
 
     def maybeFilter(f: E => Rep[Option[Boolean]]): Query[E, U, Seq] =
-      query.withFilter { e: E =>
+      query.withFilter { (e: E) =>
         f(e).getOrElse(true)
       }
 
     def maybeContains(f: E => Rep[_], exp: Option[String]): Query[E, U, Seq] =
-      query.withFilter { e: E =>
+      query.withFilter { (e: E) =>
         exp match {
           case Some(s) if s.nonEmpty => f(e).mappedTo[String].like(s"%$s%")
           case _ => true.bind
@@ -179,11 +179,11 @@ trait SlickPagination {
 object SlickPagination extends SlickPagination
 
 object SlickExtensions extends SlickResultExtensions with SlickPagination {
-  implicit val UriColumnType = MappedColumnType.base[Uri, String](_.toString(), Uri.apply)
+  implicit val UriColumnType: slick.jdbc.MySQLProfile.BaseColumnType[akka.http.scaladsl.model.Uri] = MappedColumnType.base[Uri, String](_.toString(), Uri.apply)
 
-  implicit val uuidColumnType = MappedColumnType.base[UUID, String](_.toString(), UUID.fromString)
+  implicit val uuidColumnType: slick.jdbc.MySQLProfile.BaseColumnType[java.util.UUID] = MappedColumnType.base[UUID, String](_.toString(), UUID.fromString)
 
-  implicit val javaInstantMapping = MappedColumnType.base[Instant, Timestamp](Timestamp.from, _.toInstant)
+  implicit val javaInstantMapping: slick.jdbc.MySQLProfile.BaseColumnType[java.time.Instant] = MappedColumnType.base[Instant, Timestamp](Timestamp.from, _.toInstant)
 
   implicit class MappedColumnExtensions(c: Rep[_]) {
     def mappedTo[U: TypedType] = Rep.forNode[U](c.toNode)

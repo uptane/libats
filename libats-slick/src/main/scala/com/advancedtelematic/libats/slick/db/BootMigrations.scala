@@ -10,7 +10,7 @@ import com.advancedtelematic.libats.http.BootApp
 import com.typesafe.config.{Config, ConfigFactory}
 import org.flywaydb.core.Flyway
 import org.slf4j.LoggerFactory
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}

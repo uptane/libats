@@ -21,7 +21,7 @@ object AnormMysqlCirce {
     decode[T](str).leftMap { err => SqlRequestError(err) }
   }
 
-  implicit val jsonToStatement = circeToStatement[Json]
+  implicit val jsonToStatement: anorm.ToStatement[io.circe.Json] = circeToStatement[Json]
 
-  implicit val jsonColumn = circeColumn[Json]
+  implicit val jsonColumn: anorm.Column[io.circe.Json] = circeColumn[Json]
 }

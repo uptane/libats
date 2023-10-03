@@ -28,8 +28,8 @@ case class ErrorRepresentation(code: ErrorCode, description: String, cause: Opti
 
 object ErrorRepresentation {
   import io.circe.generic.semiauto._
-  implicit val encoderInstance = deriveEncoder[ErrorRepresentation]
-  implicit val decoderInstance = deriveDecoder[ErrorRepresentation]
+  implicit val encoderInstance: Encoder[ErrorRepresentation] = deriveEncoder[ErrorRepresentation]
+  implicit val decoderInstance: Decoder[ErrorRepresentation] = deriveDecoder[ErrorRepresentation]
 
 }
 

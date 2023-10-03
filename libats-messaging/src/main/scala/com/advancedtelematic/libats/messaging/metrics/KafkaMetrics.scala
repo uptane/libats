@@ -25,7 +25,7 @@ class KafkaMetrics extends MetricsReporter {
     metrics.asScala.foreach { x =>
       try {
         metricRegistry.register(metricName(x), new Gauge[Double] {
-          override def getValue: Double = x.value()
+          override def getValue: Double = x.metricValue().asInstanceOf[Double]
         })
       } catch {
         case ex: IllegalArgumentException if ex.getMessage.contains("already exists") =>
@@ -43,7 +43,7 @@ class KafkaMetrics extends MetricsReporter {
     metricRegistry.register(
       metricName(metric),
       new Gauge[Double] {
-        override def getValue: Double = metric.value()
+        override def getValue: Double = metric.metricValue().asInstanceOf[Double]
       })
   } catch {
     case ex: IllegalArgumentException if ex.getMessage.contains("already exists") =>

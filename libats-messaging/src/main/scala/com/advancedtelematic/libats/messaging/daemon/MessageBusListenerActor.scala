@@ -20,7 +20,7 @@ class MessageBusListenerActor[M](source: Source[M, NotUsed], monitor: ListenerMo
                                 (implicit messageLike: MessageLike[M])
   extends Actor with ActorLogging {
 
-  implicit val ec = context.dispatcher
+  implicit val ec: scala.concurrent.ExecutionContextExecutor = context.dispatcher
   import context.system
 
   override def postRestart(reason: Throwable): Unit = {

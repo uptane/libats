@@ -93,7 +93,7 @@ class SlickEncryptionKeyChange(idColumn: String,
 
 
 object SlickEncryptionKeyChangeApp extends DatabaseSupport {
-  implicit lazy val system = ActorSystem("SlickEncryptionKeyChangeApp")
+  implicit lazy val system: akka.actor.ActorSystem = ActorSystem("SlickEncryptionKeyChangeApp")
 
   // TODO: Get the proper config scoped by ats.<project name>.database
   override lazy val dbConfig = ConfigFactory.load().getConfig("database")

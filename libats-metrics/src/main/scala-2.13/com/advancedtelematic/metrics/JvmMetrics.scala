@@ -21,7 +21,7 @@ object OsMetricSet extends MetricSet {
         import scala.jdk.CollectionConverters._
         Map[String, Metric](
           "cpu-load.system" -> new Gauge[Double] {
-            override def getValue: Double = unix.getSystemCpuLoad
+            override def getValue: Double = unix.getCpuLoad
           },
           "cpu-load.process" -> new Gauge[Double] {
             override def getValue: Double = unix.getProcessCpuLoad

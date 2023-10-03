@@ -8,7 +8,7 @@ package com.advancedtelematic.libats.slick.codecs
 import slick.jdbc.MySQLProfile.api._
 
 object SlickEnumMapper {
-  def enumMapper[E <: Enumeration](enum: E) = {
+  def enumMapper[E <: Enumeration](`enum`: E) = {
     MappedColumnType.base[E#Value, String](_.toString, (s: String) => enum.withName(s))
   }
 }
@@ -17,6 +17,6 @@ object SlickEnumMapper {
 trait SlickEnum {
   self: Enumeration =>
 
-  implicit val enumMapper =
+  implicit val enumMapper: slick.jdbc.MySQLProfile.BaseColumnType[SlickEnum.this.Value] =
     MappedColumnType.base[Value, String](_.toString, this.withName)
 }

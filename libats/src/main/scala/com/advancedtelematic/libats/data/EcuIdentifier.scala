@@ -3,11 +3,11 @@ package com.advancedtelematic.libats.data
 import com.advancedtelematic.libats.codecs.CirceValidatedGeneric
 import io.circe.{Decoder, Encoder}
 
-final case class EcuIdentifier private[EcuIdentifier](value: String) extends AnyVal
+final case class EcuIdentifier(value: String) extends AnyVal
 
 object EcuIdentifier {
 
-  implicit val validatedEcuIdentifier = new ValidatedGeneric[EcuIdentifier, String] {
+  implicit val validatedEcuIdentifier: ValidatedGeneric[com.advancedtelematic.libats.data.EcuIdentifier,String] = new ValidatedGeneric[EcuIdentifier, String] {
     override def to(ecuId: EcuIdentifier): String = ecuId.value
     override def from(s: String): Either[ValidationError, EcuIdentifier] = EcuIdentifier.from(s)
   }
