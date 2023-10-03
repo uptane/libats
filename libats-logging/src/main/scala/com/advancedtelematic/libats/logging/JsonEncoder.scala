@@ -1,11 +1,14 @@
 package com.advancedtelematic.libats.logging
 
 import ch.qos.logback.classic.Level
-import ch.qos.logback.classic.pattern.{TargetLengthBasedClassNameAbbreviator, ThrowableProxyConverter}
+import ch.qos.logback.classic.pattern.{
+  TargetLengthBasedClassNameAbbreviator,
+  ThrowableProxyConverter
+}
 import ch.qos.logback.classic.spi.ILoggingEvent
 import io.circe.syntax._
 import io.circe.{Encoder, Json}
-
+import java.util.Date
 import java.time.Instant
 import scala.jdk.CollectionConverters._
 
@@ -47,12 +50,11 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
     super.stop()
   }
 
-  private def formatMsgJson(msg: String): Json = {
-    if(msgIsJson)
+  private def formatMsgJson(msg: String): Json =
+    if (msgIsJson)
       io.circe.jawn.parse(msg).toOption.getOrElse(msg.asJson)
     else
       msg.asJson
-  }
 
   override def encode(event: ILoggingEvent): Array[Byte] = {
     val mdc = event.getMDCPropertyMap.asScala.view.mapValues(_.asJson).toMap
@@ -74,11 +76,31 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
       .maybeWithValue("http_stime", mdc.get("http_stime"))
       .maybeWithValue("http_path", mdc.get("http_path"))
       .maybeWithValue("http_query", mdc.get("http_query").filter(_ => includeHttpQuery))
-      .maybeWithValue("logger_service_name" -> AtsLayoutBase.svcName(event.getLoggerName).map(_.asJson))
+      .maybeWithValue(
+        "logger_service_name" -> AtsLayoutBase.svcName(event.getLoggerName).map(_.asJson)
+      )
 
-    val str = if(prettyPrint) map.asJson.spaces2 else map.asJson.noSpaces
+    val withKeyValues = Option(event.getKeyValuePairs).toList
+      .flatMap(_.asScala)
+      .map { pair =>
+        pair.key -> anyToJson(pair.value)
+      }
+      .toMap ++ map
+
+    val str = if (prettyPrint) withKeyValues.asJson.spaces2 else withKeyValues.asJson.noSpaces
 
     (str + "\n").getBytes
+  }
+
+  private def anyToJson(input: Any): Json = input match {
+    case str: String => Json.fromString(str)
+    case num: Int => Json.fromInt(num)
+    case num: Long => Json.fromLong(num)
+    case bool: Boolean => Json.fromBoolean(bool)
+    case date: Date => Json.fromString(date.toInstant.toString)
+    case instant: Instant => Json.fromString(instant.toString)
+    case json: Json => json
+    case other => Json.fromString(other.toString)
   }
 
   protected def encodeThrowable(value: ILoggingEvent): Json = {
@@ -91,6 +113,7 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
   override def footerBytes(): Array[Byte] = null
 
   implicit private class MapJsonOps(map: Map[String, Json]) {
+
     def maybeWithValue(value: => (String, Option[Json])): Map[String, Json] =
       value match {
         case (key, Some(v)) =>
@@ -100,7 +123,7 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
       }
 
     def withValue(enabled: Boolean, value: => (String, Json)): Map[String, Json] =
-      if(enabled)
+      if (enabled)
         map + value
       else
         map
@@ -109,6 +132,7 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
       case (_, v) if v != Json.Null && v != Json.obj() => map + value
       case _ => map
     }
-  }
-}
 
+  }
+
+}

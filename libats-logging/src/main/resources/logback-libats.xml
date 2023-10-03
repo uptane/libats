@@ -1,7 +1,7 @@
 <included>
     <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%.-1level|%date{ISO8601, UTC}|%logger{36}|%message%n%exception</pattern>
+            <pattern>%highlight(%.-1level)|%date{ISO8601, UTC}|%logger{36}|%message%replace( %kvp{NONE}){^\s$,''}%n%exception</pattern>
         </encoder>
     </appender>
 
