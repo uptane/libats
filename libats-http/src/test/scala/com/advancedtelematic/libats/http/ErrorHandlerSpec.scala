@@ -26,7 +26,7 @@ class ErrorHandlerSpec extends AnyFunSuite with Matchers with ScalatestRouteTest
 
   test("DecodingFailure error handler keeps decoding history") {
     val (_, errorRepresentation) = Errors.onDecodingError(DecodingFailure("msg", List(DownField("field"))))
-    assert(errorRepresentation.description == "msg: DownField(field)")
+    assert(errorRepresentation.description == "DecodingFailure at .field: msg")
   }
 
   test("uses application/json content-type when returning error") {
