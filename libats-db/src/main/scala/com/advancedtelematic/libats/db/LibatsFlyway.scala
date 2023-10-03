@@ -33,6 +33,10 @@ protected [libats] object LibatsFlyway {
       flywayConfig.table(dbConfig.getString("flyway.schema-table"))
     }
 
+    if (dbConfig.hasPath("flyway.clean-disabled")) {
+      flywayConfig.cleanDisabled(dbConfig.getBoolean("flyway.clean-disabled"))
+    }
+
     if (dbConfig.hasPath("flyway.schema")) {
       flywayConfig.schemas(dbConfig.getString("flyway.schema"))
     } else if (dbConfig.hasPath("database")) {
