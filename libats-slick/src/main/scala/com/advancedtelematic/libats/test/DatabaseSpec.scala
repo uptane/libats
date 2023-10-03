@@ -15,13 +15,13 @@ import java.util.TimeZone
 trait MysqlDatabaseSpec extends DatabaseSpec[MySQLProfile] {
   self: Suite =>
 
-  override implicit lazy val db = MySQLProfile.api.Database.forConfig("", slickDbConfig)
+  override implicit lazy val db: slick.jdbc.MySQLProfile.backend.Database = MySQLProfile.api.Database.forConfig("", slickDbConfig)
 }
 
 trait PostgresDatabaseSpec extends DatabaseSpec[PostgresProfile] {
   self: Suite =>
 
-  override implicit lazy val db = PostgresProfile.api.Database.forConfig("", slickDbConfig)
+  override implicit lazy val db: slick.jdbc.PostgresProfile.backend.Database = PostgresProfile.api.Database.forConfig("", slickDbConfig)
 }
 
 trait DatabaseSpec[P <: BasicProfile] extends BeforeAndAfterAll {

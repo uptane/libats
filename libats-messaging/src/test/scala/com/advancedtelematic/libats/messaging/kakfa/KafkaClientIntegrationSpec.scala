@@ -23,7 +23,7 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
 
 import java.time.Instant
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
@@ -31,7 +31,7 @@ import scala.concurrent.duration._
 case class KafkaSpecMessage(id: Int, payload: String)
 
 object KafkaSpecMessage {
-  implicit val messageLike = MessageLike.derive[KafkaSpecMessage](_.id.toString)
+  implicit val messageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging.kakfa.KafkaSpecMessage] = MessageLike.derive[KafkaSpecMessage](_.id.toString)
 }
 
 class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
@@ -42,7 +42,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
   with PatienceConfiguration
   with Eventually {
 
-  implicit val _ec = system.dispatcher
+  implicit val _ec: scala.concurrent.ExecutionContextExecutor = system.dispatcher
 
   override implicit def patienceConfig = PatienceConfig(timeout = Span(30, Seconds), interval = Span(500, Millis))
 

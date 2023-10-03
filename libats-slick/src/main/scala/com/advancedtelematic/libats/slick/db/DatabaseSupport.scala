@@ -11,7 +11,7 @@ import slick.jdbc.MySQLProfile.api._
 trait DatabaseSupport {
   val dbConfig: Config
 
-  implicit lazy val db = Database.forConfig("", dbConfig)
+  implicit lazy val db: slick.jdbc.MySQLProfile.backend.Database = Database.forConfig("", dbConfig)
 
   lazy val dbSource = db.source
 }

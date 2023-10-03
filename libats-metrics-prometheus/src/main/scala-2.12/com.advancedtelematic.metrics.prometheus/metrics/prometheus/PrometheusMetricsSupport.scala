@@ -10,7 +10,7 @@ import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.dropwizard.DropwizardExports
 import io.prometheus.client.exporter.common.TextFormat
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object PrometheusMetricsRoutes {
   def apply(): Route = {

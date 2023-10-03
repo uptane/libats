@@ -161,29 +161,29 @@ object Messages {
   final case class EcuReplaced(deviceUuid: DeviceId, former: EcuAndHardwareId, current: EcuAndHardwareId, eventTime: Instant = Instant.now) extends EcuReplacement
   final case class EcuReplacementFailed(deviceUuid: DeviceId, eventTime: Instant = Instant.now) extends EcuReplacement
 
-  implicit val deviceSystemInfoChangedMessageLike = MessageLike.derive[DeviceSystemInfoChanged](_.uuid.toString)
+  implicit val deviceSystemInfoChangedMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.DeviceSystemInfoChanged] = MessageLike.derive[DeviceSystemInfoChanged](_.uuid.toString)
 
-  implicit val commitManifestUpdatedMessageLike = MessageLike.derive[CommitManifestUpdated](_.commit.value)
+  implicit val commitManifestUpdatedMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.CommitManifestUpdated] = MessageLike.derive[CommitManifestUpdated](_.commit.value)
 
-  implicit val aktualizrConfigChangedMessageLike = MessageLike.derive[AktualizrConfigChanged](_.uuid.toString)
+  implicit val aktualizrConfigChangedMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.AktualizrConfigChanged] = MessageLike.derive[AktualizrConfigChanged](_.uuid.toString)
 
-  implicit val userCreatedMessageLike = MessageLike[UserCreated](_.id)
+  implicit val userCreatedMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.UserCreated] = MessageLike[UserCreated](_.id)
 
-  implicit val deviceSeenMessageLike = MessageLike.derive[DeviceSeen](_.uuid.toString)
+  implicit val deviceSeenMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.DeviceSeen] = MessageLike.derive[DeviceSeen](_.uuid.toString)
 
-  implicit val campaignLaunchedMessageLike = MessageLike[CampaignLaunched](_.updateId.toString)
+  implicit val campaignLaunchedMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.CampaignLaunched] = MessageLike[CampaignLaunched](_.updateId.toString)
 
-  implicit val bandwidthUsageMessageLike = MessageLike.derive[BandwidthUsage](_.id.toString)
+  implicit val bandwidthUsageMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.BandwidthUsage] = MessageLike.derive[BandwidthUsage](_.id.toString)
 
-  implicit val imageStorageMessageLike = MessageLike.derive[ImageStorageUsage](_.namespace.get)
+  implicit val imageStorageMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.ImageStorageUsage] = MessageLike.derive[ImageStorageUsage](_.namespace.get)
 
-  implicit val deviceEventMessageType = MessageLike[DeviceEventMessage](_.namespace.get)
+  implicit val deviceEventMessageType: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.DeviceEventMessage] = MessageLike[DeviceEventMessage](_.namespace.get)
 
-  implicit val deviceUpdateEventMessageLike = MessageLike[DeviceUpdateEvent](_.namespace.get)
+  implicit val deviceUpdateEventMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.DeviceUpdateEvent] = MessageLike[DeviceUpdateEvent](_.namespace.get)
 
-  implicit val deleteDeviceRequestMessageLike = MessageLike.derive[DeleteDeviceRequest](_.uuid.show)
+  implicit val deleteDeviceRequestMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.DeleteDeviceRequest] = MessageLike.derive[DeleteDeviceRequest](_.uuid.show)
 
-  implicit val ecuReplacementMsgLike = MessageLike[EcuReplacement](_.deviceUuid.show)
+  implicit val ecuReplacementMsgLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.EcuReplacement] = MessageLike[EcuReplacement](_.deviceUuid.show)
 
-  implicit val deviceMetricsObservationMessageLike = MessageLike.derive[DeviceMetricsObservation](_.namespace.get)
+  implicit val deviceMetricsObservationMessageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging_datatype.Messages.DeviceMetricsObservation] = MessageLike.derive[DeviceMetricsObservation](_.namespace.get)
 }

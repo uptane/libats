@@ -11,7 +11,7 @@ import slick.jdbc.JdbcDataSource
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import slick.util.AsyncExecutorMXBean
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 trait DatabaseMetrics { self: MetricsSupport =>

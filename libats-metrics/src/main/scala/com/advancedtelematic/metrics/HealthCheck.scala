@@ -13,7 +13,7 @@ object HealthCheck {
   object Up extends HealthCheckResult
   case class Down(cause: Throwable) extends HealthCheckResult
 
-  implicit val healthCheckResultEncoders = Encoder.instance[HealthCheckResult] {
+  implicit val healthCheckResultEncoders: io.circe.Encoder[com.advancedtelematic.metrics.HealthCheck.HealthCheckResult] = Encoder.instance[HealthCheckResult] {
     case Up => Json.obj("status" -> "up".asJson)
     case Down(cause) => Json.obj("status" -> "down".asJson, "cause" -> cause.getMessage.asJson)
   }

@@ -8,7 +8,7 @@ import com.codahale.metrics.jvm.{GarbageCollectorMetricSet, MemoryUsageGaugeSet,
 import io.circe.Json
 import io.circe.syntax._
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.util.Try
 
@@ -18,7 +18,7 @@ object OsMetricSet extends MetricSet {
   override def getMetrics: util.Map[String, Metric] = {
     os match {
       case unix: com.sun.management.UnixOperatingSystemMXBean =>
-        import scala.collection.JavaConverters._
+        import scala.jdk.CollectionConverters._
         Map[String, Metric](
           "cpu-load.system" -> new Gauge[Double] {
             override def getValue: Double = unix.getSystemCpuLoad

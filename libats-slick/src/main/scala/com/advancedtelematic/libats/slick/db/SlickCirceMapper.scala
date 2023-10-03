@@ -21,5 +21,5 @@ object SlickCirceMapper {
     str => decode(str).valueOr(throw _)
   )
 
-  implicit val jsonMapper = circeMapper[Json]
+  implicit val jsonMapper: slick.jdbc.MySQLProfile.BaseColumnType[io.circe.Json] = circeMapper[Json]
 }

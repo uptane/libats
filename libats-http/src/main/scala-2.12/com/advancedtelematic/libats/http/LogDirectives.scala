@@ -14,7 +14,7 @@ import akka.stream.Materializer
 import ch.qos.logback.classic.LoggerContext
 import com.advancedtelematic.libats.http.logging.RequestLoggingActor
 import org.slf4j.LoggerFactory
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import scala.util.Try
 

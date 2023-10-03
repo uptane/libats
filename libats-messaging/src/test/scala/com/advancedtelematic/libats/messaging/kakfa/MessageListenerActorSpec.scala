@@ -19,7 +19,7 @@ import scala.util.control.NoStackTrace
 case class MsgListenerSpecItem(id: Int, payload: String)
 
 object MsgListenerSpecItem {
-  implicit val messageLike = MessageLike.derive[MsgListenerSpecItem](_.id.toString)
+  implicit val messageLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematic.libats.messaging.MsgListenerSpecItem] = MessageLike.derive[MsgListenerSpecItem](_.id.toString)
 
   case object MsgListenerSpecError extends Exception("test ERROR") with NoStackTrace
 }
@@ -46,7 +46,7 @@ class MessageListenerActorSpec extends TestKit(ActorSystem("MessageListenerActor
 
   import MsgListenerSpecItem._
 
-  implicit val _ec = system.dispatcher
+  implicit val _ec: scala.concurrent.ExecutionContextExecutor = system.dispatcher
 
   val msg = MsgListenerSpecItem(1, "payload")
 

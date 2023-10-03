@@ -14,7 +14,7 @@ import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
 import io.circe.generic.auto._
 import org.slf4j.LoggerFactory
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import io.circe.syntax._
 
 import scala.concurrent.{ExecutionContext, Future}

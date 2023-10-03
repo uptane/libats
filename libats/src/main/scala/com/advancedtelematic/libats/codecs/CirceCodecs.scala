@@ -66,8 +66,8 @@ object CirceUri extends CirceUri
 trait CirceAts {
   import CirceRefined._
 
-  implicit val namespaceEncoder = Encoder.encodeString.contramap[Namespace](_.get)
-  implicit val namespaceDecoder = Decoder.decodeString.map(Namespace.apply)
+  implicit val namespaceEncoder: io.circe.Encoder[com.advancedtelematic.libats.data.DataType.Namespace] = Encoder.encodeString.contramap[Namespace](_.get)
+  implicit val namespaceDecoder: io.circe.Decoder[com.advancedtelematic.libats.data.DataType.Namespace] = Decoder.decodeString.map(Namespace.apply)
 
   implicit val hashMethodKeyEncoder: KeyEncoder[HashMethod] = KeyEncoder[String].contramap(_.toString)
   implicit val hashMethodKeyDecoder: KeyDecoder[HashMethod] = KeyDecoder.instance { value =>

@@ -19,7 +19,7 @@ object MigrationDatabase {
 
     override def close() = ()
 
-    override val maxConnections = Some(1)
+    override val maxConnections : Some[Int]= Some(1)
   }
 
   protected class MigrationSession(database: DatabaseDef) extends BaseSession(database) {
@@ -27,7 +27,7 @@ object MigrationDatabase {
   }
 
   protected class MigrationDatabase(conn: Connection) extends JdbcBackend.DatabaseDef(new MigrationJdbcDataSource(conn), AsyncExecutor("MigrationUmanagedDatabase-Executor", 1, -1)) {
-    override def createSession() = new MigrationSession(this)
+    override def createSession(): MigrationSession = new MigrationSession(this)
   }
 }
 

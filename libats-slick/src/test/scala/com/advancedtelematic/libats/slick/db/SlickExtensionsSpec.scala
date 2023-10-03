@@ -20,7 +20,7 @@ import com.advancedtelematic.libats.slick.codecs.SlickEnumMapper
 
 object SlickExtensionsSpec {
 
-  implicit val objectStatusMapping = SlickEnumMapper.enumMapper(ObjectStatus)
+  implicit val objectStatusMapping: slick.jdbc.MySQLProfile.BaseColumnType[com.advancedtelematic.libats.slick.db.SlickExtensionsSpec.ObjectStatus.Value] = SlickEnumMapper.enumMapper(ObjectStatus)
 
   case class Book(id: Long, title: String, code: Option[String] = None, createdAt: Instant = Instant.now.truncatedTo(ChronoUnit.MILLIS))
 

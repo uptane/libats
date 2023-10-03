@@ -1,6 +1,7 @@
 package com.advancedtelematic.metrics
 
 import akka.NotUsed
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route, RoutingLog}
 import akka.http.scaladsl.settings.{ConnectionPoolSettings, ParserSettings, RoutingSettings, ServerSettings}
@@ -37,7 +38,8 @@ trait AkkaHttpConnectionMetrics {
                                                                            routingLog: RoutingLog,
                                                                            _executionContext: ExecutionContextExecutor = null,
                                                                            rejectionHandler: RejectionHandler = RejectionHandler.default,
-                                                                           exceptionHandler: ExceptionHandler = null): Flow[HttpRequest, HttpResponse, NotUsed] =
+                                                                           exceptionHandler: ExceptionHandler = null,
+                                                                           system: ActorSystem): Flow[HttpRequest, HttpResponse, NotUsed] =
     AkkaHttpConnectionMetricsRoutes(routes, metricRegistry)(
       routingSettings = implicitly,
       parserSettings = implicitly,
@@ -45,7 +47,8 @@ trait AkkaHttpConnectionMetrics {
       routingLog = implicitly,
       executionContext = _executionContext,
       rejectionHandler = implicitly,
-      exceptionHandler = implicitly)
+      exceptionHandler = implicitly,
+      system = implicitly)
 }
 
 object AkkaHttpConnectionMetricsRoutes {
@@ -56,8 +59,9 @@ object AkkaHttpConnectionMetricsRoutes {
                                                            routingLog: RoutingLog,
                                                            executionContext: ExecutionContextExecutor = null,
                                                            rejectionHandler: RejectionHandler = RejectionHandler.default,
-                                                           exceptionHandler: ExceptionHandler = null): Flow[HttpRequest, HttpResponse, NotUsed] = {
-    val handler = Route.handlerFlow(routes)
+                                                           exceptionHandler: ExceptionHandler = null,
+                                                           system: ActorSystem): Flow[HttpRequest, HttpResponse, NotUsed] = {
+    val handler = Route.toFlow(routes)
 
     Flow[HttpRequest]
       .watchTermination() {

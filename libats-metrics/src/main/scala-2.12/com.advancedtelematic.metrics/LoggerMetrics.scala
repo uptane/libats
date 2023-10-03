@@ -8,7 +8,7 @@ import io.circe.Json
 import io.circe.syntax._
 import org.slf4j.{Logger, LoggerFactory}
 
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 import scala.util.Try
 

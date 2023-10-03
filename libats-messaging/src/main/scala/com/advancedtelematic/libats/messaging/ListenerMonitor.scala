@@ -58,7 +58,7 @@ class BusListenerMetrics(metrics: MetricRegistry) extends MetricsRepresentation 
 
   override def metricsJson: Future[Json] = FastFuture.successful {
     val counters = metrics.getCounters(filter).asScala
-    val data = counters.mapValues(_.getCount)
+    val data = counters.view.mapValues(_.getCount)
     data.toMap.asJson
   }
 

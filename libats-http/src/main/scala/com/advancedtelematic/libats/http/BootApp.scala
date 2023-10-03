@@ -19,7 +19,7 @@ trait BootAppDefaultConfig {
   val projectName: String
 
   implicit val system: ActorSystem = ActorSystem(projectName)
-  implicit lazy val exec = system.dispatcher
+  implicit lazy val exec: scala.concurrent.ExecutionContextExecutor = system.dispatcher
   lazy val log = LoggerFactory.getLogger(this.getClass)
 
   lazy val globalConfig = ConfigFactory.load()

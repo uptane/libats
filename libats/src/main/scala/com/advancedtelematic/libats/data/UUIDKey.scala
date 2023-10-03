@@ -28,7 +28,7 @@ object UUIDKey {
 
     implicit def keyEncoder: KeyEncoder[Self] = KeyEncoder[String].contramap(_.uuid.toString)
 
-    implicit val abstractKeyShow = Show.show[Self](_.uuid.toString)
+    implicit val abstractKeyShow: Show[Self] = Show.show[Self](_.uuid.toString)
   }
 
   abstract class UUIDKey {
