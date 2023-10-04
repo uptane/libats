@@ -1,5 +1,5 @@
 name := "libats-messaging"
 
 libraryDependencies ++= Seq(
-  "com.typesafe.akka" %% "akka-stream-kafka" % "2.1.1"
+  "com.typesafe.akka" %% "akka-stream-kafka" % "4.0.2"
 )
