@@ -63,7 +63,7 @@ object MessageBus {
       case "kafka" =>
         log.info("Starting messaging mode: Kafka")
         log.info(s"Using stream name: ${messageLike.streamName}")
-        KafkaClient.source(system, config, groupId)(messageLike)
+        KafkaClient.source(config, groupId, groupInstanceId = None)(messageLike)
       case "local" | "test" =>
         log.info("Using local event bus")
         LocalMessageBus.subscribe(system, config, op)
@@ -83,7 +83,7 @@ object MessageBus {
         val processingFlow = Flow[T].mapAsync[Any](listenerParallelism)(op)
         val committerSettings = CommitterSettings(config.getConfig("ats.messaging.kafka.committer"))
 
-        KafkaClient.committableSource[T](config, committerSettings, groupIdPrefix, processingFlow).mapMaterializedValue(_ => NotUsed)
+        KafkaClient.committableSource[T](config, committerSettings, groupIdPrefix, groupInstanceId = None, processingFlow).mapMaterializedValue(_ => NotUsed)
 
       case "local" | "test" =>
         log.info("Using local event bus")
