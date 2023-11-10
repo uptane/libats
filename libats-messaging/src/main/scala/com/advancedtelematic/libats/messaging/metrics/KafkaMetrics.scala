@@ -42,8 +42,8 @@ class KafkaMetrics extends MetricsReporter {
   override def metricChange(metric: KafkaMetric): Unit = try {
     metricRegistry.register(
       metricName(metric),
-      new Gauge[Double] {
-        override def getValue: Double = metric.metricValue().asInstanceOf[Double]
+      new Gauge[Object] {
+        override def getValue: Object = metric.metricValue()
       })
   } catch {
     case ex: IllegalArgumentException if ex.getMessage.contains("already exists") =>
