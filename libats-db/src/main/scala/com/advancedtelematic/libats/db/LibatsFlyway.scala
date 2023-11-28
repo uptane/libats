@@ -37,6 +37,10 @@ protected [libats] object LibatsFlyway {
       flywayConfig.cleanDisabled(dbConfig.getBoolean("flyway.clean-disabled"))
     }
 
+    if(dbConfig.hasPath("flyway.placeholders")) {
+      flywayConfig.placeholders(dbConfig.getObject("flyway.placeholders").asScala.view.mapValues(_.unwrapped().toString).toMap.asJava)
+    }
+
     if (dbConfig.hasPath("flyway.schema")) {
       flywayConfig.schemas(dbConfig.getString("flyway.schema"))
     } else if (dbConfig.hasPath("database")) {

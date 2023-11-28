@@ -56,9 +56,19 @@ protected [db] object RunMigrations {
       flywayConfig.table(dbConfig.getString("flyway.schema-table"))
     }
 
+    if (dbConfig.hasPath("flyway.clean-disabled")) {
+      flywayConfig.cleanDisabled(dbConfig.getBoolean("flyway.clean-disabled"))
+    }
+
+    if (dbConfig.hasPath("flyway.placeholders")) {
+      flywayConfig.placeholders(dbConfig.getObject("flyway.placeholders").asScala.view.mapValues(_.unwrapped().toString).toMap.asJava)
+    }
+
     if (dbConfig.hasPath("catalog")) {
       flywayConfig.schemas(dbConfig.getString("catalog"))
     }
+
+    flywayConfig.envVars()
 
     flywayConfig.load()
   }

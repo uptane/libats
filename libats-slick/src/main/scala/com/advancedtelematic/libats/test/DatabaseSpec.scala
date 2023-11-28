@@ -9,6 +9,7 @@ import org.flywaydb.core.Flyway
 import org.scalatest.{BeforeAndAfterAll, Suite}
 import slick.basic.BasicProfile
 import slick.jdbc.{MySQLProfile, PostgresProfile}
+import scala.jdk.CollectionConverters.*
 
 import java.util.TimeZone
 
@@ -65,8 +66,19 @@ trait DatabaseSpec[P <: BasicProfile] extends BeforeAndAfterAll {
       .dataSource(url, user, password)
       .schemas(schemaName)
       .cleanDisabled(false)
+      .placeholders(dbPlaceHolders.asJava)
       .load()
   }
+
+  private def configFlywayPlaceHolders: Map[String, String] = {
+    if(testDbConfig.hasPath("flyway.placeholders"))
+      testDbConfig.getObject("flyway.placeholders").asScala.view.mapValues(_.unwrapped().toString).toMap
+    else
+      Map.empty
+  }
+
+  //noinspection ScalaWeakerAccess
+  protected def dbPlaceHolders: Map[String, String] = configFlywayPlaceHolders ++ Map("test-schema" -> schemaName)
 
   private def resetDatabase() = {
     flyway.clean()
