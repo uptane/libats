@@ -22,6 +22,7 @@
     </appender>
 
     <logger name="com.zaxxer.hikari" level="${HIKARI_LOG_LEVEL:-INHERITED}" />
+    <logger name="org.flywaydb" level="${ATS_FLYWAY_LOG_LEVEL:-INHERITED}" />
     <logger name="slick.backend.DatabaseComponent.action" level="${SLICK_LOG_LEVEL:-INHERITED}" />
     <logger name="com.advancedtelematic" level="${ATS_LOG_LEVEL:-INHERITED}" />
     <logger name="com.advancedtelematic.libats.messaging" level="${ATS_MESSAGING_LOG_LEVEL:-INHERITED}" />
