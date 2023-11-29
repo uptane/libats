@@ -69,16 +69,12 @@ class JsonEncoder extends ch.qos.logback.core.encoder.EncoderBase[ILoggingEvent]
       .withValue(includeThread, "thread" -> event.getThreadName.asJson)
       .withValue(includeMdc, "mdc" -> mdc.asJson)
       .withValue("throwable" -> encodeThrowable(event))
-      .maybeWithValue("req_namespace", mdc.get("req_namespace"))
-      .maybeWithValue("http_status", mdc.get("http_status"))
-      .maybeWithValue("http_method", mdc.get("http_method"))
-      .maybeWithValue("http_service_name", mdc.get("http_service_name"))
-      .maybeWithValue("http_stime", mdc.get("http_stime"))
-      .maybeWithValue("http_path", mdc.get("http_path"))
-      .maybeWithValue("http_query", mdc.get("http_query").filter(_ => includeHttpQuery))
       .maybeWithValue(
         "logger_service_name" -> AtsLayoutBase.svcName(event.getLoggerName).map(_.asJson)
       )
+      ++ mdc.view
+      .filterKeys { key => key != "http_query" || includeHttpQuery }
+      .filterKeys { key => !key.startsWith("akka") }
 
     val withKeyValues = Option(event.getKeyValuePairs).toList
       .flatMap(_.asScala)

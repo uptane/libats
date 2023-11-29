@@ -1,7 +1,11 @@
 package com.advancedtelematic.libats.http.tracing
 
+import akka.actor.ActorSystem
+import akka.event.Logging
+import akka.event.Logging.LogLevel
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
-import akka.http.scaladsl.server.Directive1
+import akka.http.scaladsl.server.{Directive0, Directive1}
+import com.advancedtelematic.libats.http.LogDirectives.{MetricsBuilder, logResponseMetrics}
 import com.typesafe.config.{Config, ConfigException}
 import org.slf4j.LoggerFactory
 
@@ -28,6 +32,8 @@ object Tracing {
     def finishSpan(): Unit
 
     def httpClientTracing(remoteServiceName: String): AkkaHttpClientTracing
+
+    def traceIdString: String
   }
 
   def fromConfig(config: Config, serviceName: String): Tracing =

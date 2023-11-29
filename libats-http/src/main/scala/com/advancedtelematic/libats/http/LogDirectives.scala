@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory
 import scala.util.Try
 
 object LogDirectives {
-  import Directives._
+  import Directives.*
 
   type MetricsBuilder = (HttpRequest, HttpResponse) => Map[String, String]
 
@@ -60,11 +60,11 @@ object LogDirectives {
       "http_stime" -> serviceTime.toString,
       "http_status" -> response.status.intValue.toString,
       "http_service_name" -> serviceName
-    )
+    ) ++ response.headers.find(_.name() == "X-B3-TraceId").map(_.value()).map("trace_id" -> _)
   }
 
   private lazy val usingJsonAppender = {
-    import scala.jdk.CollectionConverters._
+    import scala.jdk.CollectionConverters.*
     val loggers = Try(LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]).toOption.toList.flatMap(_.getLoggerList.asScala)
     loggers.exists(_.iteratorForAppenders().asScala.exists(_.getName.contains("json")))
   }

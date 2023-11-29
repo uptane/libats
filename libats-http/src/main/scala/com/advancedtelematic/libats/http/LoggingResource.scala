@@ -5,12 +5,12 @@ import ch.qos.logback.classic.{Level, LoggerContext}
 import org.slf4j.LoggerFactory
 
 object LoggingResource {
-  import akka.http.scaladsl.server.Directives._
+  import akka.http.scaladsl.server.Directives.*
 
   private val loggerContext = LoggerFactory.getILoggerFactory.asInstanceOf[LoggerContext]
 
   private def loggers() = {
-    import scala.jdk.CollectionConverters._
+    import scala.jdk.CollectionConverters.*
     loggerContext.getLoggerList.asScala
   }
 

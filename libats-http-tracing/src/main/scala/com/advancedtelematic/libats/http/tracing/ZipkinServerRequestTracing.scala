@@ -104,4 +104,6 @@ class ZipkinServerRequestTracing(httpTracing: HttpTracing, requestSpan: Span) ex
   }
 
   override def traceId: Long = requestSpan.context().traceId()
+
+  override def traceIdString: String = requestSpan.context().traceIdString()
 }

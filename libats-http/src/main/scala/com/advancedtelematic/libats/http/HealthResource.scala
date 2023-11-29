@@ -7,13 +7,13 @@ package com.advancedtelematic.libats.http
 import akka.http.scaladsl.marshalling.ToResponseMarshallable
 import akka.http.scaladsl.model.{StatusCode, StatusCodes}
 import akka.http.scaladsl.server.Directives
-import com.advancedtelematic.libats.codecs.CirceCodecs._
-import com.advancedtelematic.metrics.{HealthCheck, JvmMetrics, LoggerMetrics, MetricsRepresentation, MetricsSupport}
+import com.advancedtelematic.libats.codecs.CirceCodecs.*
+import com.advancedtelematic.metrics.*
 import com.codahale.metrics.MetricRegistry
 import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
-import io.circe.syntax._
-import io.circe.generic.auto._
+import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport.*
+import io.circe.generic.auto.*
+import io.circe.syntax.*
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -24,8 +24,8 @@ class HealthResource(versionRepr: Map[String, Any] = Map.empty,
                      dependencies: Seq[HealthCheck] = Seq.empty,
                      metricRegistry: MetricRegistry = MetricsSupport.metricRegistry
                     )(implicit val ec: ExecutionContext) {
-  import Directives._
-  import HealthCheck._
+  import Directives.*
+  import HealthCheck.*
 
   val defaultMetrics = Seq(new JvmMetrics(metricRegistry), new LoggerMetrics(metricRegistry))
 
@@ -38,7 +38,7 @@ class HealthResource(versionRepr: Map[String, Any] = Map.empty,
         .recover { case ex => check.name -> Down(ex) }
     }
 
-    import FailFastCirceSupport._
+    import FailFastCirceSupport.*
 
     healthCheckResults.map { results =>
       if (results.forall(_._2 == Up))
