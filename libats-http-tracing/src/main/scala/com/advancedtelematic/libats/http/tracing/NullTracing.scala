@@ -15,6 +15,8 @@ class NullServerRequestTracing extends ServerRequestTracing  {
   override def httpClientTracing(remoteServiceName: String): AkkaHttpClientTracing = new NullHttpClientTracing
 
   override def traceId: Long = 0L
+
+  override def traceIdString: String = "0"
 }
 
 class NullTracing extends Tracing {
