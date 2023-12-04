@@ -7,10 +7,15 @@ import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 
 trait MonitoredBusListenerSupport {
-  self: BootApp with MessageListenerSupport =>
+  self: BootApp & MessageListenerSupport =>
 
-  def startMonitoredListener[T : MessageLike](op: MsgOperation[T],
-                                              skipProcessingErrors: Boolean = false): ActorRef = {
-    startListener(op, PrometheusMessagingMonitor[T](), skipProcessingErrors)
+  def startMonitoredListener[T: MessageLike](
+      op: MsgOperation[T],
+      skipProcessingErrors: Boolean = false,
+      actorNamePrefix: Option[String] = None): ActorRef = {
+    startListener(op,
+                  PrometheusMessagingMonitor[T](),
+                  skipProcessingErrors,
+                  actorNamePrefix)
   }
 }

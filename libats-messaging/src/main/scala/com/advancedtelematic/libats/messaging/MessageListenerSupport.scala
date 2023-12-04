@@ -12,20 +12,27 @@ trait MessageListenerSupport {
 
   import system.dispatcher
 
-  def startListener[T](op: MsgOperation[T], busListenerMonitor: ListenerMonitor, skipProcessingErrors: Boolean = false)
-                      (implicit ml: MessageLike[T]): ActorRef = {
+  def startListener[T](op: MsgOperation[T],
+                       busListenerMonitor: ListenerMonitor,
+                       skipProcessingErrors: Boolean = false,
+                       actorNamePrefix: Option[String] = None)(
+      implicit ml: MessageLike[T]): ActorRef = {
     val loggedOperation =
-      if(skipProcessingErrors)
+      if (skipProcessingErrors)
         MsgOperation.recoverFailed(op)(system.log, system.dispatcher)
       else
         MsgOperation.logFailed(op)(system.log, system.dispatcher)
 
-    val groupId = if (globalConfig.hasPath("ats.messaging.groupIdPrefix"))
-      globalConfig.getString("ats.messaging.groupIdPrefix")
-    else
-      projectName
+    val groupId =
+      if (globalConfig.hasPath("ats.messaging.groupIdPrefix"))
+        globalConfig.getString("ats.messaging.groupIdPrefix")
+      else
+        projectName
 
-    val ref = system.actorOf(MessageListener.props[T](globalConfig, loggedOperation, groupId, busListenerMonitor),  ml.streamName + "-listener")
+    val ref = system.actorOf(
+      MessageListener
+        .props[T](globalConfig, loggedOperation, groupId, busListenerMonitor),
+      actorNamePrefix.getOrElse("") + ml.streamName + "-listener")
     ref ! Subscribe
     ref
   }
