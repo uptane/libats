@@ -31,7 +31,7 @@ trait MessageListenerSupport {
 
     val ref = system.actorOf(
       MessageListener
-        .props[T](globalConfig, loggedOperation, groupId, busListenerMonitor),
+        .props[T](globalConfig, loggedOperation, groupId + actorNamePrefix.getOrElse(""), busListenerMonitor),
       actorNamePrefix.getOrElse("") + ml.streamName + "-listener")
     ref ! Subscribe
     ref
