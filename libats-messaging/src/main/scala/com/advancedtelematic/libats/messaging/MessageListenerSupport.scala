@@ -8,7 +8,7 @@ import com.advancedtelematic.libats.messaging.daemon.MessageBusListenerActor.Sub
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 
 trait MessageListenerSupport {
-  self: BootApp with VersionInfo =>
+  self: BootApp & VersionInfo =>
 
   import system.dispatcher
 
@@ -31,8 +31,8 @@ trait MessageListenerSupport {
 
     val ref = system.actorOf(
       MessageListener
-        .props[T](globalConfig, loggedOperation, groupId + actorNamePrefix.getOrElse(""), busListenerMonitor),
-      actorNamePrefix.getOrElse("") + ml.streamName + "-listener")
+        .props[T](globalConfig, loggedOperation, (List(groupId) ++ actorNamePrefix).mkString("-"), busListenerMonitor),
+      (actorNamePrefix ++ List(ml.streamName, "listener")).mkString("-"))
     ref ! Subscribe
     ref
   }
