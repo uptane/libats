@@ -22,7 +22,7 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
     HttpServerHandler.create(tracing, new ZipkinTracingHttpAdapter)
 
   private def extractor(tracing: HttpTracing): TraceContext.Extractor[HttpRequest] =
-    tracing.tracing.propagation.extractor((carrier: HttpRequest, key: String) => carrier.headers.find(_.name() == key).map(_.value()).orNull)
+    tracing.tracing.propagation.extractor((carrier: HttpRequest, key: String) => carrier.headers.find(_.name().equalsIgnoreCase(key)).map(_.value()).orNull)
 
   private def traceRequest(req: HttpRequest): Boolean = {
     List("/health", "/metrics").forall { p =>
