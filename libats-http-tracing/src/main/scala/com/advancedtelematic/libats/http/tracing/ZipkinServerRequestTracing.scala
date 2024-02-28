@@ -3,12 +3,11 @@ package com.advancedtelematic.libats.http.tracing
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.server.Directive1
-import brave.http.{HttpServerAdapter, HttpServerHandler, HttpServerRequest, HttpServerResponse, HttpTracing}
-import brave.propagation.TraceContext
+import brave.http.{HttpServerHandler, HttpServerRequest, HttpServerResponse, HttpTracing}
 import brave.{Span, Tracing as BraveTracing}
 import com.advancedtelematic.libats.http.tracing.Tracing.{AkkaHttpClientTracing, ServerRequestTracing, Tracing}
+import zipkin2.reporter.BytesMessageSender
 import zipkin2.reporter.brave.AsyncZipkinSpanHandler
-import zipkin2.reporter.{AsyncReporter, BytesMessageSender}
 import zipkin2.reporter.okhttp3.OkHttpSender
 
 import scala.collection.concurrent.TrieMap
@@ -84,7 +83,6 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
         handler.handleSend(new ZipkinTracedResponse(respWithHeaders), span)
 
         respWithHeaders
-
       }.tflatMap(_ => provide(new ZipkinServerRequestTracing(httpTracing, span)))
     case _ =>
       provide(new NullServerRequestTracing)
@@ -98,7 +96,7 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
 object ZipkinServerRequestTracing {
   def apply(uri: Uri, serviceName: String): ZipkinTracing = {
     val sender = OkHttpSender.create(uri.toString() + "/api/v2/spans")
-    val handler = AsyncZipkinSpanHandler.create(sender)
+    val handler = AsyncZipkinSpanHandler.create(sender: BytesMessageSender)
 
     val tracing = BraveTracing.newBuilder
       .localServiceName(serviceName)

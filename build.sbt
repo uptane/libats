@@ -63,10 +63,14 @@ val Library = new {
     "org.typelevel" %% "cats-kernel" % Version.cats
   )
 
+  val zipkinReporterVersion = "3.3.0"
+  val braveVersion = "6.0.2"
+
   val brave = Seq(
-    "io.zipkin.brave" % "brave" % "5.18.1",
-    "io.zipkin.brave" % "brave-instrumentation-http" % "5.18.1",
-    "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % "3.3.0"
+    "io.zipkin.brave" % "brave" % braveVersion,
+    "io.zipkin.brave" % "brave-instrumentation-http" % braveVersion,
+    "io.zipkin.reporter2" % "zipkin-reporter-brave" % zipkinReporterVersion,
+    "io.zipkin.reporter2" % "zipkin-sender-okhttp3" % zipkinReporterVersion,
   )
 }
 
