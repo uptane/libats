@@ -13,6 +13,8 @@ val Library = new {
     val flyway = "10.8.1"
   }
 
+  val javaUuidGenerator = "com.fasterxml.uuid" % "java-uuid-generator" % "4.3.0"
+
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
 
   val flyway = "org.flywaydb" % "flyway-core" % Version.flyway
@@ -71,7 +73,9 @@ val Library = new {
 lazy val scala213 = "2.13.12"
 lazy val supportedScalaVersions = List(scala213)
 lazy val commonDeps =
-  libraryDependencies ++= Library.circe ++ Seq(Library.refined, Library.scalatest) ++ Library.cats :+ Library.logback
+  libraryDependencies ++= Library.circe ++
+    Seq(Library.refined, Library.scalatest) ++
+    Library.cats :+ Library.logback :+ Library.javaUuidGenerator
 
 lazy val commonConfigs = Seq.empty
 
