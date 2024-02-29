@@ -3,27 +3,46 @@ package com.advancedtelematic.libats.http.tracing
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
 import akka.http.scaladsl.server.Directive1
-import brave.http.{HttpServerAdapter, HttpServerHandler, HttpTracing}
+import brave.http.{HttpServerAdapter, HttpServerHandler, HttpServerRequest, HttpServerResponse, HttpTracing}
 import brave.propagation.TraceContext
-import brave.{Span, Tracing => BraveTracing}
+import brave.{Span, Tracing as BraveTracing}
 import com.advancedtelematic.libats.http.tracing.Tracing.{AkkaHttpClientTracing, ServerRequestTracing, Tracing}
-import zipkin2.reporter.AsyncReporter
+import zipkin2.reporter.brave.AsyncZipkinSpanHandler
+import zipkin2.reporter.{AsyncReporter, BytesMessageSender}
 import zipkin2.reporter.okhttp3.OkHttpSender
 
 import scala.collection.concurrent.TrieMap
 
 
 class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
-  import akka.http.scaladsl.server.Directives._
+  import akka.http.scaladsl.server.Directives.*
 
-  private class ZipkinTracingHttpAdapter extends HttpServerAdapter[HttpRequest, HttpResponse]with AkkaHttpTracingAdapter
+  private class ZipkinTracedRequest(val request: HttpRequest) extends HttpServerRequest {
+    def method(): String =
+      request.method.value
+
+    def url(): String =
+      request.uri.toString()
+
+    def path(): String =
+      request.uri.path.toString()
+
+    def header(name: String): String =
+      request.headers.find(_.name().equalsIgnoreCase(name)).map(_.value()).orNull
+
+    override def unwrap(): AnyRef = request
+  }
+
+  private class ZipkinTracedResponse(val response: HttpResponse) extends HttpServerResponse {
+    override def unwrap(): AnyRef = request
+
+    override def statusCode(): Int = response.status.intValue()
+  }
 
   private def createAkkaHandler(tracing: HttpTracing)  =
-    HttpServerHandler.create(tracing, new ZipkinTracingHttpAdapter)
+    HttpServerHandler.create(tracing)
 
-  private def extractor(tracing: HttpTracing): TraceContext.Extractor[HttpRequest] =
-    tracing.tracing.propagation.extractor((carrier: HttpRequest, key: String) => carrier.headers.find(_.name().equalsIgnoreCase(key)).map(_.value()).orNull)
-
+  //noinspection SimplifyBoolean
   private def traceRequest(req: HttpRequest): Boolean = {
     List("/health", "/metrics").forall { p =>
       req.uri.path.startsWith(Uri.Path(p)) == false
@@ -39,11 +58,11 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
       Option(name -> value)
   }
 
-  lazy val handler = createAkkaHandler(httpTracing)
+  private lazy val handler = createAkkaHandler(httpTracing)
 
   override def traceRequests: Directive1[ServerRequestTracing] = extractRequest.flatMap {
     case req if traceRequest(req) =>
-      val span = handler.handleReceive(extractor(httpTracing), req)
+      val span = handler.handleReceive(new ZipkinTracedRequest(req))
 
       req.headers
         .flatMap(h => filterHeader(h.name(), h.value()))
@@ -62,7 +81,7 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
           acc.addHeader(RawHeader(k, v))
         }
 
-        handler.handleSend(respWithHeaders, null, span)
+        handler.handleSend(new ZipkinTracedResponse(respWithHeaders), span)
 
         respWithHeaders
 
@@ -79,11 +98,11 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
 object ZipkinServerRequestTracing {
   def apply(uri: Uri, serviceName: String): ZipkinTracing = {
     val sender = OkHttpSender.create(uri.toString() + "/api/v2/spans")
-    val spanReporter = AsyncReporter.create(sender)
+    val handler = AsyncZipkinSpanHandler.create(sender)
 
     val tracing = BraveTracing.newBuilder
       .localServiceName(serviceName)
-      .spanReporter(spanReporter).build
+      .addSpanHandler(handler).build
 
     val httpTracing = HttpTracing.newBuilder(tracing).build()
 

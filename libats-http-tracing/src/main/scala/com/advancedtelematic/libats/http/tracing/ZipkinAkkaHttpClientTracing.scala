@@ -4,13 +4,12 @@ import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
 import akka.http.scaladsl.util.FastFuture
 import brave.Span
-import brave.http.{HttpClientAdapter, HttpTracing}
+import brave.http.HttpTracing
 import com.advancedtelematic.libats.http.tracing.Tracing.AkkaHttpClientTracing
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class ZipkinAkkaHttpClientTracing(httpTracing: HttpTracing, currentSpan: Span, serverName: String) extends AkkaHttpClientTracing {
-  private class ZipkinHttpClientAdapter extends HttpClientAdapter[HttpRequest, HttpResponse] with AkkaHttpTracingAdapter
 
   private def injectTracingHeaders(httpTracing: HttpTracing, span: Span, req: HttpRequest): HttpRequest = {
     var tracedReq = req
@@ -28,7 +27,7 @@ class ZipkinAkkaHttpClientTracing(httpTracing: HttpTracing, currentSpan: Span, s
 
     val newSpan = Option(currentSpan.context())
       .map(tracing.tracer().newChild)
-      .getOrElse(tracing.tracer().withSampler(tracing.sampler()).newTrace())
+      .getOrElse(tracing.tracer().nextSpan())
       .kind(Span.Kind.CLIENT)
       .remoteServiceName(serverName)
       .tag("http.method", req.method.value)
