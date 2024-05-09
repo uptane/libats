@@ -11,7 +11,7 @@ trait CirceRefined {
   implicit def refinedEncoder[T, P](implicit encoder: Encoder[T]): Encoder[Refined[T, P]] =
     encoder.contramap(_.value)
 
-  implicit def refinedDecoder[T, P](implicit decoder: Decoder[T], p: Validate.Plain[T, P]): Decoder[Refined[T, P]] =
+  implicit def refinedDecoder[T, P](implicit decoder: Decoder[T], p: Validate[T, P]): Decoder[Refined[T, P]] =
     decoder.emapTry { t =>
       refineV[P](t) match {
         case Left(e) => Failure(DeserializationException(RefinementError(t, e)))
@@ -24,7 +24,7 @@ trait CirceRefined {
     strKeyEncoder.contramap(_.value)
 
   implicit def refinedKeyDecoder[P]
-  (implicit p: Validate.Plain[String, P]): KeyDecoder[Refined[String, P]] =
+  (implicit p: Validate[String, P]): KeyDecoder[Refined[String, P]] =
     KeyDecoder.instance[Refined[String, P]] { s =>
       timepit.refined.refineV[P](s).toOption
     }
