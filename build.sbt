@@ -4,13 +4,13 @@ val Library = new {
     val akka = "2.8.5"
     val akkaHttp = "10.5.2"
     val akkaHttpCirce = "1.39.2"
-    val circe = "0.14.6"
+    val circe = "0.14.7"
     val refined = "0.11.1"
     val scalaTest = "3.2.12"
     val metricsV = "4.2.25"
     val cats = "2.10.0"
     val logback = "1.5.6"
-    val flyway = "10.11.1"
+    val flyway = "10.12.0"
   }
 
   val javaUuidGenerator = "com.fasterxml.uuid" % "java-uuid-generator" % "5.0.0"

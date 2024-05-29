@@ -50,7 +50,7 @@ class MessageListenerActorSpec extends TestKit(ActorSystem("MessageListenerActor
 
   val msg = MsgListenerSpecItem(1, "payload")
 
-  override implicit def patienceConfig = PatienceConfig(timeout = Span(10, Seconds), interval = Span(100, Millis))
+  override implicit def patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(10, Seconds), interval = Span(100, Millis))
 
   test("message listener source monitors message events") {
     val source: Source[MsgListenerSpecItem, NotUsed] = Source(List(msg))

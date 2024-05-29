@@ -14,7 +14,7 @@ import scala.util.Try
 
 class RunMigrationsSpec extends AnyFunSuite with Matchers with ScalaFutures with BeforeAndAfterAll with BeforeAndAfterEach {
 
-  override implicit def patienceConfig = PatienceConfig().copy(timeout = Span(5, Seconds))
+  override implicit def patienceConfig: PatienceConfig = PatienceConfig().copy(timeout = Span(5, Seconds))
 
   private lazy val dbConfig = ConfigFactory.load().getConfig("ats.database")
 
@@ -28,6 +28,7 @@ class RunMigrationsSpec extends AnyFunSuite with Matchers with ScalaFutures with
     RunMigrations.migrate(dbConfig).get shouldBe 1
 
     db.withConnectionSync { implicit c =>
+      import anorm.sqlToSimple
       val count = SQL("select count(*) from libats_db.flyway_schema_history").as(scalar[Int].single)
       count shouldBe > (0) // It will be 1 if the schema already existed, 2 if flyway created the schema
     }
