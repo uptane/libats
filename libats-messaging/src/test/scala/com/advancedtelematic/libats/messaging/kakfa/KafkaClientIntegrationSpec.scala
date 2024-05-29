@@ -23,7 +23,6 @@ import org.scalatest.funsuite.AnyFunSuiteLike
 import org.scalatest.matchers.should.Matchers
 
 import java.time.Instant
-import scala.annotation.tailrec
 import scala.jdk.CollectionConverters.*
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -54,7 +53,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
 
   implicit val _ec: scala.concurrent.ExecutionContextExecutor = system.dispatcher
 
-  override implicit def patienceConfig = PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
+  override implicit def patienceConfig: PatienceConfig = PatienceConfig(timeout = Span(10, Seconds), interval = Span(500, Millis))
 
   val publisher = KafkaClient.publisher(system, system.settings.config)
 
