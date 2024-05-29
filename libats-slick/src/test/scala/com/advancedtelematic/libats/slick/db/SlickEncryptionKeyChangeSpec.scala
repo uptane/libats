@@ -23,7 +23,7 @@ class SlickEncryptionKeyChangeSpec extends AnyFunSuite
 
   Security.addProvider(new BouncyCastleProvider)
 
-  implicit lazy val system = ActorSystem(this.getClass.getSimpleName)
+  implicit lazy val system: ActorSystem = ActorSystem(this.getClass.getSimpleName)
 
   override protected def testDbConfig: Config = ConfigFactory.load().getConfig("ats.database")
 
