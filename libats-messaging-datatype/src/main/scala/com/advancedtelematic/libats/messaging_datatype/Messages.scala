@@ -44,9 +44,9 @@ object MessageCodecs {
   implicit val campaignLaunchedCodec: Codec[CampaignLaunched] = deriveCodec
   implicit val packageIdCodec: Codec[PackageId] = deriveCodec
   implicit val resultCodeEncoder: Encoder[ResultCode] = Encoder.encodeString.contramap(_.value)
-  implicit val resultCodeDecoder: Decoder[ResultCode] = Decoder.decodeString.map(ResultCode)
+  implicit val resultCodeDecoder: Decoder[ResultCode] = Decoder.decodeString.map(ResultCode.apply)
   implicit val resultDescriptionEncoder: Encoder[ResultDescription] = Encoder.encodeString.contramap(_.value)
-  implicit val resultDescriptionDecoder: Decoder[ResultDescription] = Decoder.decodeString.map(ResultDescription)
+  implicit val resultDescriptionDecoder: Decoder[ResultDescription] = Decoder.decodeString.map(ResultDescription.apply)
   implicit val installationResultCodec: Codec[InstallationResult] = deriveCodec
   implicit val ecuInstallationReportCodec: Codec[EcuInstallationReport] = deriveCodec
   implicit val updateTypeCodec: Codec[UpdateType] = Codec.codecForEnumeration(UpdateType)

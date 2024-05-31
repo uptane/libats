@@ -50,7 +50,7 @@ class VaultHealthCheck(address: Uri, token: String)(implicit system: ActorSystem
         }
       } yield json
 
-      Future.fromTry(vaultSysE.leftMap(HealthCheckError).toTry)
+      Future.fromTry(vaultSysE.leftMap(HealthCheckError.apply).toTry)
     }
   }
 
