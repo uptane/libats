@@ -10,7 +10,7 @@ val Library = new {
     val metricsV = "4.2.25"
     val cats = "2.12.0"
     val logback = "1.5.6"
-    val flyway = "10.13.0"
+    val flyway = "10.14.0"
   }
 
   val javaUuidGenerator = "com.fasterxml.uuid" % "java-uuid-generator" % "5.1.0"
