@@ -10,6 +10,7 @@ import io.circe.CursorOp.DownField
 import io.circe.DecodingFailure
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatest.matchers.should.Matchers
+import Errors.*
 
 
 class ErrorHandlerSpec extends AnyFunSuite with Matchers with ScalatestRouteTest {
@@ -25,7 +26,7 @@ class ErrorHandlerSpec extends AnyFunSuite with Matchers with ScalatestRouteTest
   }
 
   test("DecodingFailure error handler keeps decoding history") {
-    val (_, errorRepresentation) = Errors.onDecodingError(DecodingFailure("msg", List(DownField("field"))))
+    val errorRepresentation = Errors.decoderErrorToRepr(DecodingFailure("msg", List(DownField("field"))))
     assert(errorRepresentation.description == "DecodingFailure at .field: msg")
   }
 
