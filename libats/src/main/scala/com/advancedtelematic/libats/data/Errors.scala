@@ -5,8 +5,8 @@
 package com.advancedtelematic.libats.data
 
 import java.util.UUID
-
 import io.circe.{Decoder, Encoder, Json}
+
 
 /**
   * Errors are presented to the user of the core and resolver API as
@@ -27,9 +27,17 @@ object ErrorCodes {
 case class ErrorRepresentation(code: ErrorCode, description: String, cause: Option[Json] = None, errorId: Option[UUID] = Some(UUID.randomUUID()))
 
 object ErrorRepresentation {
-  import io.circe.generic.semiauto._
+  import io.circe.generic.semiauto.*
   implicit val encoderInstance: Encoder[ErrorRepresentation] = deriveEncoder[ErrorRepresentation]
   implicit val decoderInstance: Decoder[ErrorRepresentation] = deriveDecoder[ErrorRepresentation]
+
+  trait ToErrorRepr[T] {
+    def apply(value: T): ErrorRepresentation
+  }
+
+  implicit class ToErrorReprOps[E: ToErrorRepr](value: E) {
+    def toErrorRepr: ErrorRepresentation = implicitly[ToErrorRepr[E]].apply(value)
+  }
 
 }
 
