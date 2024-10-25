@@ -13,7 +13,7 @@ libraryDependencies ++= {
 
     "org.scalatest"     %% "scalatest" % scalaTestV % Provided,
 
-    "org.mariadb.jdbc" % "mariadb-java-client" % "3.4.1" % Test,
+    "org.mariadb.jdbc" % "mariadb-java-client" % "3.5.0" % Test,
 
     "org.bouncycastle" % "bcprov-jdk18on" % "1.78.1" % Provided,
     "org.bouncycastle" % "bcpkix-jdk18on" % "1.78.1" % Provided,
