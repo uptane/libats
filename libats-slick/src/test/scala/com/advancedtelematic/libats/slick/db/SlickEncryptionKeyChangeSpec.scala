@@ -48,10 +48,10 @@ class SlickEncryptionKeyChangeSpec extends AnyFunSuite
 
     val insertQ =
       sql"""
-           |insert into `#$tableName` (id, uuid, encrypted_col) values
-           |(1, '07b9ff11-e47f-4b8a-9c00-49484ded75c2', ${oldCrypto.encrypt("mytext")}),
-           |(2, 'b1fef8d4-a292-42b6-8ae3-36ed2cc8d3fd', ${otherCrypto.encrypt("mytext")})
-        """.stripMargin.asUpdate
+           insert into `#$tableName` (id, uuid, encrypted_col) values
+           (1, '07b9ff11-e47f-4b8a-9c00-49484ded75c2', ${oldCrypto.encrypt("mytext")}),
+           (2, 'b1fef8d4-a292-42b6-8ae3-36ed2cc8d3fd', ${otherCrypto.encrypt("mytext")})
+        """.asUpdate
 
     db.run(deleteQ.andThen(insertQ)).futureValue
   }
