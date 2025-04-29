@@ -18,7 +18,7 @@ jobs:
           fetch-depth: 0
       - uses: coursier/setup-action@v1
         with:
-          jvm: 'temurin:1.17.0.3'
+          jvm: 'temurin:1.21.0.7'
       - uses: coursier/cache-action@v6
       - run: echo $PGP_SECRET_KEY | base64 --decode | gpg --batch --import
       - run: sbt '+publishSigned ; sonatypeBundleRelease'
