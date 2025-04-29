@@ -1,10 +1,10 @@
 package com.advancedtelematic.libats.slick.db
 
 import java.sql.Connection
-
 import org.flywaydb.core.api.migration.{BaseJavaMigration, Context}
-import slick.jdbc.JdbcBackend.{BaseSession, DatabaseDef}
-import slick.jdbc.MySQLProfile.api._
+import org.reactivestreams.Subscriber
+import slick.jdbc.JdbcBackend.{BaseSession, JdbcDatabaseDef, Database}
+import slick.jdbc.MySQLProfile.api.*
 import slick.jdbc.{JdbcBackend, JdbcDataSource}
 import slick.util.AsyncExecutor
 
@@ -14,19 +14,24 @@ import scala.concurrent.{Await, Future}
 object MigrationDatabase {
   def apply(conn: Connection): MigrationDatabase = new MigrationDatabase(conn)
 
-  private class MigrationJdbcDataSource(conn: Connection) extends JdbcDataSource {
+  private class MigrationJdbcDataSource(conn: Connection)
+      extends JdbcDataSource {
     override def createConnection() = conn
 
     override def close() = ()
 
-    override val maxConnections : Some[Int]= Some(1)
+    override val maxConnections: Some[Int] = Some(1)
   }
 
-  protected class MigrationSession(database: DatabaseDef) extends BaseSession(database) {
+  protected class MigrationSession(database: JdbcDatabaseDef)
+      extends BaseSession(database) {
     override def close() = ()
   }
 
-  protected class MigrationDatabase(conn: Connection) extends JdbcBackend.DatabaseDef(new MigrationJdbcDataSource(conn), AsyncExecutor("MigrationUmanagedDatabase-Executor", 1, -1)) {
+  protected class MigrationDatabase(conn: Connection)
+      extends JdbcBackend.JdbcDatabaseDef(
+        new MigrationJdbcDataSource(conn),
+        AsyncExecutor("MigrationUmanagedDatabase-Executor", 1, -1)) {
     override def createSession(): MigrationSession = new MigrationSession(this)
   }
 }
