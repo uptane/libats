@@ -8,6 +8,8 @@ import com.advancedtelematic.libats.data.DataType.{ResultCode, ResultDescription
 import com.advancedtelematic.libats.data.UUIDKey.{UUIDKey, UUIDKeyObj}
 import eu.timepit.refined.api.{Refined, Validate}
 import io.circe.Json
+import eu.timepit.refined.api.*
+import eu.timepit.refined.predicates.all.*
 
 object DataType {
   case class PackageId(name: String, version: String) {
@@ -41,9 +43,6 @@ object DataType {
   case class DeviceId(uuid: UUID) extends UUIDKey
   object DeviceId extends UUIDKeyObj[DeviceId]
 
-  case class UpdateId(uuid: UUID) extends UUIDKey
-  object UpdateId extends UUIDKeyObj[UpdateId]
-
   final case class InstallationResult(success: Boolean, code: ResultCode, description: ResultDescription)
 
   final case class EcuInstallationReport(result: InstallationResult, target: Seq[String], rawReport: Option[Array[Byte]] = None)
@@ -55,5 +54,10 @@ object DataType {
                          eventType: EventType,
                          deviceTime: Instant,
                          receivedAt: Instant,
+                         ecu: Option[EcuIdentifier],
                          payload: Json)
+
+  type ValidEcuIdentifier = MinSize[1] And MaxSize[64]
+
+  type EcuIdentifier = Refined[String, ValidEcuIdentifier]
 }
