@@ -3,12 +3,14 @@ package com.advancedtelematic.libats.messaging
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.kafka.CommitterSettings
+import akka.kafka.ConsumerMessage.{CommittableMessage, CommittableOffset}
 import akka.stream.scaladsl.{Flow, Source}
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging.kafka.KafkaClient
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigException.Missing
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.slf4j.LoggerFactory
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,31 +65,36 @@ object MessageBus {
       case "kafka" =>
         log.info("Starting messaging mode: Kafka")
         log.info(s"Using stream name: ${messageLike.streamName}")
-        KafkaClient.source(config, groupId, groupInstanceId = None)(messageLike)
+        KafkaClient.autocommitSource(config, groupId, groupInstanceId = None)(messageLike)
       case "local" | "test" =>
         log.info("Using local event bus")
-        LocalMessageBus.subscribe(system, config, op)
+        val flow = Flow[T].mapAsync(10) { msg => op(msg).map(_ => msg) }
+        LocalMessageBus.subscribe(system, flow)
       case mode =>
         throw new Missing(s"Unknown messaging mode specified ($mode)")
     }
   }
 
-  def subscribeCommittable[T, U](config: Config, groupIdPrefix: String, op: MsgOperation[T])
-                                (implicit messageLike: MessageLike[T], ec: ExecutionContext, system: ActorSystem): Source[T, NotUsed] = {
+  def subscribeCommittable[T](config: Config, groupIdPrefix: String, op: MsgOperation[T])
+                             (implicit messageLike: MessageLike[T], ec: ExecutionContext, system: ActorSystem): Source[T, NotUsed] = {
+    val listenerParallelism = config.getInt("ats.messaging.listener.parallelism")
+    val processingFlow = Flow[CommittableMessage[Array[Byte], T]].mapAsync[(T, CommittableOffset)](listenerParallelism) { msg =>
+      op(msg.record.value()).map(_ => msg.record.value() -> msg.committableOffset)
+    }
+
     config.getString("ats.messaging.mode").toLowerCase().trim match {
       case "kafka" =>
         log.info("Starting messaging mode: Kafka")
         log.info(s"Using stream name: ${messageLike.streamName}")
 
-        val listenerParallelism = config.getInt("ats.messaging.listener.parallelism")
-        val processingFlow = Flow[T].mapAsync[Any](listenerParallelism)(op)
         val committerSettings = CommitterSettings(config.getConfig("ats.messaging.kafka.committer"))
 
-        KafkaClient.committableSource[T](config, committerSettings, groupIdPrefix, groupInstanceId = None, processingFlow).mapMaterializedValue(_ => NotUsed)
+        KafkaClient.committedSource[T](config, committerSettings, groupIdPrefix, groupInstanceId = None, processingFlow).mapMaterializedValue(_ => NotUsed)
 
       case "local" | "test" =>
         log.info("Using local event bus")
-        LocalMessageBus.subscribe(system, config, op)
+        val flow = processingFlow.map(_._1).contramap((value: T) => CommittableMessage(new ConsumerRecord[Array[Byte], T](messageLike.streamName, 0, 0, null, value), null))
+        LocalMessageBus.subscribe(system, flow)
 
       case mode =>
         throw new Missing(s"Unknown messaging mode specified ($mode)")

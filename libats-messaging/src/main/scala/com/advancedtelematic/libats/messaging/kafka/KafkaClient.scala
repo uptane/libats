@@ -8,7 +8,7 @@ package com.advancedtelematic.libats.messaging.kafka
 import akka.NotUsed
 import akka.actor.ActorSystem
 import akka.event.Logging
-import akka.kafka.ConsumerMessage.CommittableMessage
+import akka.kafka.ConsumerMessage.{CommittableMessage, CommittableOffset}
 import akka.kafka.scaladsl.Consumer.Control
 import akka.kafka.scaladsl.{Committer, Consumer}
 import akka.kafka.*
@@ -67,44 +67,36 @@ object KafkaClient {
     }
   }
 
-  def source[T](config: Config, groupId: String, groupInstanceId: Option[String])(
-      implicit ml: MessageLike[T]): Source[T, NotUsed] =
-    plainSource(config, groupId, groupInstanceId)(ml).mapMaterializedValue(_ => NotUsed)
-
-  private def plainSource[T](config: Config, groupIdPrefix: String, groupInstanceId: Option[String])
-                            (implicit ml: MessageLike[T]): Source[T, Control] = {
-    val (consumerSettings, subscriptions) = buildSource(config, groupIdPrefix, groupInstanceId)
+  def autocommitSource[T](config: Config, groupId: String, groupInstanceId: Option[String])(
+      implicit ml: MessageLike[T]): Source[T, NotUsed] = {
+    val (consumerSettings, subscriptions) = buildKafkaConsumer(config, groupId, groupInstanceId)
     val settings = consumerSettings.withProperty(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "true")
-    Consumer.plainSource(settings, subscriptions).map(_.value()).filter(_ != null)
+    Consumer.plainSource(settings, subscriptions).map(_.value()).filter(_ != null).mapMaterializedValue(_ => NotUsed)
   }
 
-  def committableSource[T](config: Config, committerSettings: CommitterSettings, groupIdPrefix: String, groupInstanceId: Option[String], processingFlow: Flow[T, Any, NotUsed])
-                          (implicit ml: MessageLike[T], system: ActorSystem): Source[T, Control] = {
-    val (cfgSettings, subscriptions) = buildSource(config, groupIdPrefix, groupInstanceId)
-    val log = Logging.getLogger(system, this.getClass)
-
+  def committedSource[T](config: Config, committerSettings: CommitterSettings, groupIdPrefix: String, groupInstanceId: Option[String], processingFlow: Flow[CommittableMessage[Array[Byte], T], (T, CommittableOffset), NotUsed])
+                        (implicit ml: MessageLike[T], system: ActorSystem): Source[T, Control] = {
     val committerSink = Committer.sink(committerSettings)
+
+    committableSource(config, groupIdPrefix, groupInstanceId)
+      .via(processingFlow)
+      .alsoTo(Flow[(T, CommittableOffset)].map(_._2).to(committerSink))
+      .map(_._1)
+  }
+
+  def committableSource[T](config: Config, groupIdPrefix: String, groupInstanceId: Option[String])
+                          (implicit ml: MessageLike[T], system: ActorSystem): Source[CommittableMessage[Array[Byte], T], Control] = {
+    val (cfgSettings, subscriptions) = buildKafkaConsumer(config, groupIdPrefix, groupInstanceId)
+    val log = Logging.getLogger(system, this.getClass)
 
     Consumer.committableSource(cfgSettings, subscriptions)
       .filter(_.record.value() != null)
-      .map { msg => log.debug(s"Parsed ${msg.record.value()}") ; msg }
-      .alsoTo {
-        Flow[CommittableMessage[?, T]]
-          .map(_.record.value())
-          .via(processingFlow)
-          .to(Sink.ignore)
-      }
-      .alsoTo {
-        Flow[CommittableMessage[?, T]]
-          .map(_.committableOffset)
-          .to(committerSink)
-      }
-      .map(_.record.value())
+      .wireTap { msg => log.debug(s"Parsed ${msg.record.value()}") }
   }
 
   // groupInstanceId is used as kafka-client's group.instance.id and makes this consumer a dynamic consumer vs. static
   // See kafka docs
-  private def buildSource[M](config: Config, groupIdPrefix: String, groupInstanceId: Option[String] = None)
+  private def buildKafkaConsumer[M](config: Config, groupIdPrefix: String, groupInstanceId: Option[String] = None)
                                (implicit ml: MessageLike[M]): (ConsumerSettings[Array[Byte], M], Subscription) = {
     val topicFn = topic(config)
     val consumerSettings = {

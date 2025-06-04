@@ -7,7 +7,7 @@ package com.advancedtelematic.libats.messaging
 
 import akka.NotUsed
 import akka.actor.{ActorRef, ActorSystem, Status}
-import akka.stream.scaladsl.Source
+import akka.stream.scaladsl.{Flow, Source}
 import akka.stream.{CompletionStrategy, OverflowStrategy}
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
@@ -19,9 +19,7 @@ import scala.util.Try
 object LocalMessageBus {
 
   @scala.annotation.nowarn
-  def subscribe[T](system: ActorSystem, config: Config, op: MsgOperation[T])(implicit ec: ExecutionContext, m: MessageLike[T]): Source[T, NotUsed] = {
-    val handlerParallelism = config.getInt("ats.messaging.listener.parallelism")
-
+  def subscribe[T](system: ActorSystem, flow: Flow[T, T, NotUsed])(implicit ec: ExecutionContext, m: MessageLike[T]): Source[T, NotUsed] = {
     val actorSource: Source[T, ActorRef] =  Source.actorRef(
       completionMatcher = { case Status.Success =>  CompletionStrategy.draining },
       failureMatcher = { case Status.Failure(err) =>  err },
@@ -32,7 +30,7 @@ object LocalMessageBus {
     actorSource.mapMaterializedValue { ref =>
       system.eventStream.subscribe(ref, m.tag.runtimeClass)
       NotUsed
-    }.mapAsync(handlerParallelism){ x: T => op.apply(x).map(_ => x) }
+    }.via(flow)
   }
 
   def publisher(system: ActorSystem): MessageBusPublisher = {
