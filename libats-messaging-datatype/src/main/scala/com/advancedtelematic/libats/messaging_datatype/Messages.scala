@@ -1,10 +1,10 @@
 package com.advancedtelematic.libats.messaging_datatype
 
 import cats.syntax.show._
-import com.advancedtelematic.libats.codecs.CirceValidatedGeneric
+import eu.timepit.refined.api.*
+import eu.timepit.refined.predicates.all.*
+import com.advancedtelematic.libats.codecs.CirceRefined.*
 import com.advancedtelematic.libats.data.DataType.{CorrelationId, Namespace, ResultCode, ResultDescription}
-import com.advancedtelematic.libats.data.EcuIdentifier
-import com.advancedtelematic.libats.data.EcuIdentifier._
 import com.advancedtelematic.libats.messaging_datatype.DataType.UpdateType.UpdateType
 import com.advancedtelematic.libats.messaging_datatype.DataType._
 import com.advancedtelematic.libats.messaging_datatype.Messages.{CampaignLaunched, DeviceEventMessage, DeviceSystemInfoChanged, DeviceUpdateAssigned, DeviceUpdateCanceled, DeviceUpdateCompleted, DeviceUpdateEvent, EcuAndHardwareId, EcuReplaced, EcuReplacement, EcuReplacementFailed, SystemInfo, UserCreated}
@@ -32,9 +32,6 @@ object MessageCodecs {
       ns    <- c.get[String]("namespace").map(Namespace.apply)
     } yield DeviceEventMessage(ns, event)
   }
-
-  implicit val ecuIdentifierKeyCodec: KeyEncoder[EcuIdentifier] = CirceValidatedGeneric.validatedGenericKeyEncoder[EcuIdentifier, String]
-  implicit val ecuIdentifierKeyDecoder: KeyDecoder[EcuIdentifier] = CirceValidatedGeneric.validatedGenericKeyDecoder[EcuIdentifier, String]
 
   implicit val deviceUpdateEventCodec: Codec[DeviceUpdateEvent] = deriveCodec
   implicit val deviceUpdateAvailableCodec: Codec[DeviceUpdateAssigned] = deriveCodec
@@ -99,7 +96,8 @@ object Messages {
       namespace: Namespace,
       eventTime: Instant,
       correlationId: CorrelationId,
-      deviceUuid: DeviceId
+      deviceUuid: DeviceId,
+      scheduledFor: Option[Instant] = None,
   ) extends DeviceUpdateEvent
 
   final case class DeviceUpdateInFlight(
