@@ -71,14 +71,22 @@ abstract class ServiceHttpClient(_httpClient: HttpRequest => Future[HttpResponse
     execHttpUnmarshalled(req)
   }
 
+  protected def execJsonHttpWithNamespace[Res : ClassTag : FromEntityUnmarshaller, Req : Encoder]
+  (ns: Namespace, request: HttpRequest, entity: Req): Future[Either[RemoteServiceError, Res]] = {
+    val req = request.addHeader(RawHeader("x-ats-namespace", ns.get))
+    execJsonHttp(req, entity)
+  }
+
   private def tryErrorParsing(response: HttpResponse)(implicit um: FromEntityUnmarshaller[ErrorRepresentation]): Future[RemoteServiceError] = {
     um(response.entity).map { rawError =>
-      RemoteServiceError(s"${rawError.description}", response.status, rawError.cause.getOrElse(Json.Null),
+      RemoteServiceError(s"${rawError.description}", response, rawError.cause.getOrElse(Json.Null),
         rawError.code, rawError.some, rawError.errorId.getOrElse(UUID.randomUUID()))
     }.recoverWith { case _ =>
-      Unmarshaller.stringUnmarshaller(response.entity).map(msg => RemoteServiceError(msg, response.status))
+      Unmarshaller.stringUnmarshaller(response.entity).map { str =>
+        RemoteServiceError(str, response.withEntity(HttpEntity.Strict(response.entity.contentType, ByteString(str))))
+      }
     }.recover { case _ =>
-      RemoteServiceError(s"Unknown error: $response", response.status)
+      RemoteServiceError(s"Unknown error: $response", response)
     }
   }
 
