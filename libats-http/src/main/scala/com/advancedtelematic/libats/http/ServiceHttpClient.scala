@@ -1,21 +1,21 @@
 package com.advancedtelematic.libats.http
 
 import java.util.UUID
-
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.*
 import akka.http.scaladsl.model.headers.RawHeader
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
 import akka.http.scaladsl.util.FastFuture
 import akka.stream.Materializer
-import cats.syntax.either._
-import cats.syntax.option._
+import akka.util.ByteString
+import cats.syntax.either.*
+import cats.syntax.option.*
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.data.ErrorRepresentation
 import com.advancedtelematic.libats.http.Errors.RemoteServiceError
 import com.advancedtelematic.libats.http.ServiceHttpClient.{ServiceHttpFullResponse, ServiceHttpFullResponseEither}
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport.*
 import io.circe.{Encoder, Json}
 import org.slf4j.LoggerFactory
 
@@ -77,9 +77,11 @@ abstract class ServiceHttpClient(_httpClient: HttpRequest => Future[HttpResponse
     execJsonHttp(req, entity)
   }
 
+  // The entity is replaced into `response` so that it can be read again by api users, for example through `handleErrors`
   private def tryErrorParsing(response: HttpResponse)(implicit um: FromEntityUnmarshaller[ErrorRepresentation]): Future[RemoteServiceError] = {
     um(response.entity).map { rawError =>
-      RemoteServiceError(s"${rawError.description}", response, rawError.cause.getOrElse(Json.Null),
+      val entity = HttpEntity.Strict(response.entity.contentType, ByteString(rawError.asJson.noSpaces))
+      RemoteServiceError(s"${rawError.description}", response.withEntity(entity), rawError.cause.getOrElse(Json.Null),
         rawError.code, rawError.some, rawError.errorId.getOrElse(UUID.randomUUID()))
     }.recoverWith { case _ =>
       Unmarshaller.stringUnmarshaller(response.entity).map { str =>
