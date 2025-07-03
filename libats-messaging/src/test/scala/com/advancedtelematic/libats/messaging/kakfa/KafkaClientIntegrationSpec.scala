@@ -5,10 +5,11 @@
 
 package com.advancedtelematic.libats.messaging.kakfa
 
-import akka.Done
+import akka.{Done, NotUsed}
 import akka.actor.ActorSystem
 import akka.http.scaladsl.util.FastFuture
-import akka.kafka.CommitterSettings
+import akka.kafka.{CommitterSettings, ConsumerMessage}
+import akka.kafka.ConsumerMessage.CommittableMessage
 import akka.stream.scaladsl.{Flow, Sink}
 import akka.testkit.TestKit
 import com.advancedtelematic.libats.messaging.kafka.{JsonDeserializerException, KafkaClient}
@@ -59,6 +60,9 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
 
   lazy val commiterSettings = CommitterSettings(ConfigFactory.load().getConfig("ats.messaging.kafka.committer"))
 
+  private def flow[T]: Flow[CommittableMessage[Array[Byte], T], (T, ConsumerMessage.CommittableOffset), NotUsed]
+  = Flow[CommittableMessage[Array[Byte], T]].map((msg: CommittableMessage[Array[Byte], T]) => msg.record.value() -> msg.committableOffset)
+
   test("can send an event to bus") {
     val testMsg = KafkaSpecMessage1(Instant.now.toString)
     val f = publisher.publish(testMsg).map(_ => 0)
@@ -68,8 +72,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
   test("can send-receive events from bus") {
     val testMsg = KafkaSpecMessage2(Instant.now.toString)
 
-    val flow = Flow[KafkaSpecMessage2].mapAsync(1)((_: KafkaSpecMessage2) => FastFuture.successful(Done))
-    val source = KafkaClient.committableSource[KafkaSpecMessage2](system.settings.config, commiterSettings, "kafka-test", groupInstanceId = None, flow)
+    val source = KafkaClient.committedSource[KafkaSpecMessage2](system.settings.config, commiterSettings, "kafka-test", groupInstanceId = None, flow)
     val msgFuture = source.groupedWithin(10, 5.seconds).runWith(Sink.head)
 
     for {
@@ -88,8 +91,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
         |messaging.listener.parallelism=2
       """.stripMargin).withFallback(system.settings.config)
 
-    val flow = Flow[KafkaSpecMessage3].mapAsync(1)((_: KafkaSpecMessage3) => FastFuture.successful(Done))
-    val source = KafkaClient.committableSource[KafkaSpecMessage3](cfg, commiterSettings, "kafka-test", groupInstanceId = None, flow)
+    val source = KafkaClient.committedSource[KafkaSpecMessage3](cfg, commiterSettings, "kafka-test", groupInstanceId = None, flow)
 
     val msgFuture = source.runWith(Sink.head)
 
@@ -115,8 +117,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
 
     val cfg = ConfigFactory.parseMap(Map("ats.messaging.kafka.skipJsonErrors" -> false).asJava).withFallback(system.settings.config)
 
-    val flow = Flow[KafkaSpecMessage0].mapAsync(1)((_: KafkaSpecMessage0) => FastFuture.successful(Done))
-    val source = KafkaClient.committableSource[KafkaSpecMessage0](cfg, commiterSettings, "kafka-test", groupInstanceId = None, flow)
+    val source = KafkaClient.committedSource[KafkaSpecMessage0](cfg, commiterSettings, "kafka-test", groupInstanceId = None, flow)
 
     for {
       _ <- akka.pattern.after(3.seconds)(Future.successful(()))
@@ -141,8 +142,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
 
     val cfg = system.settings.config
 
-    val flow = Flow[KafkaSpecMessage4].mapAsync(1)((_: KafkaSpecMessage4) => FastFuture.successful(Done))
-    val source = KafkaClient.committableSource[KafkaSpecMessage4](cfg, commiterSettings, "kafka-test", groupInstanceId = None, flow)
+    val source = KafkaClient.committedSource[KafkaSpecMessage4](cfg, commiterSettings, "kafka-test", groupInstanceId = None, flow)
 
     val testMsg = KafkaSpecMessage4(Instant.now.toString)
 
