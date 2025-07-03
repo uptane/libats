@@ -10,7 +10,9 @@ import eu.timepit.refined.string.HexStringSpec
 import io.circe.{Decoder, Encoder}
 import cats.syntax.either.*
 
+import scala.annotation.unused
 import scala.language.postfixOps
+import scala.util.Try
 
 object DataType {
 
@@ -38,14 +40,21 @@ object DataType {
     ValidationUtils.validHexValidation(ValidChecksum(), length = 64)
 
   sealed trait CorrelationId
-  final case class CampaignId(value: UUID) extends CorrelationId {
-    override def toString: String = s"urn:here-ota:campaign:$value"
-  }
-  final case class MultiTargetUpdateId(value: UUID) extends CorrelationId {
+
+  final case class MultiTargetUpdateCorrelationId(value: UUID) extends CorrelationId {
     override def toString: String = s"urn:here-ota:mtu:$value"
   }
   final case class AutoUpdateId(value: UUID) extends CorrelationId {
     override def toString: String = s"urn:here-ota:auto-update:$value"
+  }
+
+  // TODO: Use this in place  of MtuCorrelationId
+  final case class TargetSpecCorrelationId(value: UUID) extends CorrelationId {
+    override def toString: String = s"urn:tdx-ota:target-spec:$value"
+  }
+
+  final case class UpdateCorrelationId(value: UUID) extends CorrelationId {
+    override def toString: String = s"urn:tdx-ota:update:$value"
   }
 
   type ValidLockboxHash = String Refined (HexStringSpec And Size[Equal[12]])
@@ -54,18 +63,24 @@ object DataType {
     override def toString: String = s"urn:tdx-ota:lockbox:$name:$version:${hash.value}"
   }
   object CorrelationId {
-    private[this] val CorrelationIdRe = """^urn:here-ota:(mtu|auto-update|campaign):([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})$"""r
+    private[this] val CorrelationIdRe = """^urn:here-ota:(mtu|auto-update):([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})$"""r
 
-    private [this] val TrxCorrelationIdRe = """^urn:tdx-ota:lockbox:([A-Za-z0-9_-]+):([0-9]+):([0-9a-fA-F]{12})$"""r
+    private [this] val TrxLockBoxIdRe = """^urn:tdx-ota:lockbox:([A-Za-z0-9_-]+):([0-9]+):([0-9a-fA-F]{12})$"""r
+
+    private[this] val TrxIdRe = """^urn:tdx-ota:target-spec:([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})$"""r
+
+    private[this] val TrxUpdateIdRe = """^urn:tdx-ota:update:([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})$"""r
 
     def fromString(s: String): Either[String, CorrelationId] = s match {
       case CorrelationIdRe("mtu", uuid) =>
-        Right(MultiTargetUpdateId(UUID.fromString(uuid)))
-      case CorrelationIdRe("campaign", uuid) =>
-        Right(CampaignId(UUID.fromString(uuid)))
+        Right(MultiTargetUpdateCorrelationId(UUID.fromString(uuid)))
       case CorrelationIdRe("auto-update", uuid) =>
         Right(AutoUpdateId(UUID.fromString(uuid)))
-      case TrxCorrelationIdRe(name, version, hash) =>
+      case TrxIdRe(uuid) =>
+        Right(TargetSpecCorrelationId(UUID.fromString(uuid)))
+      case TrxUpdateIdRe(uuid) =>
+        Right(UpdateCorrelationId(UUID.fromString(uuid)))
+      case TrxLockBoxIdRe(name, version, hash) =>
         RefType.applyRef[ValidLockboxHash](hash).map { hash =>
           OfflineUpdateId(name, version.toLong, hash)
         }
