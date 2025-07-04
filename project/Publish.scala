@@ -26,7 +26,7 @@ object Publish {
 
   lazy val repoRealm = readSettings("PUBLISH_REALM")
 
-    lazy val settings = Seq(
+  lazy val settings = Seq(
     credentials += Credentials(repoRealm, repoHost, repoUser, repoPassword),
     usePgpKeyHex("6ED5E5ABE9BF80F173343B98FFA246A21356D296"),
     isSnapshot := version.value.trim.endsWith("SNAPSHOT"),
@@ -35,15 +35,19 @@ object Publish {
     sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     publishMavenStyle := true,
     sonatypeProjectHosting := Some(GitHubHosting("uptane", "libats", "releases@uptane.github.io")),
-    publishTo := {
-      if (repoUrl.isEmpty) {
-        sonatypePublishToBundle.value
-      } else {
-        if (isSnapshot.value)
-          Some("snapshots" at repoUrl)
-        else
-          Some("releases" at repoUrl)
-      }
+    ThisBuild / publishTo := {
+      val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+      if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+      else localStaging.value
+
+//      if (repoUrl.isEmpty) {
+//        sonatypePublishToBundle.value
+//      } else {
+//        if (isSnapshot.value)
+//          Some("snapshots" at repoUrl)
+//        else
+//          Some("releases" at repoUrl)
+//      }
     }
   )
 

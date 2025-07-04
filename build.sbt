@@ -239,3 +239,8 @@ lazy val libats_root = (project in file("."))
     libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
     libats_metrics_prometheus, libats_logging, libats_publish_akka)
 
+publishTo := {
+  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+  else localStaging.value
+}
