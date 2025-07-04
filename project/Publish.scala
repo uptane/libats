@@ -3,6 +3,7 @@ import sbt.Keys._
 import sbt._
 import xerial.sbt.Sonatype.GitHubHosting
 import xerial.sbt.Sonatype.autoImport._
+import xerial.sbt.Sonatype.sonatypeCentralHost
 
 import java.net.URI
 
@@ -25,29 +26,35 @@ object Publish {
 
   lazy val repoRealm = readSettings("PUBLISH_REALM")
 
-    lazy val settings = Seq(
+  lazy val settings = Seq(
     credentials += Credentials(repoRealm, repoHost, repoUser, repoPassword),
     usePgpKeyHex("6ED5E5ABE9BF80F173343B98FFA246A21356D296"),
     isSnapshot := version.value.trim.endsWith("SNAPSHOT"),
     pomIncludeRepository := { _ => false },
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
-    sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
+    sonatypeCredentialHost := sonatypeCentralHost,
     publishMavenStyle := true,
     sonatypeProjectHosting := Some(GitHubHosting("uptane", "libats", "releases@uptane.github.io")),
     publishTo := {
-      if (repoUrl.isEmpty) {
-        sonatypePublishToBundle.value
-      } else {
-        if (isSnapshot.value)
-          Some("snapshots" at repoUrl)
-        else
-          Some("releases" at repoUrl)
-      }
+      val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
+      if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
+      else sonatypePublishToBundle.value
+
+      // Some("central-snapshots" at centralSnapshots)
+//       sonatypePublishToBundle.value
+
+      //      if (repoUrl.isEmpty) {
+//        sonatypePublishToBundle.value
+//      } else {
+//        if (isSnapshot.value)
+//          Some("snapshots" at repoUrl)
+//        else
+//          Some("releases" at repoUrl)
+//      }
     }
   )
 
   lazy val disable = Seq(
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeCredentialHost := sonatypeCentralHost,
     sonatypeProfileName := "io.github.uptane",
     publish / skip := true,
     publishArtifact := false,
