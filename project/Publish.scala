@@ -3,6 +3,7 @@ import sbt.Keys._
 import sbt._
 import xerial.sbt.Sonatype.GitHubHosting
 import xerial.sbt.Sonatype.autoImport._
+import xerial.sbt.Sonatype.sonatypeCentralHost
 
 import java.net.URI
 
@@ -30,7 +31,7 @@ object Publish {
     usePgpKeyHex("6ED5E5ABE9BF80F173343B98FFA246A21356D296"),
     isSnapshot := version.value.trim.endsWith("SNAPSHOT"),
     pomIncludeRepository := { _ => false },
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeCredentialHost := sonatypeCentralHost,
     sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
     publishMavenStyle := true,
     sonatypeProjectHosting := Some(GitHubHosting("uptane", "libats", "releases@uptane.github.io")),
@@ -47,7 +48,7 @@ object Publish {
   )
 
   lazy val disable = Seq(
-    sonatypeCredentialHost := "s01.oss.sonatype.org",
+    sonatypeCredentialHost := sonatypeCentralHost,
     sonatypeProfileName := "io.github.uptane",
     publish / skip := true,
     publishArtifact := false,
