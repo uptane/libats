@@ -57,7 +57,7 @@ object Errors {
       with NoStackTrace
 
   case class RemoteServiceError(msg: String,
-                                status: StatusCode,
+                                response: HttpResponse,
                                 description: Json = Json.Null,
                                 causeCode: ErrorCode =
                                   ErrorCodes.RemoteServiceError,
