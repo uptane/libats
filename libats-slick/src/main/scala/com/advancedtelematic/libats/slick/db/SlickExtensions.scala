@@ -21,7 +21,7 @@ import slick.lifted.{AbstractTable, Rep}
 import scala.concurrent.ExecutionContext
 import scala.language.implicitConversions
 import scala.util.{Failure, Success, Try}
-
+import PaginationResult.*
 
 object SlickPipeToUnit {
   implicit def pipeToUnit(value: DBIO[Any])(implicit ec: ExecutionContext): DBIO[Unit] = value.map(_ => ())
@@ -161,13 +161,13 @@ trait SlickPagination {
         .drop(offset)
         .take(limit)
 
-    def paginateResult(offset: Long, limit: Long)(implicit ec: ExecutionContext): DBIO[PaginationResult[U]] = {
+    def paginateResult(offset: Offset, limit: Limit)(implicit ec: ExecutionContext): DBIO[PaginationResult[U]] = {
       val tot = action.length.result
       val pag = action.paginate(offset, limit).result
       tot.zip(pag).map{ case (total, values) => PaginationResult(values, total, offset, limit) }
     }
 
-    def paginateAndSortResult[T](fn: E => T, offset: Long, limit: Long)
+    def paginateAndSortResult[T](fn: E => T, offset: Offset, limit: Limit)
                              (implicit ec: ExecutionContext, ev: T => slick.lifted.Ordered): DBIO[PaginationResult[U]] = {
       val tot = action.length.result
       val pag = action.paginateAndSort(fn, offset, limit).result

@@ -38,18 +38,6 @@ object Publish {
       val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
       if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
       else sonatypePublishToBundle.value
-
-      // Some("central-snapshots" at centralSnapshots)
-//       sonatypePublishToBundle.value
-
-      //      if (repoUrl.isEmpty) {
-//        sonatypePublishToBundle.value
-//      } else {
-//        if (isSnapshot.value)
-//          Some("snapshots" at repoUrl)
-//        else
-//          Some("releases" at repoUrl)
-//      }
     }
   )
 
