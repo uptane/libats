@@ -1,1 +1,0 @@
-name := "libats-metrics-akka"

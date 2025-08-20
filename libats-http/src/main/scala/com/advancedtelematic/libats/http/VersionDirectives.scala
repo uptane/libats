@@ -5,8 +5,8 @@
 
 package com.advancedtelematic.libats.http
 
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.server.{Directive0, Directives}
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.server.{Directive0, Directives}
 
 object VersionDirectives {
   def versionHeaders(version: String): Directive0 = {

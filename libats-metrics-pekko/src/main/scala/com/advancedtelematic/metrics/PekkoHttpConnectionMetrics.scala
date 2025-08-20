@@ -1,33 +1,33 @@
 package com.advancedtelematic.metrics
 
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route, RoutingLog}
-import akka.http.scaladsl.settings.{ConnectionPoolSettings, ParserSettings, RoutingSettings, ServerSettings}
-import akka.stream.Materializer
-import akka.stream.scaladsl.Flow
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.server.{ExceptionHandler, RejectionHandler, Route, RoutingLog}
+import org.apache.pekko.http.scaladsl.settings.{ConnectionPoolSettings, ParserSettings, RoutingSettings, ServerSettings}
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.stream.scaladsl.Flow
 import com.advancedtelematic.libats.http.BootApp
 import com.codahale.metrics.{Gauge, MetricRegistry}
 
 import scala.concurrent.ExecutionContextExecutor
 
-trait AkkaHttpConnectionMetrics {
+trait PekkoHttpConnectionMetrics {
   self: BootApp with MetricsSupport =>
 
   private lazy val serverSettings = ServerSettings(system)
 
-  metricRegistry.register("akka.http.max-connections", new Gauge[Long]() {
+  metricRegistry.register("pekko.http.max-connections", new Gauge[Long]() {
     override def getValue: Long = serverSettings.maxConnections
   })
 
   private lazy val connectionPoolSettings = ConnectionPoolSettings(system)
 
-  metricRegistry.register("akka.http.host-connection-pool.max-connections", new Gauge[Long]() {
+  metricRegistry.register("pekko.http.host-connection-pool.max-connections", new Gauge[Long]() {
     override def getValue: Long = connectionPoolSettings.maxConnections
   })
 
-  metricRegistry.register("akka.http.host-connection-pool.max-open-requests", new Gauge[Long]() {
+  metricRegistry.register("pekko.http.host-connection-pool.max-open-requests", new Gauge[Long]() {
     override def getValue: Long = connectionPoolSettings.maxOpenRequests
   })
 
@@ -40,7 +40,7 @@ trait AkkaHttpConnectionMetrics {
                                                                            rejectionHandler: RejectionHandler = RejectionHandler.default,
                                                                            exceptionHandler: ExceptionHandler = null,
                                                                            system: ActorSystem): Flow[HttpRequest, HttpResponse, NotUsed] =
-    AkkaHttpConnectionMetricsRoutes(routes, metricRegistry)(
+    PekkoHttpConnectionMetricsRoutes(routes, metricRegistry)(
       routingSettings = implicitly,
       parserSettings = implicitly,
       materializer = implicitly,
@@ -51,7 +51,7 @@ trait AkkaHttpConnectionMetrics {
       system = implicitly)
 }
 
-object AkkaHttpConnectionMetricsRoutes {
+object PekkoHttpConnectionMetricsRoutes {
   def apply(routes: Route, metricRegistry: MetricRegistry)(implicit
                                                            routingSettings: RoutingSettings,
                                                            parserSettings: ParserSettings,
@@ -66,9 +66,9 @@ object AkkaHttpConnectionMetricsRoutes {
     Flow[HttpRequest]
       .watchTermination() {
         case (mat, completionF) =>
-          metricRegistry.counter("akka.http.connections").inc()
-          metricRegistry.counter("akka.http.connected").inc()
-          completionF.onComplete(_ => metricRegistry.counter("akka.http.connected").dec())
+          metricRegistry.counter("pekko.http.connections").inc()
+          metricRegistry.counter("pekko.http.connected").inc()
+          completionF.onComplete(_ => metricRegistry.counter("pekko.http.connected").dec())
           mat
       }.via(handler)
   }

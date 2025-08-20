@@ -8,7 +8,7 @@ import java.sql.{BatchUpdateException, SQLException, SQLIntegrityConstraintViola
 import java.time.Instant
 import java.util.UUID
 
-import akka.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.model.Uri
 import com.advancedtelematic.libats.data.PaginationResult
 import com.advancedtelematic.libats.http.Errors
 import com.advancedtelematic.libats.slick.db.SlickExtensions.MappedColumnExtensions
@@ -179,7 +179,7 @@ trait SlickPagination {
 object SlickPagination extends SlickPagination
 
 object SlickExtensions extends SlickResultExtensions with SlickPagination {
-  implicit val UriColumnType: slick.jdbc.MySQLProfile.BaseColumnType[akka.http.scaladsl.model.Uri] = MappedColumnType.base[Uri, String](_.toString(), Uri.apply)
+  implicit val UriColumnType: slick.jdbc.MySQLProfile.BaseColumnType[Uri] = MappedColumnType.base[Uri, String](_.toString(), Uri.apply)
 
   implicit val uuidColumnType: slick.jdbc.MySQLProfile.BaseColumnType[java.util.UUID] = MappedColumnType.base[UUID, String](_.toString(), UUID.fromString)
 

@@ -5,13 +5,13 @@
 
 package com.advancedtelematic.libats.messaging.kakfa
 
-import akka.{Done, NotUsed}
-import akka.actor.ActorSystem
-import akka.http.scaladsl.util.FastFuture
-import akka.kafka.{CommitterSettings, ConsumerMessage}
-import akka.kafka.ConsumerMessage.CommittableMessage
-import akka.stream.scaladsl.{Flow, Sink}
-import akka.testkit.TestKit
+import org.apache.pekko.{Done, NotUsed}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.util.FastFuture
+import org.apache.pekko.kafka.{CommitterSettings, ConsumerMessage}
+import org.apache.pekko.kafka.ConsumerMessage.CommittableMessage
+import org.apache.pekko.stream.scaladsl.{Flow, Sink}
+import org.apache.pekko.testkit.TestKit
 import com.advancedtelematic.libats.messaging.kafka.{JsonDeserializerException, KafkaClient}
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import com.typesafe.config.ConfigFactory
@@ -27,6 +27,7 @@ import java.time.Instant
 import scala.jdk.CollectionConverters.*
 import scala.concurrent.Future
 import scala.concurrent.duration.*
+import org.apache.pekko
 
 case class KafkaSpecMessage0(payload: String)
 case class KafkaSpecMessage1(payload: String)
@@ -76,7 +77,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val msgFuture = source.groupedWithin(10, 5.seconds).runWith(Sink.head)
 
     for {
-      _ <- akka.pattern.after(3.seconds, system.scheduler)(Future.successful(()))
+      _ <- pekko.pattern.after(3.seconds, system.scheduler)(Future.successful(()))
       _ <- publisher.publish(testMsg)
     } yield ()
 
@@ -96,7 +97,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val msgFuture = source.runWith(Sink.head)
 
     for {
-      _ <- akka.pattern.after(3.seconds, system.scheduler)(Future.successful(()))
+      _ <- pekko.pattern.after(3.seconds, system.scheduler)(Future.successful(()))
       _ <- publisher.publish(testMsg)
     } yield ()
 
@@ -120,7 +121,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val source = KafkaClient.committedSource[KafkaSpecMessage0](cfg, commiterSettings, "kafka-test", groupInstanceId = None, flow)
 
     for {
-      _ <- akka.pattern.after(3.seconds)(Future.successful(()))
+      _ <- pekko.pattern.after(3.seconds)(Future.successful(()))
       _ <- publisher.publish(testMsgJson)(implicitly, jsonMsgLike)
     } yield ()
 
@@ -147,7 +148,7 @@ class KafkaClientIntegrationSpec extends TestKit(ActorSystem("KafkaClientSpec"))
     val testMsg = KafkaSpecMessage4(Instant.now.toString)
 
     for {
-      _ <- akka.pattern.after(3.seconds)(Future.successful(()))
+      _ <- pekko.pattern.after(3.seconds)(Future.successful(()))
       _ <- publisher.publish(testMsgJson) (implicitly, jsonMsgLike)
       _ <- publisher.publish(testMsg)
     } yield ()

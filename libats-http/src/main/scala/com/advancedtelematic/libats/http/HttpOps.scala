@@ -1,7 +1,7 @@
 package com.advancedtelematic.libats.http
 
-import akka.http.scaladsl.model.HttpRequest
-import akka.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.HttpRequest
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
 import com.advancedtelematic.libats.data.DataType.Namespace
 
 object HttpOps {

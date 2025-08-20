@@ -1,9 +1,9 @@
 package com.advancedtelematic.libats.http.logging
 
-import akka.actor.{Actor, ActorSystem, DiagnosticActorLogging, Props, SupervisorStrategy}
-import akka.event.Logging
-import akka.event.Logging.MDC
-import akka.routing.RoundRobinPool
+import org.apache.pekko.actor.{Actor, ActorSystem, DiagnosticActorLogging, Props, SupervisorStrategy}
+import org.apache.pekko.event.Logging
+import org.apache.pekko.event.Logging.MDC
+import org.apache.pekko.routing.RoundRobinPool
 import com.advancedtelematic.libats.http.logging.RequestLoggingActor.LogMsg
 import com.typesafe.config.ConfigFactory
 

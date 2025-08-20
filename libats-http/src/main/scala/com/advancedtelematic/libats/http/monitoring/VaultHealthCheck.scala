@@ -1,10 +1,10 @@
 package com.advancedtelematic.libats.http.monitoring
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model._
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.Uri.Path
+import org.apache.pekko.http.scaladsl.model._
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.stream.Materializer
 import com.advancedtelematic.libats.http.monitoring.HealthCheckHttpClient.HealthCheckError
 import com.advancedtelematic.metrics.HealthCheck
 import com.advancedtelematic.metrics.HealthCheck.{Down, HealthCheckResult, Up}

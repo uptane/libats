@@ -1,9 +1,9 @@
 package com.advancedtelematic.libats.messaging
 
-import akka.Done
-import akka.actor.{ActorSystem, Props}
-import akka.event.LoggingAdapter
-import akka.http.scaladsl.util.FastFuture
+import org.apache.pekko.Done
+import org.apache.pekko.actor.{ActorSystem, Props}
+import org.apache.pekko.event.LoggingAdapter
+import org.apache.pekko.http.scaladsl.util.FastFuture
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging.daemon.MessageBusListenerActor
 import com.advancedtelematic.libats.messaging_datatype.MessageLike

@@ -48,7 +48,7 @@ logger. Use `LOG_APPENDER=async_stdout` or
 `LOG_APPENDER=async_json`. This is recommended for async services to
 avoid blocking when logging.
 
-## Logging Akka-Http Services
+## Logging pekko-http Services
 
 You need to include `libats-http` as dependency in your service and
 use the `logResponseMetrics` directive when building the service routes.

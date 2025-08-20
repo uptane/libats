@@ -83,7 +83,7 @@ class JsonEncoder
         key != "http_query" || includeHttpQuery
       }
       .filterKeys { key =>
-        !key.startsWith("akka")
+        !key.startsWith("pekko")
       }
 
     val withKeyValues = Option(event.getKeyValuePairs).toList
