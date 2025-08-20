@@ -27,6 +27,7 @@ import java.time.Instant
 import scala.jdk.CollectionConverters.*
 import scala.concurrent.Future
 import scala.concurrent.duration.*
+import org.apache.pekko
 
 case class KafkaSpecMessage0(payload: String)
 case class KafkaSpecMessage1(payload: String)
