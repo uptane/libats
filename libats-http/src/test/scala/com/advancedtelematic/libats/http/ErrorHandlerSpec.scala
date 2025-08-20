@@ -1,11 +1,11 @@
 package com.advancedtelematic.libats.http
 
-import akka.http.scaladsl.model.StatusCodes
-import akka.http.scaladsl.server.Route
-import akka.http.scaladsl.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.model.StatusCodes
+import org.apache.pekko.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
 import com.advancedtelematic.libats.data.ErrorRepresentation
 import ErrorRepresentation._
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport._
+import com.github.pjfanning.pekkohttpcirce.FailFastCirceSupport._
 import io.circe.CursorOp.DownField
 import io.circe.DecodingFailure
 import org.scalatest.funsuite.AnyFunSuite
@@ -14,7 +14,7 @@ import Errors.*
 
 
 class ErrorHandlerSpec extends AnyFunSuite with Matchers with ScalatestRouteTest {
-  import akka.http.scaladsl.server.Directives._
+  import org.apache.pekko.http.scaladsl.server.Directives._
 
   val routes: Route = ErrorHandler.handleErrors {
     path("error") {

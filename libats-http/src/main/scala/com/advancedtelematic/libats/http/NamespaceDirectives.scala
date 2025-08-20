@@ -1,8 +1,8 @@
 package com.advancedtelematic.libats.http
 
-import akka.http.scaladsl.model.HttpHeader
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.server.Directive1
+import org.apache.pekko.http.scaladsl.model.HttpHeader
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.server.Directive1
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.typesafe.config.{Config, ConfigException, ConfigFactory}
 import org.slf4j.LoggerFactory
@@ -10,7 +10,7 @@ import cats.syntax.either._
 import scala.util.Try
 
 object NamespaceDirectives {
-  import akka.http.scaladsl.server.Directives._
+  import org.apache.pekko.http.scaladsl.server.Directives._
 
   private lazy val config = ConfigFactory.load().getConfig("ats")
 

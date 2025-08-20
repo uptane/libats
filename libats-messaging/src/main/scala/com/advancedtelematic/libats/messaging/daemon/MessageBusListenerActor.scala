@@ -1,15 +1,15 @@
 package com.advancedtelematic.libats.messaging.daemon
 
-import akka.{Done, NotUsed}
-import akka.actor.Status.Failure
-import akka.actor.{Actor, ActorLogging, Props}
-import akka.stream.ActorMaterializer
-import akka.stream.scaladsl.{Sink, Source}
+import org.apache.pekko.{Done, NotUsed}
+import org.apache.pekko.actor.Status.Failure
+import org.apache.pekko.actor.{Actor, ActorLogging, Props}
+import org.apache.pekko.stream.ActorMaterializer
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
 import com.advancedtelematic.libats.messaging.daemon.MessageBusListenerActor.Subscribe
 
 import scala.concurrent.duration._
 import scala.util.Try
-import akka.pattern.pipe
+import org.apache.pekko.pattern.pipe
 import com.advancedtelematic.libats.messaging.ListenerMonitor
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import org.slf4j.LoggerFactory

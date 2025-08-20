@@ -1,9 +1,9 @@
 
 val Library = new {
   object Version {
-    val akka = "2.8.5"
-    val akkaHttp = "10.5.2"
-    val akkaHttpCirce = "1.39.2"
+    val pekko = "1.1.5"
+    val pekkoHttp = "1.2.0"
+    // val pekkoHttpCirce = "1.39.2"
     val circe = "0.14.14"
     val refined = "0.11.3"
     val scalaTest = "3.2.12"
@@ -26,20 +26,20 @@ val Library = new {
     "io.prometheus" % "simpleclient_dropwizard" % "0.16.0"
   )
 
-  val Akka = Set(
-    "com.typesafe.akka" %% "akka-slf4j",
-    "com.typesafe.akka" %% "akka-actor",
-    "com.typesafe.akka" %% "akka-stream"
-  ).map(_ % Version.akka)
+  val Pekko = Set(
+    "org.apache.pekko" %% "pekko-slf4j",
+    "org.apache.pekko" %% "pekko-actor",
+    "org.apache.pekko" %% "pekko-stream"
+  ).map(_ % Version.pekko)
 
-  val akkaHttp = Seq(
-      "com.typesafe.akka" %% "akka-http" % Version.akkaHttp,
-      "de.heikoseeberger" %% "akka-http-circe" % Version.akkaHttpCirce
-    ) ++ Akka
+  val pekkoHttp = Seq(
+    "org.apache.pekko" %% "pekko-http" % Version.pekkoHttp,
+    "com.github.pjfanning" %% "pekko-http-circe" % "3.2.2",
+    ) ++ Pekko
 
-  val akkaHttpTestKit = Seq(
-    "com.typesafe.akka" %% "akka-http-testkit" % Version.akkaHttp,
-    "com.typesafe.akka" %% "akka-stream-testkit" % Version.akka
+  val pekkoHttpTestKit = Seq(
+    "org.apache.pekko" %% "pekko-http-testkit" % Version.pekkoHttp,
+    "org.apache.pekko" %% "pekko-stream-testkit" % Version.pekko
   ).map(_ % Test)
 
   val circe = Seq(
@@ -111,10 +111,10 @@ lazy val libats_http = (project in file("libats-http"))
   .configs(commonConfigs: _*)
   .settings(commonDeps)
   .settings(commonSettings)
-  .settings(libraryDependencies ++= Library.akkaHttp)
+  .settings(libraryDependencies ++= Library.pekkoHttp)
   .settings(libraryDependencies ++= Library.jvmMetrics)
   .settings(libraryDependencies ++= Library.circe)
-  .settings(libraryDependencies ++= Library.akkaHttpTestKit)
+  .settings(libraryDependencies ++= Library.pekkoHttpTestKit)
   .settings(Publish.settings)
   .dependsOn(libats)
   .dependsOn(libats_metrics)
@@ -147,7 +147,7 @@ lazy val libats_slick = (project in file("libats-slick"))
   .settings(commonSettings)
   .settings(Publish.settings)
   .settings(libraryDependencies ++= Library.jvmMetrics)
-  .settings(libraryDependencies ++= Library.akkaHttpTestKit)
+  .settings(libraryDependencies ++= Library.pekkoHttpTestKit)
   .settings(libraryDependencies += Library.flyway)
   .settings(libraryDependencies += Library.flywayMysql)
   .dependsOn(libats)
@@ -180,7 +180,7 @@ lazy val libats_messaging = (project in file("libats-messaging"))
   .settings(commonDeps)
   .settings(commonSettings)
   .settings(Publish.settings)
-  .settings(libraryDependencies ++= Library.akkaHttpTestKit)
+  .settings(libraryDependencies ++= Library.pekkoHttpTestKit)
   .dependsOn(libats)
   .dependsOn(libats_metrics)
   .dependsOn(libats_http)
@@ -196,7 +196,7 @@ lazy val libats_metrics = (project in file("libats-metrics"))
   .settings(libraryDependencies += Library.logback)
   .settings(Publish.settings)
 
-lazy val libats_metrics_akka = (project in file("libats-metrics-akka"))
+lazy val libats_metrics_pekko = (project in file("libats-metrics-pekko"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
   .configs(commonConfigs: _*)
   .settings(commonSettings)
@@ -221,7 +221,7 @@ lazy val libats_logging = (project in file("libats-logging"))
   .settings(name := "libats-logging")
   .settings(Publish.settings)
 
-lazy val libats_publish_akka = (project in file("libats-publish-akka"))
+lazy val libats_publish_pekko = (project in file("libats-publish-pekko"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
   .configs(commonConfigs: _*)
   .settings(commonSettings)
@@ -236,6 +236,6 @@ lazy val libats_root = (project in file("."))
   .settings(scalaVersion := scala213)
   .settings(crossScalaVersions := Nil)
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
-    libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_akka,
-    libats_metrics_prometheus, libats_logging, libats_publish_akka)
+    libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_pekko,
+    libats_metrics_prometheus, libats_logging, libats_publish_pekko)
 

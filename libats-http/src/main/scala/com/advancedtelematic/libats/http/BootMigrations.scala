@@ -1,6 +1,6 @@
 package com.advancedtelematic.libats.http
 
-import akka.actor.ActorSystem
+import org.apache.pekko.actor.ActorSystem
 import com.advancedtelematic.libats.db.RunMigrations
 import com.typesafe.config.{Config, ConfigFactory}
 import org.slf4j.LoggerFactory

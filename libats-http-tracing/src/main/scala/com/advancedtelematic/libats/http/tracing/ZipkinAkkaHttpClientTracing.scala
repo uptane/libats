@@ -1,16 +1,16 @@
 package com.advancedtelematic.libats.http.tracing
 
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.util.FastFuture
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.util.FastFuture
 import brave.Span
 import brave.http.{HttpClientAdapter, HttpTracing}
-import com.advancedtelematic.libats.http.tracing.Tracing.AkkaHttpClientTracing
+import com.advancedtelematic.libats.http.tracing.Tracing.PekkoHttpClientTracing
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class ZipkinAkkaHttpClientTracing(httpTracing: HttpTracing, currentSpan: Span, serverName: String) extends AkkaHttpClientTracing {
-  private class ZipkinHttpClientAdapter extends HttpClientAdapter[HttpRequest, HttpResponse] with AkkaHttpTracingAdapter
+class ZipkinPekkoHttpClientTracing(httpTracing: HttpTracing, currentSpan: Span, serverName: String) extends PekkoHttpClientTracing {
+  private class ZipkinHttpClientAdapter extends HttpClientAdapter[HttpRequest, HttpResponse] with PekkoHttpTracingAdapter
 
   private def injectTracingHeaders(httpTracing: HttpTracing, span: Span, req: HttpRequest): HttpRequest = {
     var tracedReq = req

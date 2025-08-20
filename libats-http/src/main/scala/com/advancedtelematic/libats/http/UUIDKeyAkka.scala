@@ -2,12 +2,12 @@ package com.advancedtelematic.libats.http
 
 import java.util.UUID
 
-import akka.http.scaladsl.server.{PathMatcher1, PathMatchers}
-import akka.http.scaladsl.unmarshalling.Unmarshaller
+import org.apache.pekko.http.scaladsl.server.{PathMatcher1, PathMatchers}
+import org.apache.pekko.http.scaladsl.unmarshalling.Unmarshaller
 import com.advancedtelematic.libats.data.UUIDKey.{UUIDKey, UUIDKeyObj}
 import shapeless._
 
-object UUIDKeyAkka {
+object UUIDKeyPekko {
   implicit class UUIDKeyUnmarshallerOp[Self <: UUIDKey](value: UUIDKeyObj[Self]) {
     def unmarshaller[T <: UUIDKey](implicit gen: value.SelfGen): Unmarshaller[String, Self] =
       Unmarshaller.strict { str => gen.from(UUID.fromString(str) :: HNil) }

@@ -1,21 +1,21 @@
 package com.advancedtelematic.libats.http
 
 import java.util.UUID
-import akka.actor.ActorSystem
-import akka.http.scaladsl.Http
-import akka.http.scaladsl.model.*
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
-import akka.http.scaladsl.util.FastFuture
-import akka.stream.Materializer
-import akka.util.ByteString
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.*
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
+import org.apache.pekko.http.scaladsl.util.FastFuture
+import org.apache.pekko.stream.Materializer
+import org.apache.pekko.util.ByteString
 import cats.syntax.either.*
 import cats.syntax.option.*
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.data.ErrorRepresentation
 import com.advancedtelematic.libats.http.Errors.RemoteServiceError
 import com.advancedtelematic.libats.http.ServiceHttpClient.{ServiceHttpFullResponse, ServiceHttpFullResponseEither}
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport.*
+import com.github.pjfanning.pekkohttpcirce.FailFastCirceSupport.*
 import io.circe.{Encoder, Json}
 import org.slf4j.LoggerFactory
 
