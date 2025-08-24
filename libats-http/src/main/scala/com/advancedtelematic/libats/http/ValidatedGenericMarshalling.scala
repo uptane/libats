@@ -1,7 +1,7 @@
 package com.advancedtelematic.libats.http
 
-import akka.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
-import akka.http.scaladsl.util.FastFuture
+import org.apache.pekko.http.scaladsl.unmarshalling.{FromStringUnmarshaller, Unmarshaller}
+import org.apache.pekko.http.scaladsl.util.FastFuture
 import com.advancedtelematic.libats.data.ValidatedGeneric
 
 object ValidatedGenericMarshalling {

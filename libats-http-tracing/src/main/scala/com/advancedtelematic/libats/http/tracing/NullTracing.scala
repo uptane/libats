@@ -1,8 +1,8 @@
 package com.advancedtelematic.libats.http.tracing
 
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.server.{Directive1, Directives}
-import com.advancedtelematic.libats.http.tracing.Tracing.{AkkaHttpClientTracing, ServerRequestTracing, Tracing}
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.server.{Directive1, Directives}
+import com.advancedtelematic.libats.http.tracing.Tracing.{PekkoHttpClientTracing, ServerRequestTracing, Tracing}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -12,7 +12,7 @@ class NullServerRequestTracing extends ServerRequestTracing  {
 
   override def finishSpan(): Unit = ()
 
-  override def httpClientTracing(remoteServiceName: String): AkkaHttpClientTracing = new NullHttpClientTracing
+  override def httpClientTracing(remoteServiceName: String): PekkoHttpClientTracing = new NullHttpClientTracing
 
   override def traceId: Long = 0L
 
@@ -25,6 +25,6 @@ class NullTracing extends Tracing {
   override def shutdown(): Unit = ()
 }
 
-class NullHttpClientTracing extends AkkaHttpClientTracing {
+class NullHttpClientTracing extends PekkoHttpClientTracing {
   override def trace(fn: HttpRequest => Future[HttpResponse])(implicit ec: ExecutionContext): HttpRequest => Future[HttpResponse] = fn
 }

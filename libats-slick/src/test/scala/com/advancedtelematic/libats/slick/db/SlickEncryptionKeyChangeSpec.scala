@@ -1,8 +1,8 @@
 package com.advancedtelematic.libats.slick.db
 
 import java.security.Security
-import akka.actor.ActorSystem
-import akka.testkit.TestKitBase
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.testkit.TestKitBase
 import com.advancedtelematic.libats.slick.db.SlickEncryptionKeyChange.Result
 import com.advancedtelematic.libats.test.{DatabaseSpec, LongTest, MysqlDatabaseSpec}
 import com.typesafe.config.{Config, ConfigFactory}

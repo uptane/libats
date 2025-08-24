@@ -2,10 +2,10 @@ package com.advancedtelematic.libats.http
 
 import java.net.URI
 
-import akka.http.scaladsl.model.Uri
+import org.apache.pekko.http.scaladsl.model.Uri
 
 import scala.language.implicitConversions
 
 object JavaUriConversion {
-  implicit def javaUriToAkkaUriConversion(value: URI): Uri = Uri(value.toString)
+  implicit def javaUriToPekkoUriConversion(value: URI): Uri = Uri(value.toString)
 }

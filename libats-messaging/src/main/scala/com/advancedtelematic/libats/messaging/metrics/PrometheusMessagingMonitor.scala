@@ -1,6 +1,6 @@
 package com.advancedtelematic.libats.messaging.metrics
 
-import akka.http.scaladsl.util.FastFuture
+import org.apache.pekko.http.scaladsl.util.FastFuture
 import com.advancedtelematic.libats.messaging.ListenerMonitor
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import io.prometheus.client.{CollectorRegistry, Counter}

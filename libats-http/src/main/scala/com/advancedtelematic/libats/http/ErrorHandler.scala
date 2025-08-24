@@ -6,17 +6,17 @@
 package com.advancedtelematic.libats.http
 
 import java.util.UUID
-import akka.event.LoggingAdapter
-import akka.http.scaladsl.model.StatusCodes.*
-import akka.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes, Uri}
-import akka.http.scaladsl.server.{Directives, ExceptionHandler, *}
+import org.apache.pekko.event.LoggingAdapter
+import org.apache.pekko.http.scaladsl.model.StatusCodes.*
+import org.apache.pekko.http.scaladsl.model.{HttpResponse, StatusCode, StatusCodes, Uri}
+import org.apache.pekko.http.scaladsl.server.{Directives, ExceptionHandler, *}
 import cats.Show
 import com.advancedtelematic.libats.data.{
   ErrorCode,
   ErrorCodes,
   ErrorRepresentation
 }
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport.*
+import com.github.pjfanning.pekkohttpcirce.FailFastCirceSupport.*
 import io.circe.syntax.*
 import com.advancedtelematic.libats.codecs.CirceUuid.*
 import io.circe.{DecodingFailure, Json}

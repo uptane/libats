@@ -5,14 +5,14 @@
 
 package com.advancedtelematic.libats.messaging.kafka
 
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.kafka.ConsumerMessage.{CommittableMessage, CommittableOffset}
-import akka.kafka.scaladsl.Consumer.Control
-import akka.kafka.scaladsl.{Committer, Consumer}
-import akka.kafka.*
-import akka.stream.scaladsl.{Flow, Sink, Source}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.Logging
+import org.apache.pekko.kafka.ConsumerMessage.{CommittableMessage, CommittableOffset}
+import org.apache.pekko.kafka.scaladsl.Consumer.Control
+import org.apache.pekko.kafka.scaladsl.{Committer, Consumer}
+import org.apache.pekko.kafka.*
+import org.apache.pekko.stream.scaladsl.{Flow, Sink, Source}
 import com.advancedtelematic.libats.messaging.MessageBusPublisher
 import com.advancedtelematic.libats.messaging.metrics.KafkaMetrics
 import com.advancedtelematic.libats.messaging_datatype.MessageLike

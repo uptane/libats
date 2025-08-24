@@ -1,8 +1,8 @@
 package com.advancedtelematic.libats.http.tracing
 
-import akka.actor.ActorSystem
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
+import org.apache.pekko.stream.Materializer
 import com.advancedtelematic.libats.http.ServiceHttpClient
 import com.advancedtelematic.libats.http.tracing.Tracing.ServerRequestTracing
 

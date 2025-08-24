@@ -1,7 +1,7 @@
 package com.advancedtelematic.libats.http
-import akka.http.scaladsl.unmarshalling._
-import akka.http.scaladsl.util.FastFuture
-import akka.stream.Materializer
+import org.apache.pekko.http.scaladsl.unmarshalling._
+import org.apache.pekko.http.scaladsl.util.FastFuture
+import org.apache.pekko.stream.Materializer
 import eu.timepit.refined.api.{Refined, Validate}
 import com.advancedtelematic.libats.data.RefinedUtils._
 import scala.concurrent.ExecutionContext

@@ -1,4 +1,4 @@
-package com.advancedtelematics.publish_akka
+package com.advancedtelematics.publish_pekko
 import com.advancedtelematic.libats.data.DataType.Namespace
 import com.advancedtelematic.libats.messaging.MessageBusPublisher
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
@@ -11,5 +11,5 @@ object Message {
   final case class HttpRequestDescription(method: String, uri: String, respCode: Int, namespace: Namespace, timeMs: Long)
   implicit val reqDescriptionEncoder: Encoder[HttpRequestDescription] = deriveEncoder
   implicit val reqDescriptionDecoder: Decoder[HttpRequestDescription] = deriveDecoder
-  implicit val reqDescriptionMsgLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematics.publish_akka.Message.HttpRequestDescription] = MessageLike[HttpRequestDescription](_.namespace.get)
+  implicit val reqDescriptionMsgLike: com.advancedtelematic.libats.messaging_datatype.MessageLike[com.advancedtelematics.publish_pekko.Message.HttpRequestDescription] = MessageLike[HttpRequestDescription](_.namespace.get)
 }
