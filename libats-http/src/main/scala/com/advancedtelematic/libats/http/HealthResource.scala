@@ -4,14 +4,14 @@
  */
 package com.advancedtelematic.libats.http
 
-import akka.http.scaladsl.marshalling.ToResponseMarshallable
-import akka.http.scaladsl.model.{StatusCode, StatusCodes}
-import akka.http.scaladsl.server.Directives
+import org.apache.pekko.http.scaladsl.marshalling.ToResponseMarshallable
+import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
+import org.apache.pekko.http.scaladsl.server.Directives
 import com.advancedtelematic.libats.codecs.CirceCodecs.*
 import com.advancedtelematic.metrics.*
 import com.codahale.metrics.MetricRegistry
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport
-import de.heikoseeberger.akkahttpcirce.FailFastCirceSupport.*
+import com.github.pjfanning.pekkohttpcirce.FailFastCirceSupport
+import com.github.pjfanning.pekkohttpcirce.FailFastCirceSupport.*
 import io.circe.generic.auto.*
 import io.circe.syntax.*
 import org.slf4j.LoggerFactory

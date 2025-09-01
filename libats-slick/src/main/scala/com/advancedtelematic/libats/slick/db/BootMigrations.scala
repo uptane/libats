@@ -5,7 +5,7 @@
 
 package com.advancedtelematic.libats.slick.db
 
-import akka.http.scaladsl.util.FastFuture
+import org.apache.pekko.http.scaladsl.util.FastFuture
 import com.advancedtelematic.libats.http.BootApp
 import com.typesafe.config.{Config, ConfigFactory}
 import org.flywaydb.core.Flyway

@@ -5,10 +5,10 @@
 
 package com.advancedtelematic.libats.messaging
 
-import akka.NotUsed
-import akka.actor.{ActorRef, ActorSystem, Status}
-import akka.stream.scaladsl.{Flow, Source}
-import akka.stream.{CompletionStrategy, OverflowStrategy}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.{ActorRef, ActorSystem, Status}
+import org.apache.pekko.stream.scaladsl.{Flow, Source}
+import org.apache.pekko.stream.{CompletionStrategy, OverflowStrategy}
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging_datatype.MessageLike
 import com.typesafe.config.Config

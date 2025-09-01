@@ -2,9 +2,9 @@ package com.advancedtelematic.libats.slick.db
 
 import java.security.Security
 
-import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
-import akka.stream.scaladsl.Source
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.stream.{ActorMaterializer, Materializer}
+import org.apache.pekko.stream.scaladsl.Source
 import com.typesafe.config.ConfigFactory
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.slf4j.LoggerFactory
@@ -93,7 +93,7 @@ class SlickEncryptionKeyChange(idColumn: String,
 
 
 object SlickEncryptionKeyChangeApp extends DatabaseSupport {
-  implicit lazy val system: akka.actor.ActorSystem = ActorSystem("SlickEncryptionKeyChangeApp")
+  implicit lazy val system: ActorSystem = ActorSystem("SlickEncryptionKeyChangeApp")
 
   // TODO: Get the proper config scoped by ats.<project name>.database
   override lazy val dbConfig = ConfigFactory.load().getConfig("database")

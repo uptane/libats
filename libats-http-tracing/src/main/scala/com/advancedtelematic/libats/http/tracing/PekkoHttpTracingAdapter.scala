@@ -1,8 +1,8 @@
 package com.advancedtelematic.libats.http.tracing
 
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
 
-protected [tracing] trait AkkaHttpTracingAdapter {
+protected [tracing] trait PekkoHttpTracingAdapter {
   def method(request: HttpRequest): String =
     request.method.value
 

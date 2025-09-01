@@ -1,6 +1,6 @@
 package com.advancedtelematic.libats.messaging
 
-import akka.actor.ActorRef
+import org.apache.pekko.actor.ActorRef
 import com.advancedtelematic.libats.boot.VersionInfo
 import com.advancedtelematic.libats.http.BootApp
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation

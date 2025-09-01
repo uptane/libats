@@ -1,6 +1,6 @@
 package com.advancedtelematic.libats.http
 
-import akka.http.scaladsl.unmarshalling.FromStringUnmarshaller
+import org.apache.pekko.http.scaladsl.unmarshalling.FromStringUnmarshaller
 
 object AnyvalMarshallingSupport {
   import shapeless._

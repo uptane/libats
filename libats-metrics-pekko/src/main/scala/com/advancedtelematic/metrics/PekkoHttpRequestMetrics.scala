@@ -1,10 +1,10 @@
 package com.advancedtelematic.metrics
 
-import akka.http.scaladsl.server.Directive0
+import org.apache.pekko.http.scaladsl.server.Directive0
 import com.codahale.metrics.MetricRegistry
 
-trait AkkaHttpRequestMetrics {
-  import akka.http.scaladsl.server.Directives._
+trait PekkoHttpRequestMetrics {
+  import org.apache.pekko.http.scaladsl.server.Directives._
 
   def requestMetrics(registry: MetricRegistry): Directive0 = {
     val requests = registry.counter("http_requests")
@@ -34,4 +34,4 @@ trait AkkaHttpRequestMetrics {
   }
 }
 
-object AkkaHttpRequestMetrics extends AkkaHttpRequestMetrics
+object PekkoHttpRequestMetrics extends PekkoHttpRequestMetrics

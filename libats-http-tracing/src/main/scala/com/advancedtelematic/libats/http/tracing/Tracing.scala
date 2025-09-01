@@ -1,10 +1,10 @@
 package com.advancedtelematic.libats.http.tracing
 
-import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.event.Logging.LogLevel
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
-import akka.http.scaladsl.server.{Directive0, Directive1}
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.Logging
+import org.apache.pekko.event.Logging.LogLevel
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
+import org.apache.pekko.http.scaladsl.server.{Directive0, Directive1}
 import com.advancedtelematic.libats.http.LogDirectives.{MetricsBuilder, logResponseMetrics}
 import com.typesafe.config.{Config, ConfigException}
 import org.slf4j.LoggerFactory
@@ -20,7 +20,7 @@ object Tracing {
     def shutdown(): Unit
   }
 
-  trait AkkaHttpClientTracing {
+  trait PekkoHttpClientTracing {
     def trace(fn: HttpRequest => Future[HttpResponse])(implicit ec: ExecutionContext): HttpRequest => Future[HttpResponse]
   }
 
@@ -31,7 +31,7 @@ object Tracing {
 
     def finishSpan(): Unit
 
-    def httpClientTracing(remoteServiceName: String): AkkaHttpClientTracing
+    def httpClientTracing(remoteServiceName: String): PekkoHttpClientTracing
 
     def traceIdString: String
   }

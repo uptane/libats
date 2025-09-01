@@ -1,9 +1,9 @@
 package com.advancedtelematic.metrics.prometheus
 import java.io.StringWriter
 
-import akka.http.scaladsl.server.Route
+import org.apache.pekko.http.scaladsl.server.Route
 import com.advancedtelematic.libats.http.BootApp
-import akka.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.server.Directives._
 import com.advancedtelematic.metrics.MetricsSupport
 import io.prometheus.client.CollectorRegistry
 import io.prometheus.client.dropwizard.DropwizardExports

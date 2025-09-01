@@ -1,16 +1,16 @@
-package com.advancedtelematic.publish_akka
+package com.advancedtelematic.publish_pekko
 
 
-import akka.http.scaladsl.server.{Directive0, Directive1}
+import org.apache.pekko.http.scaladsl.server.{Directive0, Directive1}
 import com.advancedtelematic.libats.http.NamespaceDirectives.defaultNamespaceExtractor
 import com.advancedtelematic.libats.messaging.MessageBusPublisher
-import com.advancedtelematics.publish_akka.Message._
+import com.advancedtelematics.publish_pekko.Message._
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class AkkaHttpRequestPublisher(val msgBusPublisher: MessageBusPublisher) {
-  import akka.http.scaladsl.server.Directives._
-  import akka.http.scaladsl.server.Directive
+class PekkoHttpRequestPublisher(val msgBusPublisher: MessageBusPublisher) {
+  import org.apache.pekko.http.scaladsl.server.Directives._
+  import org.apache.pekko.http.scaladsl.server.Directive
 
   val publishRequest: Directive0 = (defaultNamespaceExtractor & extractRequestContext).tflatMap{ tuple =>
     val ns = tuple._1
@@ -28,6 +28,6 @@ class AkkaHttpRequestPublisher(val msgBusPublisher: MessageBusPublisher) {
   }
 }
 
-object AkkaHttpRequestPublisher {
-  def apply(msgBusPublisher: MessageBusPublisher) = new AkkaHttpRequestPublisher((msgBusPublisher))
+object PekkoHttpRequestPublisher {
+  def apply(msgBusPublisher: MessageBusPublisher) = new PekkoHttpRequestPublisher((msgBusPublisher))
 }

@@ -1,6 +1,6 @@
 package com.advancedtelematic.libats.messaging
 
-import akka.http.scaladsl.util.FastFuture
+import org.apache.pekko.http.scaladsl.util.FastFuture
 import com.advancedtelematic.metrics.MetricsRepresentation
 import com.codahale.metrics.{Metric, MetricFilter, MetricRegistry}
 import io.circe.Json

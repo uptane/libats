@@ -1,7 +1,7 @@
 #  Ats scala lib
 
 This library provides everything an ats service needs to run a simple
-akka http server with a sql database.
+pekko http server with a sql database.
 
 ## Usage
 
@@ -22,16 +22,6 @@ Further documentation is available at the module README:
 
 - [libats-metrics](libats-metrics/README.md)
 - [libats-slick](libats-slick/README.adoc)
-
-## Sub-Module Dependencies
-
-![libats dependencies](libats_dependencies.png)
-
-Generated with:
-
-    sbt -no-colors -batch libats_root/moduleDepDot | 
-    grep -P -v "^\[.+\]"  | 
-    dot -Tpng > libats_dependencies.png
 
 ## Development
 

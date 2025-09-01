@@ -1,10 +1,10 @@
 package com.advancedtelematic.libats.messaging
 
-import akka.NotUsed
-import akka.actor.ActorSystem
-import akka.kafka.CommitterSettings
-import akka.kafka.ConsumerMessage.{CommittableMessage, CommittableOffset}
-import akka.stream.scaladsl.{Flow, Source}
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.kafka.CommitterSettings
+import org.apache.pekko.kafka.ConsumerMessage.{CommittableMessage, CommittableOffset}
+import org.apache.pekko.stream.scaladsl.{Flow, Source}
 import com.advancedtelematic.libats.messaging.MsgOperation.MsgOperation
 import com.advancedtelematic.libats.messaging.kafka.KafkaClient
 import com.advancedtelematic.libats.messaging_datatype.MessageLike

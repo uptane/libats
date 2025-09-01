@@ -4,13 +4,13 @@
  */
 package com.advancedtelematic.libats.http
 
-import akka.actor.ActorSystem
-import akka.event.Logging
-import akka.event.Logging.LogLevel
-import akka.http.scaladsl.model.Uri.Path
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse}
-import akka.http.scaladsl.server.{Directive0, Directives}
-import akka.stream.Materializer
+import org.apache.pekko.actor.ActorSystem
+import org.apache.pekko.event.Logging
+import org.apache.pekko.event.Logging.LogLevel
+import org.apache.pekko.http.scaladsl.model.Uri.Path
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
+import org.apache.pekko.http.scaladsl.server.{Directive0, Directives}
+import org.apache.pekko.stream.Materializer
 import ch.qos.logback.classic.LoggerContext
 import com.advancedtelematic.libats.http.logging.RequestLoggingActor
 import org.slf4j.LoggerFactory

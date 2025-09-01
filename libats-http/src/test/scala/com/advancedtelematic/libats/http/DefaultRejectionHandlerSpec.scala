@@ -1,9 +1,9 @@
 package com.advancedtelematic.libats.http
 
 
-import akka.http.scaladsl.testkit.ScalatestRouteTest
-import akka.http.scaladsl.server.Directives._
-import akka.http.scaladsl.model.StatusCodes._
+import org.apache.pekko.http.scaladsl.testkit.ScalatestRouteTest
+import org.apache.pekko.http.scaladsl.server.Directives._
+import org.apache.pekko.http.scaladsl.model.StatusCodes._
 import org.scalatest.funsuite.AnyFunSuite
 
 class DefaultRejectionHandlerSpec extends AnyFunSuite with ScalatestRouteTest {

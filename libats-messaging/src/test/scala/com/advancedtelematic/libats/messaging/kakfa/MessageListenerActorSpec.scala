@@ -1,9 +1,9 @@
 package com.advancedtelematic.libats.messaging
 
-import akka.{Done, NotUsed}
-import akka.actor.{ActorSystem, Props}
-import akka.stream.scaladsl.{Sink, Source}
-import akka.testkit.{TestKit, TestProbe}
+import org.apache.pekko.{Done, NotUsed}
+import org.apache.pekko.actor.{ActorSystem, Props}
+import org.apache.pekko.stream.scaladsl.{Sink, Source}
+import org.apache.pekko.testkit.{TestKit, TestProbe}
 import com.advancedtelematic.libats.messaging.daemon.MessageBusListenerActor
 import com.advancedtelematic.libats.messaging.daemon.MessageBusListenerActor.Subscribe
 import com.advancedtelematic.libats.messaging_datatype.MessageLike

@@ -1,12 +1,12 @@
 package com.advancedtelematic.libats.http.tracing
 
-import akka.http.scaladsl.model.headers.RawHeader
-import akka.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
-import akka.http.scaladsl.server.Directive1
+import org.apache.pekko.http.scaladsl.model.headers.RawHeader
+import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
+import org.apache.pekko.http.scaladsl.server.Directive1
 import brave.http.{HttpServerAdapter, HttpServerHandler, HttpTracing}
 import brave.propagation.TraceContext
 import brave.{Span, Tracing => BraveTracing}
-import com.advancedtelematic.libats.http.tracing.Tracing.{AkkaHttpClientTracing, ServerRequestTracing, Tracing}
+import com.advancedtelematic.libats.http.tracing.Tracing.{PekkoHttpClientTracing, ServerRequestTracing, Tracing}
 import zipkin2.reporter.AsyncReporter
 import zipkin2.reporter.okhttp3.OkHttpSender
 
@@ -14,11 +14,11 @@ import scala.collection.concurrent.TrieMap
 
 
 class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
-  import akka.http.scaladsl.server.Directives._
+  import org.apache.pekko.http.scaladsl.server.Directives._
 
-  private class ZipkinTracingHttpAdapter extends HttpServerAdapter[HttpRequest, HttpResponse]with AkkaHttpTracingAdapter
+  private class ZipkinTracingHttpAdapter extends HttpServerAdapter[HttpRequest, HttpResponse]with PekkoHttpTracingAdapter
 
-  private def createAkkaHandler(tracing: HttpTracing)  =
+  private def createPekkoHandler(tracing: HttpTracing)  =
     HttpServerHandler.create(tracing, new ZipkinTracingHttpAdapter)
 
   private def extractor(tracing: HttpTracing): TraceContext.Extractor[HttpRequest] =
@@ -39,7 +39,7 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
       Option(name -> value)
   }
 
-  lazy val handler = createAkkaHandler(httpTracing)
+  lazy val handler = createPekkoHandler(httpTracing)
 
   override def traceRequests: Directive1[ServerRequestTracing] = extractRequest.flatMap {
     case req if traceRequest(req) =>
@@ -99,8 +99,8 @@ class ZipkinServerRequestTracing(httpTracing: HttpTracing, requestSpan: Span) ex
 
   override def finishSpan(): Unit = requestSpan.finish()
 
-  override def httpClientTracing(remoteServiceName: String): AkkaHttpClientTracing = {
-    new ZipkinAkkaHttpClientTracing(httpTracing, requestSpan, remoteServiceName)
+  override def httpClientTracing(remoteServiceName: String): PekkoHttpClientTracing = {
+    new ZipkinPekkoHttpClientTracing(httpTracing, requestSpan, remoteServiceName)
   }
 
   override def traceId: Long = requestSpan.context().traceId()
