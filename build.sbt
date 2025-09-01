@@ -154,18 +154,6 @@ lazy val libats_slick = (project in file("libats-slick"))
   .dependsOn(libats_db)
   .dependsOn(libats_http)
 
-lazy val libats_anorm = (project in file("libats-anorm"))
-  .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
-  .configs(commonConfigs: _*)
-  .settings(commonDeps)
-  .settings(commonSettings)
-  .settings(Publish.settings)
-  .settings(libraryDependencies += Library.logback)
-  .settings(libraryDependencies += Library.flywayMysql % Test)
-  .dependsOn(libats)
-  .dependsOn(libats_db)
-  .dependsOn(libats_metrics)
-
 lazy val libats_messaging_datatype = (project in file("libats-messaging-datatype"))
   .enablePlugins(BuildInfoPlugin, Versioning.Plugin)
   .configs(commonConfigs: _*)
@@ -236,6 +224,6 @@ lazy val libats_root = (project in file("."))
   .settings(scalaVersion := scala213)
   .settings(crossScalaVersions := Nil)
   .aggregate(libats, libats_http, libats_http_tracing, libats_messaging, libats_messaging_datatype,
-    libats_db, libats_anorm, libats_slick, libats_metrics, libats_metrics_pekko,
+    libats_db, libats_slick, libats_metrics, libats_metrics_pekko,
     libats_metrics_prometheus, libats_logging, libats_publish_pekko)
 
