@@ -19,7 +19,7 @@ jobs:
           MYSQL_DATABASE: libats
 
       zookeeper:
-        image: bitnami/zookeeper:3.8.1
+        image: bitnamilegacy/zookeeper:3.8.1
         ports:
           - 2181:2181
         env:
@@ -31,7 +31,7 @@ jobs:
           --health-retries 5
 
       kafka:
-        image: bitnami/kafka:2.8.1
+        image: bitnamilegacy/kafka:2.8.1
         ports:
           - 9092:9092
         options: >-

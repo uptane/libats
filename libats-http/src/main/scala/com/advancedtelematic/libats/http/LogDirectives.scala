@@ -20,7 +20,7 @@ import scala.util.Try
 object LogDirectives {
   import Directives.*
 
-  type MetricsBuilder = (HttpRequest, HttpResponse) => Map[String, String]
+  type MetricsBuilder = (HttpRequest, HttpResponse) => Map[String, Any]
 
   def logResponseMetrics(serviceName: String,
                          extraMetrics: MetricsBuilder = (_, _) => Map.empty,
@@ -52,13 +52,13 @@ object LogDirectives {
     }
   }
 
-  private def defaultMetrics(request: HttpRequest, response: HttpResponse, serviceTime: Long, serviceName: String): Map[String, String] = {
+  private def defaultMetrics(request: HttpRequest, response: HttpResponse, serviceTime: Long, serviceName: String): Map[String, Any] = {
     Map(
       "http_method" -> request.method.name,
       "http_path" -> request.uri.path.toString,
       "http_query" -> s"'${request.uri.rawQueryString.getOrElse("")}'",
-      "http_stime" -> serviceTime.toString,
-      "http_status" -> response.status.intValue.toString,
+      "http_stime" -> serviceTime,
+      "http_status" -> response.status.intValue,
       "http_service_name" -> serviceName
     ) ++ response.headers.find(_.name() == "X-B3-TraceId").map(_.value()).map("trace_id" -> _)
   }
@@ -69,7 +69,7 @@ object LogDirectives {
     loggers.exists(_.iteratorForAppenders().asScala.exists(_.getName.contains("json")))
   }
 
-  private def formatResponseLog(metrics: Map[String, String]): String = {
+  private def formatResponseLog(metrics: Map[String, Any]): String = {
     if (usingJsonAppender)
       "http request" // `metrics` will be logged in json mdc context, see com.advancedtelematic.libats.logging.JsonEncoder
     else

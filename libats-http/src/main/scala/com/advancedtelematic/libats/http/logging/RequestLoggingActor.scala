@@ -8,11 +8,11 @@ import com.advancedtelematic.libats.http.logging.RequestLoggingActor.LogMsg
 import com.typesafe.config.ConfigFactory
 
 object RequestLoggingActor {
-  case class LogMsg(formattedMsg: String, metrics: Map[String, String], level: Option[Logging.LogLevel])
+  case class LogMsg(formattedMsg: String, metrics: Map[String, Any], level: Option[Logging.LogLevel])
 
   private val config = ConfigFactory.load()
 
-  def router(level: Logging.LogLevel)(implicit system: ActorSystem): Props = {
+  def router(level: Logging.LogLevel): Props = {
     val restartStrategy = SupervisorStrategy.defaultStrategy
     val childCount = config.getInt("ats.http.logging.router.childCount")
     RoundRobinPool(childCount, supervisorStrategy = restartStrategy).props(props(level))
