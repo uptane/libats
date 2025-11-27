@@ -70,7 +70,7 @@ val Library = new {
   )
 }
 
-lazy val scala213 = "2.13.16"
+lazy val scala213 = "2.13.18"
 lazy val supportedScalaVersions = List(scala213)
 lazy val commonDeps =
   libraryDependencies ++= Library.circe ++
