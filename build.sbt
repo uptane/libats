@@ -13,7 +13,7 @@ val Library = new {
     val flyway = "11.18.0"
   }
 
-  val javaUuidGenerator = "com.fasterxml.uuid" % "java-uuid-generator" % "5.1.1"
+  val javaUuidGenerator = "com.fasterxml.uuid" % "java-uuid-generator" % "5.2.0"
 
   val logback = "ch.qos.logback" % "logback-classic" % Version.logback
 
