@@ -9,7 +9,7 @@ val Library = new {
     val scalaTest = "3.2.12"
     val metricsV = "4.2.37"
     val cats = "2.13.0"
-    val logback = "1.5.21"
+    val logback = "1.5.22"
     val flyway = "11.19.0"
   }
 
