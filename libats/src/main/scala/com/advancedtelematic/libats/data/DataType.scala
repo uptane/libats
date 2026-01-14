@@ -57,6 +57,10 @@ object DataType {
     override def toString: String = s"urn:tdx-ota:update:$value"
   }
 
+  final case class OfflineInstallCorrelationId(value: UUID) extends CorrelationId {
+    override def toString: String = s"urn:tdx-ota:offline-install:$value"
+  }
+
   type ValidLockboxHash = String Refined (HexStringSpec And Size[Equal[12]])
 
   final case class OfflineUpdateId(name: String, version: Long, hash: ValidLockboxHash) extends CorrelationId {
@@ -71,6 +75,8 @@ object DataType {
 
     private[this] val TrxUpdateIdRe = """^urn:tdx-ota:update:([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})$"""r
 
+    private[this] val TrxOfflineInstallIdRe = """^urn:tdx-ota:offline-install:([0-9a-fA-F]{8}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{4}\-[0-9a-fA-F]{12})$"""r
+
     def fromString(s: String): Either[String, CorrelationId] = s match {
       case CorrelationIdRe("mtu", uuid) =>
         Right(MultiTargetUpdateCorrelationId(UUID.fromString(uuid)))
@@ -80,6 +86,8 @@ object DataType {
         Right(TargetSpecCorrelationId(UUID.fromString(uuid)))
       case TrxUpdateIdRe(uuid) =>
         Right(UpdateCorrelationId(UUID.fromString(uuid)))
+      case TrxOfflineInstallIdRe(uuid) =>
+        Right(OfflineInstallCorrelationId(UUID.fromString(uuid)))
       case TrxLockBoxIdRe(name, version, hash) =>
         RefType.applyRef[ValidLockboxHash](hash).map { hash =>
           OfflineUpdateId(name, version.toLong, hash)
