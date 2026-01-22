@@ -21,8 +21,6 @@ import io.circe.syntax.*
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.producer.{Callback, KafkaProducer, ProducerRecord, RecordMetadata}
 import org.apache.kafka.common.serialization.*
-
-import java.time.temporal.ChronoUnit
 import scala.concurrent.{ExecutionContext, Future, Promise}
 
 object KafkaClient {
