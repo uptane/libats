@@ -1,7 +1,7 @@
 
 val Library = new {
   object Version {
-    val pekko = "1.4.0"
+    val pekko = "1.5.0"
     val pekkoHttp = "1.3.0"
     val circe = "0.14.15"
     val refined = "0.11.3"
