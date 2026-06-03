@@ -9,11 +9,11 @@ import scala.concurrent.ExecutionContext
 object RefinedMarshallingSupport {
 
   implicit def refinedUnmarshaller[P]
-  (implicit p: Validate.Plain[String, P]): FromStringUnmarshaller[Refined[String, P]] =
+  (implicit p: Validate[String, P]): FromStringUnmarshaller[Refined[String, P]] =
     Unmarshaller.strict[String, Refined[String, P]] { _.refineTry[P].get }
 
   implicit def refinedFromRequestUnmarshaller[T, P](implicit um: FromEntityUnmarshaller[T],
-                                                    p: Validate.Plain[T, P],
+                                                    p: Validate[T, P],
                                                     ec: ExecutionContext,
                                                     mat: Materializer): FromRequestUnmarshaller[Refined[T, P]]
   = Unmarshaller { implicit ec => request =>
