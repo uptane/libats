@@ -33,7 +33,7 @@ val Library = new {
 
   val pekkoHttp = Seq(
     "org.apache.pekko" %% "pekko-http" % Version.pekkoHttp,
-    "com.github.pjfanning" %% "pekko-http-circe" % "3.9.1",
+    "com.github.pjfanning" %% "pekko-http-circe" % "3.9.2",
     ) ++ Pekko
 
   val pekkoHttpTestKit = Seq(
