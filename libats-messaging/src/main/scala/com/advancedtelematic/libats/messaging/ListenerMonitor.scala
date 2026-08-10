@@ -7,7 +7,7 @@ import io.circe.Json
 import org.slf4j.LoggerFactory
 import io.circe.syntax._
 
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait ListenerMonitor {
   def onProcessed: Future[Unit]
@@ -15,6 +15,8 @@ trait ListenerMonitor {
   def onError(cause: Throwable): Future[Unit]
 
   def onFinished: Future[Unit]
+
+  def withProcessingTimer[T](f: => Future[T])(implicit ec: ExecutionContext): Future[T] = f
 }
 
 object LoggingListenerMonitor extends ListenerMonitor {
@@ -41,12 +43,18 @@ class MetricsBusMonitor(metrics: MetricRegistry, queue: String) extends Listener
   private val processed = metrics.counter(name("bus-listener", queue, "processed"))
   private val error = metrics.counter(name("bus-listener", queue, "error"))
   private val restarts = metrics.counter(name("bus-listener", queue, "restarts"))
+  private val processingTime = metrics.histogram(name("bus-listener", queue, "processing-time"))
 
   override def onProcessed: Future[Unit] = FastFuture.successful(processed.inc(1))
 
   override def onError(cause: Throwable): Future[Unit] = FastFuture.successful(error.inc(1))
 
   override def onFinished: Future[Unit] = FastFuture.successful(restarts.inc(1))
+
+  override def withProcessingTimer[T](f: => Future[T])(implicit ec: ExecutionContext): Future[T] = {
+    val start = System.nanoTime()
+    f.andThen { case _ => processingTime.update((System.nanoTime() - start) / 1000000) }
+  }
 }
 
 class BusListenerMetrics(metrics: MetricRegistry) extends MetricsRepresentation {
@@ -57,9 +65,19 @@ class BusListenerMetrics(metrics: MetricRegistry) extends MetricsRepresentation 
   }
 
   override def metricsJson: Future[Json] = FastFuture.successful {
-    val counters = metrics.getCounters(filter).asScala
-    val data = counters.view.mapValues(_.getCount)
-    data.toMap.asJson
+    val counters = metrics.getCounters(filter).asScala.view.mapValues(_.getCount.asJson)
+
+    val histograms = metrics.getHistograms(filter).asScala.view.mapValues { h =>
+      val snapshot = h.getSnapshot
+      Json.obj(
+        "count" -> h.getCount.asJson,
+        "mean" -> snapshot.getMean.asJson,
+        "p95" -> snapshot.get95thPercentile().asJson,
+        "p99" -> snapshot.get99thPercentile().asJson
+      )
+    }
+
+    (counters ++ histograms).toMap.asJson
   }
 
   override def urlPrefix: String = "bus-listener"
