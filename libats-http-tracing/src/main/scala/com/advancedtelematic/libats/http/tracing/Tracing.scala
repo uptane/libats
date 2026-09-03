@@ -40,8 +40,9 @@ object Tracing {
     try {
       if (config.getBoolean("ats.http.tracing.enabled")) {
         val uri = Uri(config.getString("ats.http.tracing.zipkin_uri"))
-        _log.info(s"zipkin tracing enabled to $uri")
-        ZipkinServerRequestTracing(uri, serviceName)
+        val sampleRate = config.getDouble("ats.http.tracing.sample_rate").toFloat
+        _log.info(s"zipkin tracing enabled to $uri with sample rate $sampleRate")
+        ZipkinServerRequestTracing(uri, serviceName, sampleRate)
       } else {
         _log.info("Request tracing disabled in config")
         new NullTracing

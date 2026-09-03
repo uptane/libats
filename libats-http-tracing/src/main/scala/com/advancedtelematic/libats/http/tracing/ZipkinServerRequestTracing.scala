@@ -5,6 +5,7 @@ import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse, Uri}
 import org.apache.pekko.http.scaladsl.server.Directive1
 import brave.http.{HttpServerAdapter, HttpServerHandler, HttpTracing}
 import brave.propagation.TraceContext
+import brave.sampler.CountingSampler
 import brave.{Span, Tracing => BraveTracing}
 import com.advancedtelematic.libats.http.tracing.Tracing.{PekkoHttpClientTracing, ServerRequestTracing, Tracing}
 import zipkin2.reporter.AsyncReporter
@@ -77,13 +78,15 @@ class ZipkinTracing(httpTracing: HttpTracing) extends Tracing {
 }
 
 object ZipkinServerRequestTracing {
-  def apply(uri: Uri, serviceName: String): ZipkinTracing = {
+  def apply(uri: Uri, serviceName: String, sampleRate: Float = 1.0f): ZipkinTracing = {
     val sender = OkHttpSender.create(uri.toString() + "/api/v2/spans")
     val spanReporter = AsyncReporter.create(sender)
 
     val tracing = BraveTracing.newBuilder
       .localServiceName(serviceName)
-      .spanReporter(spanReporter).build
+      .spanReporter(spanReporter)
+      .sampler(CountingSampler.create(sampleRate))
+      .build
 
     val httpTracing = HttpTracing.newBuilder(tracing).build()
 
