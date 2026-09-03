@@ -5,15 +5,12 @@
 package com.advancedtelematic.libats.http
 
 import org.apache.pekko.actor.ActorSystem
-import org.apache.pekko.event.Logging
-import org.apache.pekko.event.Logging.LogLevel
 import org.apache.pekko.http.scaladsl.model.Uri.Path
 import org.apache.pekko.http.scaladsl.model.{HttpRequest, HttpResponse}
 import org.apache.pekko.http.scaladsl.server.{Directive0, Directives}
-import org.apache.pekko.stream.Materializer
 import ch.qos.logback.classic.LoggerContext
-import com.advancedtelematic.libats.http.logging.RequestLoggingActor
 import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
 
 import scala.util.Try
 
@@ -22,12 +19,12 @@ object LogDirectives {
 
   type MetricsBuilder = (HttpRequest, HttpResponse) => Map[String, Any]
 
+  private lazy val logger = LoggerFactory.getLogger("com.advancedtelematic.libats.http.LogDirectives")
+
   def logResponseMetrics(serviceName: String,
                          extraMetrics: MetricsBuilder = (_, _) => Map.empty,
-                         level: LogLevel = Logging.InfoLevel)
+                         level: Level = Level.INFO)
                         (implicit system: ActorSystem): Directive0 = {
-
-    val requestLoggingActorRef = system.actorOf(RequestLoggingActor.router(level), s"$serviceName-request-log-router")
 
     val ignoredPathsPreffixes = List(Path("/health"), Path("/metrics"))
 
@@ -40,12 +37,15 @@ object LogDirectives {
         val allMetrics =
           defaultMetrics(ctx.request, resp, responseTime, serviceName) ++ extraMetrics(ctx.request, resp) ++ namespace
 
-        val level =  if(ignoredPathsPreffixes.exists(p => ctx.request.uri.path.startsWith(p)))
-          Option(Logging.DebugLevel)
+        val msgLevel = if (ignoredPathsPreffixes.exists(p => ctx.request.uri.path.startsWith(p)))
+          Level.DEBUG
         else
-          None
+          level
 
-        requestLoggingActorRef ! RequestLoggingActor.LogMsg(formatResponseLog(allMetrics), allMetrics, level)
+        val builder = allMetrics.foldLeft(logger.atLevel(msgLevel)) {
+          case (b, (key, value)) => b.addKeyValue(key, value)
+        }
+        builder.log(formatResponseLog(allMetrics))
 
         resp
       }

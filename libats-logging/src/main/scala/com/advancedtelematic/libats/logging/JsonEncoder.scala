@@ -78,20 +78,20 @@ class JsonEncoder
           .map(_.asJson)
       )
 
-    val mdcMap = mdc.view
-      .filterKeys { key =>
-        key != "http_query" || includeHttpQuery
-      }
-      .filterKeys { key =>
-        !key.startsWith("pekko")
-      }
+    def keepKey(key: String): Boolean =
+      (key != "http_query" || includeHttpQuery) && !key.startsWith("pekko")
 
-    val withKeyValues = Option(event.getKeyValuePairs).toList
+    val mdcMap = mdc.view.filterKeys(keepKey)
+
+    val kvPairs = Option(event.getKeyValuePairs).toList
       .flatMap(_.asScala)
-      .map { pair =>
-        pair.key -> anyToJson(pair.value)
+      .collect {
+        case pair if keepKey(pair.key) =>
+          pair.key -> anyToJson(pair.value)
       }
-      .toMap ++ map ++ mdcMap
+      .toMap
+
+    val withKeyValues = kvPairs ++ map ++ mdcMap
 
     val str =
       if (prettyPrint) withKeyValues.asJson.spaces2
