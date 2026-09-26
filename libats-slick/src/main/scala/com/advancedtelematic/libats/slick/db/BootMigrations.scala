@@ -14,6 +14,7 @@ import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.Duration
 import scala.concurrent.{Await, Future}
 import scala.util.{Failure, Success, Try}
+import scala.annotation.tailrec
 
 protected [db] object RunMigrations {
   private lazy val _log = LoggerFactory.getLogger(this.getClass)
@@ -29,15 +30,24 @@ protected [db] object RunMigrations {
       true
   }
 
-  def apply(dbconfig: Config): Try[Int] = Try {
-    _log.info("Running migrations")
-
-    val f = flyway(dbconfig)
-
-    val count = f.migrate()
-    _log.info(s"Ran ${count.migrationsExecuted} migrations")
-
-    count.migrationsExecuted
+  def apply(dbconfig: Config, retries: Int = 30, retryDelay: Duration = Duration(3, "seconds")): Try[Int] = {
+    @tailrec
+    def attempt(remaining: Int): Try[Int] = {
+      val result = Try {
+        _log.info("Running migrations")
+        val count = flyway(dbconfig).migrate()
+        _log.info(s"Ran ${count.migrationsExecuted} migrations")
+        count.migrationsExecuted
+      }
+      result match {
+        case Failure(ex) if remaining > 0 =>
+          _log.warn(s"Migration failed, retrying in ${retryDelay.toSeconds}s ($remaining retries left): ${ex.getMessage}")
+          Thread.sleep(retryDelay.toMillis)
+          attempt(remaining - 1)
+        case other => other
+      }
+    }
+    attempt(retries)
   }
 
   private def flyway(dbConfig: Config): Flyway = {
