@@ -2,9 +2,9 @@ package com.advancedtelematic.libats.data
 
 import java.util.UUID
 import com.advancedtelematic.libats.data.DataType.HashMethod.HashMethod
-import eu.timepit.refined.api.{RefType, Refined, Validate}
+import eu.timepit.refined.api.{RefType, Refined, RefinedTypeOps, Validate}
 import eu.timepit.refined.boolean.And
-import eu.timepit.refined.collection.Size
+import eu.timepit.refined.collection.{MaxSize, NonEmpty, Size}
 import eu.timepit.refined.generic.Equal
 import eu.timepit.refined.string.HexStringSpec
 import io.circe.{Decoder, Encoder}
@@ -23,7 +23,9 @@ object DataType {
     def generate: Namespace = new Namespace(s"urn:here-ota:namespace:${UUID.randomUUID().toString}")
   }
 
-  final case class ResultCode(value: String) extends AnyVal
+  type ResultCode = Refined[String, NonEmpty And MaxSize[255]]
+  object ResultCode extends RefinedTypeOps[ResultCode, String]
+
   final case class ResultDescription(value: String) extends AnyVal
 
   case class Checksum(method: HashMethod, hash: Refined[String, ValidChecksum])

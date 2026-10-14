@@ -64,8 +64,6 @@ object MessageCodecs {
   implicit val packageIdCodec: Codec[PackageId] = deriveCodec
   implicit val resultCodeEncoder: Encoder[ResultCode] =
     Encoder.encodeString.contramap(_.value)
-  implicit val resultCodeDecoder: Decoder[ResultCode] =
-    Decoder.decodeString.map(ResultCode.apply)
   implicit val resultDescriptionEncoder: Encoder[ResultDescription] =
     Encoder.encodeString.contramap(_.value)
   implicit val resultDescriptionDecoder: Decoder[ResultDescription] =
