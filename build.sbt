@@ -20,6 +20,8 @@ val Library = new {
 
   val flywayMysql = "org.flywaydb" % "flyway-mysql" % Version.flyway
 
+  val prometheusSimpleclient = "io.prometheus" % "simpleclient" % "0.16.0"
+
   val Prometheus = Seq(
     "io.prometheus" % "simpleclient_common" % "0.16.0",
     "io.prometheus" % "simpleclient_dropwizard" % "0.16.0"
@@ -188,6 +190,9 @@ lazy val libats_metrics_pekko = (project in file("libats-metrics-pekko"))
   .configs(commonConfigs: _*)
   .settings(commonSettings)
   .settings(Publish.settings)
+  .settings(libraryDependencies += Library.prometheusSimpleclient)
+  .settings(libraryDependencies ++= Library.pekkoHttpTestKit)
+  .settings(libraryDependencies += Library.scalatest)
   .dependsOn(libats_metrics)
   .dependsOn(libats_http)
 
