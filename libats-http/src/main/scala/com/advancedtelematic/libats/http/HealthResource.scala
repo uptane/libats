@@ -9,7 +9,6 @@ import org.apache.pekko.http.scaladsl.model.{StatusCode, StatusCodes}
 import org.apache.pekko.http.scaladsl.server.Directives
 import com.advancedtelematic.libats.codecs.CirceCodecs.*
 import com.advancedtelematic.metrics.*
-import com.codahale.metrics.MetricRegistry
 import com.github.pjfanning.pekkohttpcirce.FailFastCirceSupport
 import com.github.pjfanning.pekkohttpcirce.FailFastCirceSupport.*
 import io.circe.generic.auto.*
@@ -21,13 +20,10 @@ import scala.concurrent.{ExecutionContext, Future}
 class HealthResource(versionRepr: Map[String, Any] = Map.empty,
                      healthChecks: Seq[HealthCheck] = Seq.empty,
                      healthMetrics: Seq[MetricsRepresentation] = Seq.empty,
-                     dependencies: Seq[HealthCheck] = Seq.empty,
-                     metricRegistry: MetricRegistry = MetricsSupport.metricRegistry
+                     dependencies: Seq[HealthCheck] = Seq.empty
                     )(implicit val ec: ExecutionContext) {
   import Directives.*
   import HealthCheck.*
-
-  val defaultMetrics = Seq(new JvmMetrics(metricRegistry), new LoggerMetrics(metricRegistry))
 
   private lazy val log = LoggerFactory.getLogger(this.getClass)
 
@@ -66,7 +62,7 @@ class HealthResource(versionRepr: Map[String, Any] = Map.empty,
             complete(f)
           }
 
-        (defaultMetrics ++ healthMetrics).foldLeft(healthRoutes) { (routes, metricSet) =>
+        healthMetrics.foldLeft(healthRoutes) { (routes, metricSet) =>
           routes ~ path(metricSet.urlPrefix) {
             complete(metricSet.metricsJson)
           }

@@ -6,7 +6,7 @@ val Library = new {
     val circe = "0.14.17"
     val refined = "0.11.4"
     val scalaTest = "3.2.12"
-    val metricsV = "4.2.40"
+    val prometheus = "0.16.0"
     val cats = "2.13.0"
     val logback = "1.6.5"
     val flyway = "13.10.0"
@@ -20,12 +20,11 @@ val Library = new {
 
   val flywayMysql = "org.flywaydb" % "flyway-mysql" % Version.flyway
 
-  val prometheusSimpleclient = "io.prometheus" % "simpleclient" % "0.16.0"
-
   val Prometheus = Seq(
-    "io.prometheus" % "simpleclient_common" % "0.16.0",
-    "io.prometheus" % "simpleclient_dropwizard" % "0.16.0"
-  )
+    "io.prometheus" % "simpleclient",
+    "io.prometheus" % "simpleclient_common",
+    "io.prometheus" % "simpleclient_hotspot",
+  ).map(_ % Version.prometheus)
 
   val Pekko = Set(
     "org.apache.pekko" %% "pekko-slf4j",
@@ -52,12 +51,6 @@ val Library = new {
   val refined = "eu.timepit" %% "refined" % Version.refined
 
   val scalatest = "org.scalatest" %% "scalatest" % Version.scalaTest % "test,provided"
-
-  val jvmMetrics =  Seq(
-    "io.dropwizard.metrics" % "metrics-core" % Version.metricsV,
-    "io.dropwizard.metrics" % "metrics-jvm" % Version.metricsV,
-    "io.dropwizard.metrics" % "metrics-logback" % Version.metricsV
-  )
 
   val cats = Seq(
     "org.typelevel" %% "cats-core" % Version.cats,
@@ -113,7 +106,6 @@ lazy val libats_http = (project in file("libats-http"))
   .settings(commonDeps)
   .settings(commonSettings)
   .settings(libraryDependencies ++= Library.pekkoHttp)
-  .settings(libraryDependencies ++= Library.jvmMetrics)
   .settings(libraryDependencies ++= Library.circe)
   .settings(libraryDependencies ++= Library.pekkoHttpTestKit)
   .settings(Publish.settings)
@@ -147,7 +139,6 @@ lazy val libats_slick = (project in file("libats-slick"))
   .settings(commonDeps)
   .settings(commonSettings)
   .settings(Publish.settings)
-  .settings(libraryDependencies ++= Library.jvmMetrics)
   .settings(libraryDependencies ++= Library.pekkoHttpTestKit)
   .settings(libraryDependencies += Library.flyway)
   .settings(libraryDependencies += Library.flywayMysql)
@@ -181,8 +172,9 @@ lazy val libats_metrics = (project in file("libats-metrics"))
   .configs(commonConfigs: _*)
   .settings(commonSettings)
   .settings(libraryDependencies ++= Library.circe)
-  .settings(libraryDependencies ++= Library.jvmMetrics)
+  .settings(libraryDependencies ++= Library.Prometheus)
   .settings(libraryDependencies += Library.logback)
+  .settings(libraryDependencies += Library.scalatest)
   .settings(Publish.settings)
 
 lazy val libats_metrics_pekko = (project in file("libats-metrics-pekko"))
@@ -190,7 +182,6 @@ lazy val libats_metrics_pekko = (project in file("libats-metrics-pekko"))
   .configs(commonConfigs: _*)
   .settings(commonSettings)
   .settings(Publish.settings)
-  .settings(libraryDependencies += Library.prometheusSimpleclient)
   .settings(libraryDependencies ++= Library.pekkoHttpTestKit)
   .settings(libraryDependencies += Library.scalatest)
   .dependsOn(libats_metrics)

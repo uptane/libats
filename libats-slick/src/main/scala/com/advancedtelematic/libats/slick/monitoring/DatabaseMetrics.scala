@@ -1,53 +1,58 @@
 package com.advancedtelematic.libats.slick.monitoring
 
-import java.util
 import java.lang.management.ManagementFactory
+import java.util
+import java.util.concurrent.ConcurrentHashMap
 import javax.management.{JMX, ObjectName}
-import com.advancedtelematic.metrics.MetricsSupport
-import com.codahale.metrics.{Gauge, Metric, MetricSet}
-import com.zaxxer.hikari.HikariPoolMXBean
-import org.slf4j.LoggerFactory
+import com.advancedtelematic.metrics.{MetricsSupport, PerRegistry}
+import com.zaxxer.hikari.metrics.prometheus.PrometheusHistogramMetricsTrackerFactory
+import io.prometheus.client.{Collector, CollectorRegistry}
+import io.prometheus.client.Collector.MetricFamilySamples
+import io.prometheus.client.GaugeMetricFamily
 import slick.jdbc.JdbcDataSource
 import slick.jdbc.hikaricp.HikariCPJdbcDataSource
 import slick.util.AsyncExecutorMXBean
 
-import scala.jdk.CollectionConverters._
-import scala.util.control.NonFatal
+import scala.jdk.CollectionConverters.*
+import scala.util.Try
 
 trait DatabaseMetrics { self: MetricsSupport =>
   val dbSource: JdbcDataSource
 
-  private lazy val log = LoggerFactory.getLogger(this.getClass)
-
   val hikariDatasource = {
     val hkds = dbSource.asInstanceOf[HikariCPJdbcDataSource]
-    hkds.ds.setMetricRegistry(metricRegistry)
+    hkds.ds.setMetricsTrackerFactory(new PrometheusHistogramMetricsTrackerFactory(collectorRegistry))
     hkds
   }
 
-  private def gauge[A](f: () => A, zero: A): Gauge[A] = new Gauge[A] {
-    override def getValue: A = try {
-      f.apply()
-    } catch {
-      case NonFatal(ex) =>
-        log.warn(s"slick jmx mbean not ready yet, waiting for first db connection to trigger mbean register? ${ex.getClass}/${ex.getMessage}")
-        zero
-    }
+  SlickExecutorCollector.forRegistry(collectorRegistry).add(hikariDatasource.hconf.getPoolName)
+}
+
+private object SlickExecutorCollector {
+  val forRegistry = new PerRegistry(registry => new SlickExecutorCollector().register[SlickExecutorCollector](registry))
+}
+
+private class SlickExecutorCollector extends Collector {
+  private val executors = new ConcurrentHashMap[String, AsyncExecutorMXBean]()
+
+  def add(poolName: String): Unit = {
+    val name = new ObjectName(s"slick:type=AsyncExecutor,name=$poolName")
+    executors.put(poolName, JMX.newMXBeanProxy(ManagementFactory.getPlatformMBeanServer, name, classOf[AsyncExecutorMXBean]))
   }
 
-  val executorMXBean = {
-    val mbeanServer = ManagementFactory.getPlatformMBeanServer
-    val poolName = hikariDatasource.hconf.getPoolName
-    val slickBean = JMX.newMXBeanProxy(mbeanServer, new ObjectName( s"slick:type=AsyncExecutor,name=$poolName"), classOf[AsyncExecutorMXBean])
-    metricRegistry.register(s"slick.$poolName", new MetricSet {
-      override def getMetrics: util.Map[String, Metric] = {
-        Map[String, Metric](
-          "threads.active" -> gauge(() => slickBean.getActiveThreads, 0),
-          "threads.max" -> gauge(() => slickBean.getMaxThreads, 0),
-          "queue.size" -> gauge(() => slickBean.getQueueSize, 0),
-          "queue.maxsize" -> gauge(() => slickBean.getMaxQueueSize, 0)
-        ).asJava
-      }
-    })
+  private def gauge(name: String, help: String, value: AsyncExecutorMXBean => Int): MetricFamilySamples = {
+    val family = new GaugeMetricFamily(name, help, List("pool").asJava)
+    executors.forEach { (pool, executor) =>
+      // slick registers the mbean on the first db connection, until then there's nothing to report
+      Try(value(executor)).foreach(v => family.addMetric(List(pool).asJava, v.toDouble))
+    }
+    family
   }
+
+  override def collect(): util.List[MetricFamilySamples] = List(
+    gauge("slick_executor_threads_active", "Active slick executor threads", _.getActiveThreads),
+    gauge("slick_executor_threads_max", "Max slick executor threads", _.getMaxThreads),
+    gauge("slick_executor_queue_size", "Queued slick actions", _.getQueueSize),
+    gauge("slick_executor_queue_max_size", "Max queued slick actions", _.getMaxQueueSize)
+  ).asJava
 }

@@ -5,12 +5,16 @@
 
 package com.advancedtelematic.metrics
 
-import com.codahale.metrics.MetricRegistry
+import io.prometheus.client.CollectorRegistry
 
-object MetricsSupport {
-  lazy val metricRegistry = new MetricRegistry()
+import java.util.concurrent.ConcurrentHashMap
+
+trait MetricsSupport extends JvmMetricsSupport {
+  def collectorRegistry: CollectorRegistry = CollectorRegistry.defaultRegistry
 }
 
-trait MetricsSupport extends JvmMetricsSupport with LoggerMetricsSupport {
-  val metricRegistry: MetricRegistry
+class PerRegistry[T](create: CollectorRegistry => T) {
+  private val instances = new ConcurrentHashMap[CollectorRegistry, T]()
+
+  def apply(registry: CollectorRegistry): T = instances.computeIfAbsent(registry, r => create(r))
 }
