@@ -3,8 +3,7 @@ package com.advancedtelematic.libats.slick.monitoring
 import org.apache.pekko.stream.Materializer
 import com.advancedtelematic.libats.http.HealthResource
 import com.advancedtelematic.metrics.HealthCheck.{Down, HealthCheckResult, Up}
-import com.advancedtelematic.metrics.{HealthCheck, MetricsRepresentation, MetricsSupport}
-import com.codahale.metrics.MetricRegistry
+import com.advancedtelematic.metrics.{HealthCheck, MetricsRepresentation}
 import com.zaxxer.hikari.HikariPoolMXBean
 import io.circe.Json
 import io.circe.syntax._
@@ -64,8 +63,7 @@ object DbHealthResource {
   def apply(versionRepr: Map[String, Any] = Map.empty,
             healthChecks: Seq[HealthCheck] = Seq.empty,
             healthMetrics: Seq[MetricsRepresentation] = Seq.empty,
-            dependencies: Seq[HealthCheck] = Seq.empty,
-            metricRegistry: MetricRegistry = MetricsSupport.metricRegistry)(implicit db: Database, ec: ExecutionContext) = {
-    new HealthResource(versionRepr, new DbHealthCheck() +: healthChecks, new DbHealthMetrics() +: healthMetrics, dependencies, metricRegistry)
+            dependencies: Seq[HealthCheck] = Seq.empty)(implicit db: Database, ec: ExecutionContext) = {
+    new HealthResource(versionRepr, new DbHealthCheck() +: healthChecks, new DbHealthMetrics() +: healthMetrics, dependencies)
   }
 }

@@ -6,16 +6,16 @@ import com.advancedtelematic.libats.http.BootApp
 import org.apache.pekko.http.scaladsl.server.Directives._
 import com.advancedtelematic.metrics.MetricsSupport
 import io.prometheus.client.CollectorRegistry
-import io.prometheus.client.dropwizard.DropwizardExports
 import io.prometheus.client.exporter.common.TextFormat
 
-import scala.jdk.CollectionConverters._
-
 object PrometheusMetricsRoutes {
-  def apply(): Route = {
+  // the default registry has the jvm wide metrics, served together with the app's own
+  def apply(registry: CollectorRegistry = CollectorRegistry.defaultRegistry): Route = {
     (get & path("metrics")) {
       val stringWriter = new StringWriter()
-      TextFormat.write004(stringWriter, CollectorRegistry.defaultRegistry.metricFamilySamples())
+      Seq(CollectorRegistry.defaultRegistry, registry).distinct.foreach { r =>
+        TextFormat.write004(stringWriter, r.metricFamilySamples())
+      }
       complete(stringWriter.toString)
     }
   }
@@ -24,8 +24,5 @@ object PrometheusMetricsRoutes {
 trait PrometheusMetricsSupport {
   self: BootApp with MetricsSupport =>
 
-  lazy val prometheusMetricsRoutes: Route = {
-    CollectorRegistry.defaultRegistry.register(new DropwizardExports(metricRegistry))
-    PrometheusMetricsRoutes()
-  }
+  lazy val prometheusMetricsRoutes: Route = PrometheusMetricsRoutes(collectorRegistry)
 }

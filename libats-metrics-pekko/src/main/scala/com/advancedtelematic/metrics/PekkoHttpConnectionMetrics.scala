@@ -8,39 +8,44 @@ import org.apache.pekko.http.scaladsl.settings.{ConnectionPoolSettings, ParserSe
 import org.apache.pekko.stream.Materializer
 import org.apache.pekko.stream.scaladsl.Flow
 import com.advancedtelematic.libats.http.BootApp
-import com.codahale.metrics.{Gauge, MetricRegistry}
+import io.prometheus.client.{CollectorRegistry, Counter, Gauge}
 
 import scala.concurrent.ExecutionContextExecutor
+
+private class ConnectionMetrics(registry: CollectorRegistry) {
+  val maxConnections = Gauge.build("pekko_http_max_connections", "Max server connections").register(registry)
+  val poolMaxConnections = Gauge
+    .build("pekko_http_host_connection_pool_max_connections", "Max connections per host of the client pool")
+    .register(registry)
+  val poolMaxOpenRequests = Gauge
+    .build("pekko_http_host_connection_pool_max_open_requests", "Max open requests of the client pool")
+    .register(registry)
+  val connections = Counter.build("pekko_http_connections", "Server connections accepted").register(registry)
+  val connected = Gauge.build("pekko_http_connected", "Open server connections").register(registry)
+}
+
+private object ConnectionMetrics {
+  val forRegistry = new PerRegistry(new ConnectionMetrics(_))
+}
 
 trait PekkoHttpConnectionMetrics {
   self: BootApp with MetricsSupport =>
 
-  private lazy val serverSettings = ServerSettings(system)
+  private val connectionMetrics = ConnectionMetrics.forRegistry(collectorRegistry)
+  connectionMetrics.maxConnections.set(ServerSettings(system).maxConnections)
+  connectionMetrics.poolMaxConnections.set(ConnectionPoolSettings(system).maxConnections)
+  connectionMetrics.poolMaxOpenRequests.set(ConnectionPoolSettings(system).maxOpenRequests)
 
-  metricRegistry.register("pekko.http.max-connections", new Gauge[Long]() {
-    override def getValue: Long = serverSettings.maxConnections
-  })
-
-  private lazy val connectionPoolSettings = ConnectionPoolSettings(system)
-
-  metricRegistry.register("pekko.http.host-connection-pool.max-connections", new Gauge[Long]() {
-    override def getValue: Long = connectionPoolSettings.maxConnections
-  })
-
-  metricRegistry.register("pekko.http.host-connection-pool.max-open-requests", new Gauge[Long]() {
-    override def getValue: Long = connectionPoolSettings.maxOpenRequests
-  })
-
-  def withConnectionMetrics(routes: Route, metricRegistry: MetricRegistry)(implicit
-                                                                           routingSettings: RoutingSettings,
-                                                                           parserSettings: ParserSettings,
-                                                                           materializer: Materializer,
-                                                                           routingLog: RoutingLog,
-                                                                           _executionContext: ExecutionContextExecutor = null,
-                                                                           rejectionHandler: RejectionHandler = RejectionHandler.default,
-                                                                           exceptionHandler: ExceptionHandler = null,
-                                                                           system: ActorSystem): Flow[HttpRequest, HttpResponse, NotUsed] =
-    PekkoHttpConnectionMetricsRoutes(routes, metricRegistry)(
+  def withConnectionMetrics(routes: Route)(implicit
+      routingSettings: RoutingSettings,
+      parserSettings: ParserSettings,
+      materializer: Materializer,
+      routingLog: RoutingLog,
+      _executionContext: ExecutionContextExecutor = null,
+      rejectionHandler: RejectionHandler = RejectionHandler.default,
+      exceptionHandler: ExceptionHandler = null,
+      system: ActorSystem): Flow[HttpRequest, HttpResponse, NotUsed] =
+    PekkoHttpConnectionMetricsRoutes(routes, collectorRegistry)(
       routingSettings = implicitly,
       parserSettings = implicitly,
       materializer = implicitly,
@@ -52,23 +57,24 @@ trait PekkoHttpConnectionMetrics {
 }
 
 object PekkoHttpConnectionMetricsRoutes {
-  def apply(routes: Route, metricRegistry: MetricRegistry)(implicit
-                                                           routingSettings: RoutingSettings,
-                                                           parserSettings: ParserSettings,
-                                                           materializer: Materializer,
-                                                           routingLog: RoutingLog,
-                                                           executionContext: ExecutionContextExecutor = null,
-                                                           rejectionHandler: RejectionHandler = RejectionHandler.default,
-                                                           exceptionHandler: ExceptionHandler = null,
-                                                           system: ActorSystem): Flow[HttpRequest, HttpResponse, NotUsed] = {
+  def apply(routes: Route, registry: CollectorRegistry = CollectorRegistry.defaultRegistry)(implicit
+      routingSettings: RoutingSettings,
+      parserSettings: ParserSettings,
+      materializer: Materializer,
+      routingLog: RoutingLog,
+      executionContext: ExecutionContextExecutor = null,
+      rejectionHandler: RejectionHandler = RejectionHandler.default,
+      exceptionHandler: ExceptionHandler = null,
+      system: ActorSystem): Flow[HttpRequest, HttpResponse, NotUsed] = {
     val handler = Route.toFlow(routes)
+    val metrics = ConnectionMetrics.forRegistry(registry)
 
     Flow[HttpRequest]
       .watchTermination() {
         case (mat, completionF) =>
-          metricRegistry.counter("pekko.http.connections").inc()
-          metricRegistry.counter("pekko.http.connected").inc()
-          completionF.onComplete(_ => metricRegistry.counter("pekko.http.connected").dec())
+          metrics.connections.inc()
+          metrics.connected.inc()
+          completionF.onComplete(_ => metrics.connected.dec())
           mat
       }.via(handler)
   }

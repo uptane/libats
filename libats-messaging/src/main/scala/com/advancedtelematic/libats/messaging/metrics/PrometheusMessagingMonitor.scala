@@ -29,7 +29,7 @@ object PrometheusMessagingMonitor {
 
   protected lazy val processingTime =
     Histogram.build()
-      .name("bus_listener_processing_time")
+      .name("bus_listener_processing_time_seconds")
       .help("bus listener processing time (seconds)")
       .labelNames("stream_name")
       .create().register[Histogram]()
