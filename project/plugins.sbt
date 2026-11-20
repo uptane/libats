@@ -1,4 +1,4 @@
-addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.13.2")
+addSbtPlugin("com.eed3si9n" % "sbt-buildinfo" % "0.14.0")
 
 addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.9.2")
 
